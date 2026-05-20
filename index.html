@@ -58,7 +58,6 @@
         .result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
         .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
         
-        /* MACPS विशेष डिझाईन */
         .macp-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
         .cr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
     </style>
@@ -72,7 +71,8 @@
         <button class="tab-btn active" onclick="switchTab('page1')">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
         <button class="tab-btn" onclick="switchTab('page2')">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
         <button class="tab-btn" onclick="switchTab('page3')">३. कर्मचाऱ्यांची माहिती</button>
-        <button class="tab-btn" onclick="switchTab('page4')">४. आश्वासित प्रगती योजना (MACPS)</button> </div>
+        <button class="tab-btn" onclick="switchTab('page4')">४. आश्वासित प्रगती योजना (MACPS)</button>
+    </div>
 
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
@@ -239,7 +239,6 @@
 
     <div id="page4" class="tab-content">
         <h3>७ व्या वेतन आयोगानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
-        
         <div class="macp-box">
             <div>
                 <label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label>
@@ -279,7 +278,7 @@
     </div>
 
     <div class="footer-msg">
-        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message kara. धन्यवाद!
+        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
     </div>
 </div>
 
@@ -294,7 +293,7 @@
     let tempTotalDays = 0;
     let tempSpentDays = 0;
     let tempDutyDays = 0;
-    let grandTotalLwpGlobal = 0; // MACP ला जोडण्यासाठी
+    let grandTotalLwpGlobal = 0;
 
     const config = { dateFormat: "d/m/Y", allowInput: true };
     const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
@@ -678,7 +677,6 @@
         }));
     }
 
-    // ** ७ व्या वेतन आयोगानुसार MACPS कॅल्क्युलेशन फंक्शन **
     function calculateMacp() {
         let joinStr = document.getElementById('macp_join_date').value;
         let lwpDays = parseInt(document.getElementById('macp_lwp').value) || 0;
@@ -693,24 +691,20 @@
         let joinDate = parseDMY(joinStr);
         let totalPenaltyDays = lwpDays + suspDays;
 
-        // १०, २०, ३० वर्षांचे बेस अवधी काढणे
         let macp1 = new Date(joinDate.getFullYear() + 10, joinDate.getMonth(), joinDate.getDate());
         let macp2 = new Date(joinDate.getFullYear() + 20, joinDate.getMonth(), joinDate.getDate());
         let macp3 = new Date(joinDate.getFullYear() + 30, joinDate.getMonth(), joinDate.getDate());
 
-        // रजा आणि निलंबनाचे दिवस प्लस करणे (पुढे ढकलणे)
         if(totalPenaltyDays > 0) {
             macp1.setDate(macp1.getDate() + totalPenaltyDays);
             macp2.setDate(macp2.getDate() + totalPenaltyDays);
             macp3.setDate(macp3.getDate() + totalPenaltyDays);
         }
 
-        // ७ व्या वेतन आयोगानुसार पुढील लेव्हल ठरवणे
         let nxt1 = "S-7", nxt2 = "S-9", nxt3 = "S-11";
         if(currentLevel === "S-8") { nxt1 = "S-10"; nxt2 = "S-11"; nxt3 = "S-13"; }
         if(currentLevel === "S-10") { nxt1 = "S-13"; nxt2 = "S-14"; nxt3 = "S-15"; }
 
-        // गोपनीय अहवाल ग्रेडिंग तपासणी (मागील ५ वर्षात 'साधारण' ग्रेड नसावा)
         let crGrades = document.querySelectorAll('.cr-grade');
         let isEligible = true;
         crGrades.forEach(select => {
@@ -733,33 +727,45 @@
         `;
     }
 
+    // ** दुरुस्त केलेले महिनावार विभाजन लॉजिक (कॅलेंडर ओवरलॅप / दिवस वाढण्याची त्रुटी दूर केली) **
     function generateLeaveAndLwpReports() {
-        let lwpMap = {}; let leaveMap = {}; let grandLwpSum = 0;
+        let lwpMap = {};       
+        let leaveMap = {};     
+        let grandLwpSum = 0;
 
         history.forEach(item => {
             if(item.type !== "bonus") {
+                // १. मॅन्युअल अंतर्गत LWP तुकड्यांचे विभाजन
                 if(item.lwpIntervals && item.lwpIntervals.length > 0) {
                     item.lwpIntervals.forEach(interval => {
                         let dStart = parseDMY(interval.start), dEnd = parseDMY(interval.end);
                         if(!dStart || !dEnd) return;
+                        
                         let current = new Date(dStart.getFullYear(), dStart.getMonth(), dStart.getDate());
                         let targetEnd = new Date(dEnd.getFullYear(), dEnd.getMonth(), dEnd.getDate());
 
                         while (current <= targetEnd) {
                             let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
+                            
+                            // चालू महिन्याचा शेवटचा दिवस काढणे
                             let nextMonthFirstDay = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-                            let segmentEnd = new Date(nextMonthFirstDay - 1);
-                            if (segmentEnd > targetEnd) segmentEnd = new Date(targetEnd);
+                            let segmentEnd = new Date(nextMonthFirstDay.getTime() - (1000 * 60 * 60 * 24));
+                            if (segmentEnd > targetEnd) segmentEnd = new Date(targetEnd.getTime());
+                            
+                            // **अचूक दिवसांची वजाबाकी**
                             let segmentDays = Math.round((segmentEnd.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
                             if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0, intervals: [] };
                             lwpMap[monthKey].days += segmentDays;
                             lwpMap[monthKey].intervals.push(`${formatDMY(current)} ते ${formatDMY(segmentEnd)} (${segmentDays} दिवस)`);
+                            
+                            // पॉईंटर पुढच्या महिन्याच्या १ तारखेला नेणे
                             current = nextMonthFirstDay;
                         }
                     });
                 }
 
+                // २. इतर रजांचे (O ते P) महिन्याप्रमाणे तुकडे पाडणे
                 let dStart = parseDMY(item.o), dEnd = parseDMY(item.p);
                 if(dStart && dEnd) {
                     let current = new Date(dStart.getFullYear(), dStart.getMonth(), dStart.getDate());
@@ -767,9 +773,11 @@
 
                     while(current <= targetEnd) {
                         let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
+                        
                         let nextMonthFirstDay = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-                        let segmentEnd = new Date(nextMonthFirstDay - 1);
-                        if (segmentEnd > targetEnd) segmentEnd = new Date(targetEnd);
+                        let segmentEnd = new Date(nextMonthFirstDay.getTime() - (1000 * 60 * 60 * 24));
+                        if (segmentEnd > targetEnd) segmentEnd = new Date(targetEnd.getTime());
+                        
                         let segmentDays = Math.round((segmentEnd.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
                         if(!leaveMap[monthKey]) {
@@ -779,6 +787,7 @@
                             leaveMap[monthKey][item.q] += segmentDays;
                         }
                         leaveMap[monthKey].breakups.push(`${item.q}: ${formatDMY(current)} ते ${formatDMY(segmentEnd)} (${segmentDays} दिवस)`);
+                        
                         current = nextMonthFirstDay;
                     }
                 }
@@ -804,7 +813,7 @@
             lwpTotalRow.innerHTML = `<td>ग्रँड एकूण संख्या (Grand Total LWP)</td><td style="color:#1b5e20; font-weight:bold;">${grandLwpSum} दिवस</td><td>---</td>`;
         }
 
-        grandTotalLwpGlobal = grandLwpSum; // ग्लोबल व्हेरिएबलमध्ये दिवस साठवून ठेवणे
+        grandTotalLwpGlobal = grandLwpSum;
         document.getElementById('macp_lwp').value = grandLwpSum;
 
         let leaveTbody = document.querySelector("#allLeavesMonthlyTable tbody"); leaveTbody.innerHTML = "";
