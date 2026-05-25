@@ -1,3 +1,362 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+        .tab-btn.active { background-color: #1a73e8; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .entry-box > div { flex: 1; min-width: 130px; }
+        .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
+        
+        label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
+        input:disabled, input[readonly] { background-color: #eee; color: #555; }
+        
+        .lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
+        .lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .lwp-row div { flex: 1; }
+        .btn-add-row { background: #795548; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-remove-row { background: #d32f2f; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
+        .lwp-status { font-weight: bold; margin-top: 5px; font-size: 13px; }
+
+        .essential-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 1px solid #4db6ac; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
+        
+        .btn-add, .btn-calc { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-pagebreak { background-color: #0288d1; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-delete { background-color: #d32f2f; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-clear { background-color: #555555; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background-color: #1a73e8; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 12px; }
+        .bonus-row { background-color: #e65100 !important; color: white; font-weight: bold; font-size: 12px; }
+        .bonus-details-cell { text-align: left !important; padding: 8px; line-height: 1.4; font-size: 11px; }
+        .summary-header { background-color: #2e7d32; color: white; }
+        .grand-total-row { background-color: #c8e6c9; font-weight: bold; font-size: 13px; color: #1b5e20; }
+        .lwp-report-header { background-color: #795548; color: white; }
+        .all-leave-report-header { background-color: #00796b; color: white; }
+        
+        .highlight { font-weight: bold; color: #1a73e8; background: #e8f0fe; }
+        .accumulated { color: #2e7d32; font-weight: bold; background: #f1f8e9; }
+        .result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
+        .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
+        
+        .macp-result-box, .pay-fix-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
+        .cr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
+        <button class="tab-btn" onclick="switchTab('page2', this)">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
+        <button class="tab-btn" onclick="switchTab('page3', this)">३.  माहिती</button>
+        <button class="tab-btn" onclick="switchTab('page4', this)">४. आश्वासित प्रगती योजना (MACPS)</button>
+        <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</button>
+    </div>
+
+    <div id="page1" class="tab-content active">
+        <div class="setup-box" id="initialSetup">
+            <div>
+                <label>मागील रजा संपल्याचा दिनांक (P3):</label>
+                <input type="text" id="p3_date" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+                <label>सुरुवातीची शिल्लक EL (Z3):</label>
+                <input type="number" step="0.01" id="z3_bal" placeholder="उदा. 10.05">
+            </div>
+            <div>
+                <label>सुरुवातीची शिल्लक ML (AA3):</label>
+                <input type="number" step="0.01" id="aa3_bal" placeholder="उदा. 5.12">
+            </div>
+        </div>
+
+        <div class="entry-box">
+            <div><label>सुरवातीचा हजर दिनांक (A):</label><input type="text" id="a_start" placeholder="DD/MM/YYYY" readonly></div>
+            <div><label>शेवतचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY"></div>
+            <div><label>बिन पगारी रजा LWP (E):</label><input type="number" id="e_lwp" value="0" oninput="toggleLwpPanel()"></div>
+            <div><label>रजेवर गेल्याचा दिनांक (O):</label><input type="text" id="o_leave_start" placeholder="DD/MM/YYYY" readonly></div>
+            <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
+            <div>
+                <label>रजेचा प्रकार (Q):</label>
+                <select id="q_type">
+                    <option value="हक्काची रजा">हक्काची रजा</option>
+                    <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
+                    <option value="विशेष रजा">विशेष रजा</option>
+                </select>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
+                <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा (Manual Break)</button>
+                <button class="btn-excel" onclick="downloadExcel()">Excel डाउनलोड करा</button>
+                <button class="btn-delete" id="deleteBtn" style="display:none;" onclick="deleteLastEntry()">शेवटची नोंद हटवा</button>
+                <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
+            </div>
+        </div>
+
+        <div id="lwpPanel" class="lwp-panel">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #5d4037;">📅 बिनपगारी रजा (LWP) कालावधी तपशील भरा</h4>
+                <button class="btn-add-row" onclick="addLwpRow()">+ आणखी कालावधी जोडा</button>
+            </div>
+            <div id="lwpContainer"></div>
+            <div id="lwpStatusMsg" class="lwp-status"></div>
+        </div>
+
+        <div class="essential-box">
+            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4>
+            <div class="grid-3">
+                <div>
+                    <label>अकलूज/अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
+                    <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
+                </div>
+                <div>
+                    <label>अकलूज/अतिरिक्त रजा शेवटचा दिनांक:</label>
+                    <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
+                </div>
+                <div>
+                    <button class="btn-calc" id="calcBonusBtn" onclick="calculateBonusLeave()">अतिरिक्त रजा मोजा</button>
+                    <button class="btn-excel" id="saveBonusBtn" style="display:none;" onclick="saveBonusToTable()">तक्त्यात जमा करा</button>
+                </div>
+            </div>
+            <div id="bonusResultMsg" style="margin-top: 10px; font-weight: bold; color: #00796b;"></div>
+        </div>
+
+        <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
+        <table id="recordTable">
+            <thead>
+                <tr>
+                    <th>हजर दिनांक (A-B) / तपशील</th>
+                    <th>हजर दिवस (F)</th>
+                    <th>LWP (E)</th>
+                    <th>साठलेली EL (G)</th>
+                    <th>साठलेली ML (H)</th>
+                    <th>एकूण साठलेली EL (K)</th>
+                    <th>एकूण साठलेली ML (L)</th>
+                    <th>गैरहजर दिनांक (O-P)</th>
+                    <th>रजा प्रकार (Q)</th>
+                    <th>रजा दिवस (R)</th>
+                    <th>अंतिम शिल्लक EL (Z)</th>
+                    <th>अंतिम शिल्लक ML (AA)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <br><br>
+        <h3>४. प्रत्येक मॅन्युअल पानावरील एकत्रित चार्ट (Page-wise Grand Summary Chart)</h3>
+        <table id="summaryChartTable">
+            <thead>
+                <tr>
+                    <th>पान नंबर व अवधी (Page No & Period)</th>
+                    <th>एकूण हजर दिवस (Total F)</th>
+                    <th>एकूण LWP (Total E)</th>
+                    <th>एकूण साठलेली EL (Total G)</th>
+                    <th>एकूण साठलेली ML (Total H)</th>
+                    <th>एकूण गैरहजर रजा दिवस (Total R)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <br><br>
+        <h3>५. महिनावार बिनपगारी रजा (LWP) तपशील अहवाल</h3>
+        <table id="lwpMonthlyTable">
+            <thead>
+                <tr class="lwp-report-header">
+                    <th>कॅलेंडर महिना (Calendar Month)</th>
+                    <th>बिनपगारी रजा दिवस (LWP Days)</th>
+                    <th>तपशीलवार कालावधी (Detailed Break-up Period)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="3" style="color: #666;">अजून कोणतीही बिनपगारी नोंद नाही.</td></tr>
+            </tbody>
+        </table>
+
+        <br><br>
+        <h3>६. महिनावार इतर सर्व रजा (EL/ML/विशेष) तपशील अहवाल</h3>
+        <table id="allLeavesMonthlyTable">
+            <thead>
+                <tr class="all-leave-report-header">
+                    <th>कॅलेंडर महिना (Calendar Month)</th>
+                    <th>हक्काची रजा (EL)</th>
+                    <th>वैद्यकीय रजा (ML)</th>
+                    <th>विशेष रजा</th>
+                    <th>महिनावार तपशीलवार अवधी (Month-wise Detailed Break-up)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="5" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="page2" class="tab-content">
+        <h3>सेवानिवृत्ती रजा रोखीकरण गणना (Leave Encashment Calculator)</h3>
+        <div class="setup-box">
+            <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
+            <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
+            <div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोआप येईल" oninput="calculateEncashment()"></div>
+        </div>
+        <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
+        <div style="margin-top: 15px; text-align: right;">
+            <button class="btn-excel" style="width: auto; padding: 10px 25px;" onclick="downloadEncashmentExcel()">निवृत्ती रजा हिशोब Excel डाउनलोड करा</button>
+        </div>
+    </div>
+
+    <div id="page3" class="tab-content">
+        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
+        <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
+            <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक" oninput="saveEmployeeInfo()"></div>
+            <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते व वित्त विभाग" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" placeholder="उदा. PMC-9922" oninput="saveEmployeeInfo()"></div>
+            <div><label>नोकरीत रुजू झाल्याचा दिनांक:</label><input type="text" id="info_join_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>संभाव्य सेवानिवृत्ती दिनांक:</label><input type="text" id="info_retire_date" placeholder="DD/MM/YYYY"></div>
+        </div>
+    </div>
+
+    <div id="page4" class="tab-content">
+        <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
+        <div class="macp-box">
+            <div>
+                <label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label>
+                <input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateMacp()">
+            </div>
+            <div>
+                <label>एकूण बिनपगारी रजा (LWP दिवस):</label>
+                <input type="number" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
+            </div>
+            <div>
+                <label>निलंबन कालावधी (Suspension दिवस):</label>
+                <input type="number" id="macp_suspension" value="0" oninput="calculateMacp()">
+            </div>
+            <div>
+                <label>७ व्या वेतन आयोगानुसार चालू पदनाम / वेतनश्रेणी श्रेणी:</label>
+                <select id="macp_current_level" onchange="calculateMacp()">
+                    <option value="S-6">S-6 : लिपिक-टंकलेखक / कनिष्ठ लिपिक (१९९००-६३२००)</option>
+                    <option value="S-8" selected>S-8 : वरिष्ठ लिपिक (२५५००-८११००)</option>
+                    <option value="S-10">S-10 : मुख्य लिपिक (२९२००-९२३००)</option>
+                    <option value="S-13">S-13 : अधिक्षक (३५४००-११२४००)</option>
+                </select>
+            </div>
+        </div>
+
+        <h4 style="color:#1a73e8; margin-top:20px;">📋 मागील ५ वर्षांचे गोपनीय अहवाल (CR Grading) नोंदवा:</h4>
+        <div class="cr-grid">
+            <div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+            <div><label>वर्ष २ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+            <div><label>वर्ष ३ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+            <div><label>वर्ष ४ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+            <div><label>वर्ष ५ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+        </div>
+
+        <div id="macpResult" class="macp-result-box">
+            माहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
+        </div>
+    </div>
+
+    <div id="page5" class="tab-content">
+        <h3>५. सुधारित सेवांतर्गत आश्वासित प्रगती योजना वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
+        <div class="pay-fix-box">
+            <div>
+                <label>वेतन आयोग प्रकार:</label>
+                <select id="pf_comm_type" onchange="onPayCommChange()">
+                    <option value="6th">६ वा वेतन आयोग</option>
+                    <option value="7th" selected>७ वा वेतन आयोग</option>
+                </select>
+            </div>
+            <div>
+                <label>सध्याचा ग्रेड पे / पे लेव्हल:</label>
+                <select id="pf_current_scale" onchange="suggestNextScale()"></select>
+            </div>
+            <div>
+                <label>नवीन वरिष्ठ श्रेणी पे लेव्हल:</label>
+                <select id="pf_new_scale"></select>
+            </div>
+            <div>
+                <label>अंमलबजावणी दिनांक (Effective Date):</label>
+                <input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+                <label>दिनांकास मूळ वेतन (Basic Pay):</label>
+                <input type="number" id="pf_basic" placeholder="उदा. 25500">
+            </div>
+            <div>
+                <label>विकल्प प्रकार (User Option):</label>
+                <select id="pf_option_type" onchange="toggleOptionDate()">
+                    <option value="effective_date">वरिष्ठ श्रेणी दिनांकापासून वेतननिश्चिती</option>
+                    <option value="increment_date">पुढील वार्षिक वेतनवाढ दिनांकापासून विकल्प</option>
+                </select>
+            </div>
+            <div id="pf_opt_date_wrapper" style="display:none;">
+                <label>विकल्प / पुढील वेतनवाढ दिनांक:</label>
+                <input type="text" id="pf_option_date" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+                <label>फरक बिल शेवटचा दिनांक:</label>
+                <input type="text" id="pf_end_date" placeholder="DD/MM/YYYY">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
+            <button class="btn-excel" id="downloadFixationBtn" style="display:none;" onclick="downloadPayFixationCSV()">वेतननिश्चिती अहवाल डाउनलोड करा</button>
+        </div>
+
+        <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
+
+        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता (Statement)</h3>
+        <table id="diffTable" style="display:none;">
+            <thead>
+                <tr style="background-color: #2e7d32; color: white;">
+                    <th rowspan="2">महिना/वर्ष</th>
+                    <th colspan="4">Due (वरिष्ठ श्रेणीनुसार देय रक्कम)</th>
+                    <th colspan="4">Drawn (प्रत्यक्षात मिळालेली रक्कम)</th>
+                    <th rowspan="2">मासिक एकूण फरक (रु.)</th>
+                </tr>
+                <tr style="background-color: #388e3c; color: white;">
+                    <th>Basic</th>
+                    <th>DA</th>
+                    <th>HRA</th>
+                    <th>एकूण देय</th>
+                    <th>Basic</th>
+                    <th>DA</th>
+                    <th>HRA</th>
+                    <th>एकूण मिळालेला</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="footer-msg">
+        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     let history = []; 
@@ -10,11 +369,8 @@
     let tempSpentDays = 0;
     let tempDutyDays = 0;
     let grandTotalLwpGlobal = 0;
-
-    // Fixation specific global data structure
     let payFixationReportData = null;
 
-    // 7th Pay Matrix Minimum Arrays for Scale Suggestion/Mapping
     const matrix7th = {
         "S-1": 15000, "S-2": 16600, "S-3": 17800, "S-4": 18200, "S-5": 19000,
         "S-6": 19900, "S-7": 21700, "S-8": 25500, "S-9": 29200, "S-10": 29200,
@@ -26,7 +382,6 @@
 
     const config = { dateFormat: "d/m/Y", allowInput: true };
     
-    // जुने कॅलेंडर पिकर्स
     const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
     const bPick = flatpickr("#b_end", { ...config, onChange: updateLeaveStartDate });
     const pLeavePick = flatpickr("#p_leave_end", config);
@@ -37,7 +392,6 @@
     const retirePick = flatpickr("#info_retire_date", { ...config, onChange: saveEmployeeInfo });
     const macpJoinPick = flatpickr("#macp_join_date", { ...config, onChange: calculateMacp });
     
-    // **दुरुस्ती १: नवीन ५ व्या टॅबमधील कॅलेंडर पिकर्स सक्रिय केले**
     flatpickr("#pf_eff_date", config);
     flatpickr("#pf_option_date", config);
     flatpickr("#pf_end_date", config);
@@ -85,7 +439,7 @@
             calculateEncashment();
         }
         calculateMacp();
-        onPayCommChange(); // ५ व्या टॅबमधील ड्रॉपडाउन लिस्ट लोड करणे
+        onPayCommChange(); 
     };
 
     function parseDMY(str) {
@@ -123,14 +477,13 @@
         validateLwpDatesScope();
     }
 
-    // **दुरुस्ती २: टॅब बदलण्याचे मूळ फंक्शन सुधारले जेणेकरून ५ वा टॅब देखील उघडेल**
-    function switchTab(tabId) {
+    function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         
         document.getElementById(tabId).classList.add('active');
-        if (event && event.currentTarget) {
-            event.currentTarget.classList.add('active');
+        if (btnElement) {
+            btnElement.classList.add('active');
         }
         
         if(tabId === 'page2' && history.length > 0) {
@@ -579,6 +932,7 @@
     function renderTable() {
         let tbody = document.querySelector("#recordTable tbody");
         let chartBody = document.querySelector("#summaryChartTable tbody");
+        if(!tbody || !chartBody) return;
         tbody.innerHTML = ""; chartBody.innerHTML = "";
 
         let pageNum = 1;
@@ -682,7 +1036,7 @@
     }
 
     // =========================================================================
-    // NEW LOGIC FOR TAB 5 (MACP FIXED LOGIC)
+    // REVISED TAB 5 JAVASCRIPT FUNCTIONS (FIXED)
     // =========================================================================
 
     const scaleData6th = [
@@ -912,3 +1266,5 @@
         link.click();
     }
 </script>
+</body>
+</html>
