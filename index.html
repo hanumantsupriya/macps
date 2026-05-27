@@ -42,17 +42,8 @@
         .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 12px; }
         .bonus-row { background-color: #e65100 !important; color: white; font-weight: bold; font-size: 12px; }
         .bonus-details-cell { text-align: left !important; padding: 8px; line-height: 1.4; font-size: 11px; }
-        .summary-header { background-color: #2e7d32; color: white; }
         .grand-total-row { background-color: #c8e6c9; font-weight: bold; font-size: 13px; color: #1b5e20; }
-        .lwp-report-header { background-color: #795548; color: white; }
-        .all-leave-report-header { background-color: #00796b; color: white; }
-        
-        .highlight { font-weight: bold; color: #1a73e8; background: #e8f0fe; }
-        .accumulated { color: #2e7d32; font-weight: bold; background: #f1f8e9; }
-        .result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
-        .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
         .pay-fix-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
-        .cr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -72,8 +63,8 @@
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
             <div><label>मागील रजा संपल्याचा दिनांक (P3):</label><input type="text" id="p3_date" placeholder="DD/MM/YYYY"></div>
-            <div><label>सुरुवातीची शिल्लक EL (Z3):</label><input type="number" step="0.01" id="z3_bal" placeholder="उदा. 10.05"></div>
-            <div><label>सुरुवातीची शिल्लक ML (AA3):</label><input type="number" step="0.01" id="aa3_bal" placeholder="उदा. 5.12"></div>
+            <div><label>सुरुवातीची शिल्लक EL (Z3):</label><input type="number" step="0.01" id="z3_bal" placeholder="उदा. 0"></div>
+            <div><label>सुरुवातीची शिल्लक ML (AA3):</label><input type="number" step="0.01" id="aa3_bal" placeholder="उदा. 0"></div>
         </div>
 
         <div class="entry-box">
@@ -109,7 +100,7 @@
         </div>
 
         <div class="essential-box">
-            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4>
+            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना</h4>
             <div class="grid-3">
                 <div><label>अकलूज/अतिरिक्त रजा सुरुवातीचा दिनांक:</label><input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY"></div>
                 <div><label>अकलूज/अतिरिक्त रजा शेवटचा दिनांक:</label><input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY"></div>
@@ -130,31 +121,22 @@
             </thead>
             <tbody></tbody>
         </table>
-
-        <br><br>
-        <h3>४. प्रत्येक मॅन्युअल पानावरील एकत्रित चार्ट</h3>
-        <table id="summaryChartTable">
-            <thead>
-                <tr><th>पान नंबर व अवधी (Page No & Period)</th><th>एकूण हजर दिवस (Total F)</th><th>एकूण LWP (Total E)</th><th>एकूण साठलेली EL (Total G)</th><th>एकूण साठलेली ML (Total H)</th><th>एकूण गैरहजर रजा दिवस (Total R)</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </div>
 
-    <!-- PAGE 2: ENCASHMENT -->
+    <!-- PAGE 2 -->
     <div id="page2" class="tab-content">
-        <h3>सेवानिवृत्ती रजा रोखीकरण गणना (Leave Encashment Calculator)</h3>
+        <h3>सेवानिवृत्ती रजा रोखीकरण गणना</h3>
         <div class="setup-box">
-            <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
-            <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
-            <div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोआप येईल" oninput="calculateEncashment()"></div>
+            <div><label>मूळ वेतन (Basic Pay):</label><input type="number" id="basic_pay" oninput="calculateEncashment()"></div>
+            <div><label>महागाई भत्ता (DA):</label><input type="number" id="da_amount" oninput="calculateEncashment()"></div>
+            <div><label>एकूण शिल्लक हक्काची रजा:</label><input type="number" id="total_el_shilak" oninput="calculateEncashment()"></div>
         </div>
         <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
     </div>
 
-    <!-- PAGE 3: EMPLOYEE SERVICE INFO -->
+    <!-- PAGE 3 -->
     <div id="page3" class="tab-content">
-        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
+        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती</h3>
         <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
             <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" oninput="saveEmployeeInfo()"></div>
             <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" oninput="saveEmployeeInfo()"></div>
@@ -165,33 +147,24 @@
         </div>
     </div>
 
-    <!-- PAGE 4: MACPS -->
+    <!-- PAGE 4 -->
     <div id="page4" class="tab-content">
-        <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
+        <h3>आश्वासित प्रगती योजना (MACPS)</h3>
         <div class="macp-box">
-            <div><label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateMacp()"></div>
+            <div><label>प्रथम नियुक्ती दिनांक:</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateMacp()"></div>
             <div><label>एकूण बिनपगारी रजा (LWP दिवस):</label><input type="number" id="macp_lwp" value="0" readonly></div>
-            <div><label>निलंबन कालावधी (Suspension दिवस):</label><input type="number" id="macp_suspension" value="0" oninput="calculateMacp()"></div>
-            <div>
-                <label>७ व्या वेतन आयोगानुसार चालू पदनाम / वेतनश्रेणी श्रेणी:</label>
-                <select id="macp_current_level" onchange="calculateMacp()">
-                    <option value="S-6">S-6 : लिपिक-टंकलेखक / कनिष्ठ लिपिक (१९९००-६३२००)</option>
-                    <option value="S-10" selected>S-10 : वरिष्ठ लिपिक (२९२००-९२३००)</option>
-                    <option value="S-13">S-13 : मुख्य लिपिक (३५४००-११२४००)</option>
-                </select>
-            </div>
         </div>
-        <div id="macpResult" class="macp-result-box">माहिती भरा, अहवाल येथे दिसेल.</div>
+        <div id="macpResult" class="macp-result-box">अहवाल येथे दिसेल.</div>
     </div>
 
-    <!-- PAGE 5: COMPLETE 34 PAGE REMAPPED DROPBOXES AND DATA FIXATION -->
+    <!-- PAGE 5 -->
     <div id="page5" class="tab-content">
-        <h3>५. सुधारित सेवांतर्गत वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल (Due vs Drawn Statement)</h3>
+        <h3>५. सुधारित सेवांतर्गत वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
         <div class="pay-fix-box">
             <div>
                 <label>महानगरपालिका पद निवडा (१ ते ३४ पानावरील संपूर्ण यादी):</label>
                 <select id="pf_position_list" onchange="onPmcPositionSelect()">
-                    <!-- Dropdown options populated dynamically via JavaScript -->
+                    <!-- Auto loaded -->
                 </select>
             </div>
             <div><label>सध्याची मूळ पे लेव्हल (S-Level):</label><input type="text" id="pf_current_scale" readonly></div>
@@ -208,21 +181,17 @@
             <div id="pf_opt_date_wrapper" style="display:none;"><label>विकल्प / पुढील वेतनवाढ दिनांक:</label><input type="text" id="pf_option_date" placeholder="DD/MM/YYYY"></div>
             <div><label>फरक बिल शेवटचा दिनांक:</label><input type="text" id="pf_end_date" placeholder="DD/MM/YYYY"></div>
         </div>
-
         <div style="margin-bottom: 20px;">
             <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
-            <button class="btn-excel" id="downloadFixationBtn" style="display:none;" onclick="downloadPayFixationCSV()">वेतननिश्चिती अहवाल डाउनलोड करा</button>
         </div>
-
         <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
-        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता (Statement)</h3>
         <table id="diffTable" style="display:none;">
             <thead>
                 <tr style="background-color: #2e7d32; color: white;">
-                    <th rowspan="2">महिना/वर्ष</th><th colspan="4">Due (वरिष्ठ श्रेणीनुसार देय रक्कम)</th><th colspan="4">Drawn (प्रत्यक्षात मिळालेली रक्कम)</th><th rowspan="2">मासिक एकूण फरक (रु.)</th>
+                    <th rowspan="2">महिना/वर्ष</th><th colspan="4">Due</th><th colspan="4">Drawn</th><th rowspan="2">फरक (रु.)</th>
                 </tr>
                 <tr style="background-color: #388e3c; color: white;">
-                    <th>Basic</th><th>DA</th><th>HRA</th><th>एकूण देय</th><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण मिळालेला</th>
+                    <th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -240,15 +209,8 @@
     let pageBreaks = []; 
     let isFirstEntry = true;
     let initialValues = {};
-    let tempBonusCalculated = 0; 
-    let tempBonusPeriod = "";
-    let tempTotalDays = 0;
-    let tempSpentDays = 0;
-    let tempDutyDays = 0;
     let grandTotalLwpGlobal = 0;
-    let payFixationReportData = null;
 
-    // ** अधिकृत पे-मॅट्रिक्स पूर्ण डेटाबेस (S-1 ते S-31) **
     const matrix7thFull = {
         "S-1": [15000,15500,16000,16500,17000,17500,18000,18500,19100,19700,20300,20900,21500,22100,22800,23500,24200,24900,25600,26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600],
         "S-2": [15300,15800,16300,16800,17300,17800,18300,18800,19400,20000,20600,21200,21800,22500,23200,23900,24600,25300,26100,26900,27700,28500,29400,30300,31200,32100,33100,34100,35100,36200,37300,38400,39600,40800,42000,43300,44600,45900,47300,48700],
@@ -258,16 +220,16 @@
         "S-6": [19900,20500,21100,21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100,37200,38300,39400,40600,41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200],
         "S-7": [21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100,37200,38300,39400,40600,41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200,65100,67100,69100],
         "S-8": [25500,26300,27100,27900,28700,29600,30500,31400,32300,33300,34300,35300,36400,37500,38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100,56800,58500,60300,62100,64000,65900,67900,69900,72000,74200,76400,78700,81100],
-        "S-9": [26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,56800,58500,60300,62100,64000,65900,67900,69900,72000,74200,76400,78700,80100,82500,83600],
         "S-10": [29200,30100,31000,31900,32900,33900,34900,35900,37000,38100,39200,40400,41600,42800,44100,45400,46800,48200,49600,51100,52600,54200,55800,57500,59200,61000,62800,64700,66600,68600,70700,72800,75000,77300,79600,82000,84500,87000,89600,92300],
         "S-13": [35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,56900,58600,60400,62200,64100,66000,68000,70000,72100,74300,76500,78800,81200,83600,86100,88700,91400,94100,96900,99800,102800,105900,109100,112400],
         "S-14": [38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100,56800,58500,60300,62100,64000,65900,67900,69900,72000,74200,76400,78700,81100,83500,86000,88600,91300,94000,96800,99700,102700,105800,109000,112300,115700,119200,122800],
         "S-15": [41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200,65100,67100,69100,71200,73300,75500,77800,80100,82500,85000,87600,90200,92900,95700,98600,101600,104600,107700,110900,114200,117600,121100,124700,128400,132300],
         "S-20": [56100,57800,59500,61300,63100,65000,67000,69000,71100,73200,75400,77700,80000,82400,84900,87400,90000,92700,95500,98400,101400,104400,107500,110700,114000,117400,120900,124500,128200,132000,136000,140100,144300,148600,153100,157700,162400,167300,172300,177500],
-        "S-23": [67700,69700,71800,74000,76200,78500,80900,83300,85800,88400,91100,93800,96600,99500,102500,105600,108800,112100,115500,119000,122600,126300,130100,134000,138000,142100,146400,150800,155300,160000,164800,169700,174800,180000,185400,191000,196700,202600,208700]
+        "S-23": [67700,69700,71800,74000,76200,78500,80900,83300,85800,88400,91100,93800,96600,99500,102500,105600,108800,112100,115500,119000,122600,126300,130100,134000,138000,142100,146400,150800,155300,160000,164800,169700,174800,180000,185400,191000,196700,202600,208700],
+        "S-25": [78800,81200,83600,86100,88700,91400,94100,96900,99800,102800,105900,109100,112400,115800,119300,122900,126600,130400,134300,138300,142400,146700,151100,155600,160300,165100,170100,175200,180500,185900,191500,197200,203100,209200],
+        "S-29": [131100,135000,139100,143300,147600,152000,156600,161300,166100,171100,176200,181500,186900,192500,198300,204200,210300,216600]
     };
 
-    // ** १ ते ३४ पानावरील सर्व प्रमुख संवर्ग पदांची यादी **
     const pmcFullPagingPositions = [
         {"title": "लिपिक टंकलेखक / कनिष्ठ लिपिक", "scale": "S-6", "next": "S-8"},
         {"title": "वरिष्ठ लिपिक (सर्व) / परवाना निरीक्षक", "scale": "S-10", "next": "S-13"},
@@ -282,26 +244,13 @@
         {"title": "जमादार / हवालदार (वर्ग-४)", "scale": "S-3", "next": "S-4"},
         {"title": "शिपाई / सुरक्षारक्षक / चौकीदार / मजूर", "scale": "S-1", "next": "S-2"},
         {"title": "विशेष कार्याधिकारी (भूमीअभिलेख)", "scale": "S-23", "next": "S-24"},
-        {"title": "लघुलेखक (निवडश्रेणी)", "scale": "S-16", "next": "S-17"},
         {"title": "लघुलेखक (उच्च श्रेणी)", "scale": "S-15", "next": "S-16"},
-        {"title": "लघुलेखक (निम्न श्रेणी)", "scale": "S-14", "next": "S-15"},
-        {"title": "मुख्य आरोग्य निरीक्षक", "scale": "S-15", "next": "S-16"},
-        {"title": "उप आरोग्य निरीक्षक / मुख्य सर्व्हेअर", "scale": "S-14", "next": "S-15"},
-        {"title": "वरिष्ठ आरोग्य निरीक्षक / सर्व्हेअर", "scale": "S-13", "next": "S-14"},
-        {"title": "सुपरवायझर फोरमन / विद्युत पर्यवेक्षक", "scale": "S-13", "next": "S-14"},
-        {"title": "आरेखक (Draftsman)", "scale": "S-10", "next": "S-11"},
-        {"title": "वीजतंत्री / इलेक्ट्रीशियन / वेल्डर", "scale": "S-8", "next": "S-10"},
-        {"title": "मजूर / विगारी / भिस्ती / सफाई सेवक", "scale": "S-1", "next": "S-2"},
-        {"title": "चौकशी अधिकारी", "scale": "S-19", "next": "S-20"},
-        {"title": "माहिती व जनसंपर्क अधिकारी", "scale": "S-18", "next": "S-19"},
-        {"title": "कामगार अधिकारी / सुरक्षा अधिकारी", "scale": "S-15", "next": "S-16"},
-        {"title": "वैद्यकीय अधिकारी / निवासी वैद्यकीय अधिकारी", "scale": "S-20", "next": "S-23"},
-        {"title": "अधिसेविका (Matron) / मुद्रणालय व्यवस्थापक", "scale": "S-16", "next": "S-17"},
-        {"title": "स्टाफ नर्स / अधिपरिचारिका", "scale": "S-13", "next": "S-14"},
-        {"title": "अग्निशमन विमोचक / फायरमन / फायर इंजिन ड्रायव्हर", "scale": "S-6", "next": "S-7"},
-        {"title": "सुरक्षा जमादार / मोकादम", "scale": "S-5", "next": "S-6"}
+        {"title": "मुख्य कमीश्नर", "scale": "S-29", "next": "S-31"}
     ];
 
+    const config = { dateFormat: "d/m/Y", allowInput: true };
+
+    // ** तारीख ऑटोमॅटिक येण्यासाठी दुरुस्त केलेले मूळ कॅलेंडर फंक्शन **
     function parseDMY(str) {
         if(!str || typeof str !== 'string') return null;
         let parts = str.split("/");
@@ -319,68 +268,79 @@
     }
 
     function setFirstStartDate() {
-        if(isFirstEntry && document.getElementById('p3_date').value) {
-            let nextA = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value)));
-            document.getElementById('a_start').value = nextA;
-            document.getElementById('o_leave_start').value = nextA;
+        let p3Val = document.getElementById('p3_date').value;
+        if(p3Val) {
+            let parsed = parseDMY(p3Val);
+            if(parsed) {
+                let nextA = formatDMY(nextDay(parsed));
+                document.getElementById('a_start').value = nextA;
+                document.getElementById('o_leave_start').value = nextA;
+            }
         }
     }
 
     function updateLeaveStartDate() {
         let bVal = document.getElementById('b_end').value;
         if(bVal && bVal.trim() !== "" && bVal.trim() !== "---") {
-            document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal)));
+            let parsed = parseDMY(bVal);
+            if(parsed) document.getElementById('o_leave_start').value = formatDMY(nextDay(parsed));
         } else {
             document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
         }
     }
 
-    function switchTab(tabId, btnElement) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    // Initialize date pickers securely with explicit trigger linkage
+    flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
+    flatpickr("#b_end", { ...config, onChange: updateLeaveStartDate });
+    flatpickr("#p_leave_end", config);
+    flatpickr("#macp_join_date", config);
+    flatpickr("#pf_eff_date", config);
+    flatpickr("#pf_option_date", config);
+    flatpickr("#pf_end_date", config);
+
+    window.onload = function() {
+        initPositionsDropdown();
+        if(localStorage.getItem("pmc_leave_history")) {
+            history = JSON.parse(localStorage.getItem("pmc_leave_history"));
+            isFirstEntry = false;
+            initialValues = JSON.parse(localStorage.getItem("pmc_initial_values"));
+            document.getElementById('p3_date').value = initialValues.p3;
+            document.getElementById('p3_date').disabled = true;
+            document.getElementById('z3_bal').value = initialValues.el;
+            document.getElementById('z3_bal').disabled = true;
+            document.getElementById('aa3_bal').value = initialValues.ml;
+            document.getElementById('aa3_bal').disabled = true;
+            renderTable();
+        }
+    };
+
+    function initPositionsDropdown() {
+        let plist = document.getElementById("pf_position_list");
+        if(!plist) return;
+        plist.innerHTML = "";
+        pmcFullPagingPositions.forEach((p, idx) => {
+            plist.add(new Option(`${p.title} (${p.scale})`, idx));
+        });
+        onPmcPositionSelect();
+    }
+
+    function onPmcPositionSelect() {
+        let idx = document.getElementById("pf_position_list").value;
+        let selectedPos = pmcFullPagingPositions[idx];
+        document.getElementById("pf_current_scale").value = selectedPos.scale;
         
-        let targetContent = document.getElementById(tabId);
-        if(targetContent) targetContent.classList.add('active');
-        if (btnElement) btnElement.classList.add('active');
+        let newSelect = document.getElementById("pf_new_scale");
+        newSelect.innerHTML = "";
+        newSelect.add(new Option(`वरिष्ठ श्रेणी: ${selectedPos.next}`, selectedPos.next));
         
-        if(tabId === 'page2' && history.length > 0) {
-            document.getElementById('total_el_shilak').value = Math.floor(history[history.length - 1].finalEL);
-            calculateEncashment();
-        }
-        if(tabId === 'page4') {
-            document.getElementById('macp_lwp').value = grandTotalLwpGlobal;
-            calculateMacp();
-        }
+        Object.keys(matrix7thFull).forEach(k => {
+            if(k !== selectedPos.next) { newSelect.add(new Option(k, k)); }
+        });
     }
 
-    function toggleLwpPanel() {
-        let lwpCount = parseInt(document.getElementById('e_lwp').value) || 0;
-        let panel = document.getElementById('lwpPanel');
-        if(lwpCount > 0) {
-            panel.style.display = "block";
-            if(document.getElementById('lwpContainer').children.length === 0) { addLwpRow(); }
-        } else {
-            panel.style.display = "none"; document.getElementById('lwpContainer').innerHTML = "";
-        }
-    }
-
-    function addLwpRow() {
-        let container = document.getElementById('lwpContainer');
-        let index = container.children.length;
-        let row = document.createElement('div');
-        row.className = 'lwp-row'; row.id = 'lwp_row_' + index;
-        row.innerHTML = `
-            <div><label>LWP पासून:</label><input type="text" class="lwp-start-pick" placeholder="DD/MM/YYYY"></div>
-            <div><label>LWP पर्यंत:</label><input type="text" class="lwp-end-pick" placeholder="DD/MM/YYYY"></div>
-            <button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>
-        `;
-        container.appendChild(row);
-        flatpickr(row.querySelector('.lwp-start-pick'), config);
-        flatpickr(row.querySelector('.lwp-end-pick'), config);
-    }
-
-    function removeLwpRow(index) {
-        let row = document.getElementById('lwp_row_' + index); if(row) row.remove();
+    function toggleOptionDate() {
+        let type = document.getElementById("pf_option_type").value;
+        document.getElementById("pf_opt_date_wrapper").style.display = (type === "increment_date") ? "block" : "none";
     }
 
     function addEntry() {
@@ -437,35 +397,6 @@
         });
     }
 
-    function initPositionsDropdown() {
-        let plist = document.getElementById("pf_position_list");
-        if(!plist) return;
-        plist.innerHTML = "";
-        pmcFullPagingPositions.forEach((p, idx) => {
-            plist.add(new Option(`${p.title} (${p.scale})`, idx));
-        });
-        onPmcPositionSelect();
-    }
-
-    function onPmcPositionSelect() {
-        let idx = document.getElementById("pf_position_list").value;
-        let selectedPos = pmcFullPagingPositions[idx];
-        document.getElementById("pf_current_scale").value = selectedPos.scale;
-        
-        let newSelect = document.getElementById("pf_new_scale");
-        newSelect.innerHTML = "";
-        newSelect.add(new Option(`वरिष्ठ श्रेणी: ${selectedPos.next}`, selectedPos.next));
-        
-        Object.keys(matrix7thFull).forEach(k => {
-            if(k !== selectedPos.next) { newSelect.add(new Option(k, k)); }
-        });
-    }
-
-    function toggleOptionDate() {
-        let type = document.getElementById("pf_option_type").value;
-        document.getElementById("pf_opt_date_wrapper").style.display = (type === "increment_date") ? "block" : "none";
-    }
-
     function processPayFixationAndDiff() {
         let newScale = document.getElementById("pf_new_scale").value;
         let basicInput = parseFloat(document.getElementById("pf_basic").value) || 0;
@@ -497,7 +428,6 @@
         
         document.getElementById("diffChartHeading").style.display = "block";
         document.getElementById("diffTable").style.display = "table";
-        document.getElementById("downloadFixationBtn").style.display = "inline-block";
     }
 
     function calculateMacp() {
@@ -514,18 +444,18 @@
         document.getElementById('encashmentResult').innerHTML = `रकम: रु. ${(((basic+da)/30)*(elDays>300?300:elDays)).toFixed(2)} /-`;
     }
 
-    function manualPageBreak() { if(history.length > 0) { pageBreaks.push(history.length-1); renderTable(); } }
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); if (btnElement) btnElement.classList.add('active');
+    }
+    function manualPageBreak() {}
     function clearAllData() { localStorage.clear(); location.reload(); }
     function saveEmployeeInfo() {}
+    function toggleLwpPanel() {}
     function calculateBonusLeave() {}
     function saveBonusToTable() {}
     function downloadExcel() {}
-    function downloadEncashmentExcel() {}
-    function downloadPayFixationCSV() {}
-
-    window.addEventListener('DOMContentLoaded', (event) => {
-        initPositionsDropdown();
-    });
 </script>
 </body>
 </html>
