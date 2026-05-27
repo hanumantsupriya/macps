@@ -1265,6 +1265,345 @@
         link.setAttribute("download", `Pay_Fixation_Arrears_Report.csv`);
         link.click();
     }
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    let history = []; 
+    let pageBreaks = []; 
+    let isFirstEntry = true;
+    let initialValues = {};
+    let tempBonusCalculated = 0; 
+    let tempBonusPeriod = "";
+    let tempTotalDays = 0;
+    let tempSpentDays = 0;
+    let tempDutyDays = 0;
+    let grandTotalLwpGlobal = 0;
+    let payFixationReportData = null;
+
+    // ** अधिकृत ७ वा वेतन आयोग पूर्ण मॅट्रिक्स डेटाबेस (सर्व ४० सेल्स टप्पे)**
+    const matrix7thFull = {
+        "S-1": [15000,15500,16000,16500,17000,17500,18000,18500,19100,19700,20300,20900,21500,22100,22800,23500,24200,24900,25600,26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600],
+        "S-2": [15300,15800,16300,16800,17300,17800,18300,18800,19400,20000,20600,21200,21800,22500,23200,23900,24600,25300,26100,26900,27700,28500,29400,30300,31200,32100,33100,34100,35100,36200,37300,38400,39600,40800,42000,43300,44600,46000,47400,48800],
+        "S-3": [16600,17100,17600,18100,18600,19200,19800,20400,21000,21600,22200,22900,23600,24300,25000,25800,26600,27400,28200,29000,29900,30800,31700,32700,33700,34700,35700,36800,37900,39000,40200,41400,42600,43900,45200,46600,48000,49400,50900,52400],
+        "S-4": [17100,17600,18100,18600,19200,19800,20400,21000,21600,22200,22900,23600,24300,25000,25800,26600,27400,28200,29000,29900,30800,31700,32700,33700,34700,35700,36800,37900,39000,40200,41400,42600,43900,45200,46600,48000,49400,50900,52400,54000],
+        "S-5": [18000,18500,19100,19700,20300,20900,21500,22100,22800,23500,24200,24900,25600,26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,56900],
+        "S-6": [19900,20500,21100,21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100,37200,38300,39400,40600,41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200],
+        "S-7": [21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100,37200,38300,39400,40600,41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200,65100,67100,69100],
+        "S-8": [25500,26300,27100,27900,28700,29600,30500,31400,32300,33300,34300,35300,36400,37500,38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100,56800,58500,60300,62100,64000,65900,67900,69900,72000,74200,76400,78700,81100],
+        "S-9": [26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,57900,59600,61400,63200,65100,67100,69100,71200,73300,75500,77800,80100,82500,83600],
+        "S-10": [29200,30100,31000,31900,32900,33900,34900,35900,37000,38100,39200,40400,41600,42800,44100,45400,46800,48200,49600,51100,52600,54200,55800,57500,59200,61000,62800,64700,66600,68600,70700,72800,75000,77300,79600,82000,84500,87000,89600,92300],
+        "S-13": [35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,56900,58600,60400,62200,64100,66000,68000,70000,72100,74300,76500,78800,81200,83600,86100,88700,91400,94100,96900,99800,102800,105900,109100,112400],
+        "S-14": [38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100,56800,58500,60300,62100,64000,65900,67900,69900,72000,74200,76400,78700,81100,83500,86000,88600,91300,94000,96800,99700,102700,105800,109000,112300,115700,119200,122800],
+        "S-15": [41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200,65100,67100,69100,71200,73300,75500,77800,80100,82500,85000,87600,90200,92900,95700,98600,101600,104600,107700,110900,114200,117600,121100,124700,128400,132300],
+        "S-20": [56100,57800,59500,61300,63100,65000,67000,69000,71100,73200,75400,77700,80000,82400,84900,87400,90000,92700,95500,98400,101400,104400,107500,110700,114000,117400,120900,124500,128200,132000,136000,140100,144300,148600,153100,157700,162400,167300,172300,177500],
+        "S-23": [67700,69700,71800,74000,76200,78500,80900,83300,85800,88400,91000,93700,96500,99400,102400,105500,108700,112000,115400,118900,122500,126200,130000,133900,137900,142000,146300,150700,155200,159900,164700,169600,174700,179900,185300,190900,196600,202500,208600,208700]
+    };
+
+    const config = { dateFormat: "d/m/Y", allowInput: true };
+    
+    // Setup flatpickr references
+    const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
+    const bPick = flatpickr("#b_end", { ...config, onChange: updateLeaveStartDate });
+    const pLeavePick = flatpickr("#p_leave_end", config);
+    flatpickr("#bonus_start_date", config);
+    flatpickr("#bonus_end_date", config);
+    
+    const joinPick = flatpickr("#info_join_date", { ...config, onChange: function() { saveEmployeeInfo(); syncJoinDateToMacp(); } });
+    const retirePick = flatpickr("#info_retire_date", { ...config, onChange: saveEmployeeInfo });
+    const macpJoinPick = flatpickr("#macp_join_date", { ...config, onChange: calculateMacp });
+    
+    flatpickr("#pf_eff_date", config);
+    flatpickr("#pf_option_date", config);
+    flatpickr("#pf_end_date", config);
+
+    const pmcPositionsFull7th = [
+        { label: "लिपिक टंकलेखक / कनिष्ठ लिपिक (S-6)", value: "S-6" },
+        { label: "लघु टंकलेखक / वीजतंत्री / इलेक्ट्रीशियन (S-8)", value: "S-8" },
+        { label: "वरिष्ठ लिपिक / परवाना निरीक्षक (S-10)", value: "S-10" },
+        { label: "उप अधीक्षक / वरिष्ठ लेखापरीक्षक (S-13)", value: "S-13" },
+        { label: "अधीक्षक / कनिष्ठ अभियंता / मुख्य सर्व्हेअर (S-14)", value: "S-14" },
+        { label: "प्रशासन अधिकारी / शाखा अभियंता (S-15)", value: "S-15" },
+        { label: "उप अभियंता / वैद्यकीय अधिकारी (S-20)", value: "S-20" },
+        { label: "कार्यकारी अभियंता / विधी अधिकारी (S-23)", value: "S-23" }
+    ];
+
+    window.onload = function() {
+        if(localStorage.getItem("pmc_leave_history")) {
+            history = JSON.parse(localStorage.getItem("pmc_leave_history"));
+            isFirstEntry = false;
+            initialValues = JSON.parse(localStorage.getItem("pmc_initial_values"));
+            if(localStorage.getItem("pmc_page_breaks")) {
+                pageBreaks = JSON.parse(localStorage.getItem("pmc_page_breaks"));
+            }
+            
+            document.getElementById('p3_date').value = initialValues.p3;
+            document.getElementById('p3_date').disabled = true;
+            document.getElementById('z3_bal').value = initialValues.el;
+            document.getElementById('z3_bal').disabled = true;
+            document.getElementById('aa3_bal').value = initialValues.ml;
+            document.getElementById('aa3_bal').disabled = true;
+            let lastRecord = history[history.length - 1];
+            
+            let nextA = lastRecord.type === "bonus" ? lastRecord.nextA : formatDMY(nextDay(parseDMY(lastRecord.p)));
+            document.getElementById('a_start').value = nextA;
+            document.getElementById('o_leave_start').value = nextA;
+            
+            document.getElementById('deleteBtn').style.display = "inline-block";
+            renderTable();
+        }
+        if(localStorage.getItem("pmc_emp_info")) {
+            let emp = JSON.parse(localStorage.getItem("pmc_emp_info"));
+            document.getElementById('info_name').value = emp.name || "";
+            document.getElementById('info_desig').value = emp.desig || "";
+            document.getElementById('info_dept').value = emp.dept || "";
+            document.getElementById('info_pf').value = emp.pf || "";
+            if(emp.joinDate) {
+                if(joinPick) joinPick.setDate(emp.joinDate);
+                if(macpJoinPick) macpJoinPick.setDate(emp.joinDate);
+            }
+            if(emp.retireDate && retirePick) retirePick.setDate(emp.retireDate);
+        }
+        calculateMacp();
+        onPayCommChange(); 
+    };
+
+    function parseDMY(str) {
+        if(!str) return null;
+        let parts = str.split("/");
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+    function formatDMY(dateObj) {
+        if(!dateObj || isNaN(dateObj.getTime())) return "";
+        return `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+    }
+
+    function nextDay(dateObj) {
+        let next = new Date(dateObj);
+        next.setDate(next.getDate() + 1);
+        return next;
+    }
+
+    function syncJoinDateToMacp() {
+        let jd = document.getElementById('info_join_date').value;
+        if(jd && macpJoinPick) {
+            macpJoinPick.setDate(jd);
+            calculateMacp();
+        }
+    }
+
+    function updateLeaveStartDate() {
+        let bVal = document.getElementById('b_end').value;
+        if(bVal && bVal.trim() !== "" && bVal.trim() !== "---") {
+            document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal)));
+        } else {
+            document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
+        }
+    }
+
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        if (btnElement) {
+            btnElement.classList.add('active');
+        }
+        
+        if(tabId === 'page2' && history.length > 0) {
+            document.getElementById('total_el_shilak').value = Math.floor(history[history.length - 1].finalEL);
+            calculateEncashment();
+        }
+        if(tabId === 'page4') {
+            document.getElementById('macp_lwp').value = grandTotalLwpGlobal;
+            calculateMacp();
+        }
+    }
+
+    function setFirstStartDate() {
+        if(isFirstEntry && document.getElementById('p3_date').value) {
+            let nextA = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value)));
+            document.getElementById('a_start').value = nextA;
+            document.getElementById('o_leave_start').value = nextA;
+        }
+    }
+
+    function toggleLwpPanel() {
+        let lwpCount = parseInt(document.getElementById('e_lwp').value) || 0;
+        let panel = document.getElementById('lwpPanel');
+        if(lwpCount > 0) {
+            panel.style.display = "block";
+            if(document.getElementById('lwpContainer').children.length === 0) { addLwpRow(); }
+        } else {
+            panel.style.display = "none";
+            document.getElementById('lwpContainer').innerHTML = "";
+        }
+    }
+
+    function addLwpRow() {
+        let container = document.getElementById('lwpContainer');
+        let index = container.children.length;
+        let row = document.createElement('div');
+        row.className = 'lwp-row';
+        row.id = 'lwp_row_' + index;
+        row.innerHTML = `
+            <div><label>LWP पासून (From):</label><input type="text" class="lwp-start-pick" placeholder="DD/MM/YYYY"></div>
+            <div><label>LWP पर्यंत (To):</label><input type="text" class="lwp-end-pick" placeholder="DD/MM/YYYY"></div>
+            <button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>
+        `;
+        container.appendChild(row);
+        flatpickr(row.querySelector('.lwp-start-pick'), config);
+        flatpickr(row.querySelector('.lwp-end-pick'), config);
+    }
+
+    function removeLwpRow(index) {
+        let row = document.getElementById('lwp_row_' + index);
+        if(row) row.remove();
+    }
+
+    function onPayCommChange() {
+        let type = document.getElementById("pf_comm_type").value;
+        let currentSelect = document.getElementById("pf_current_scale");
+        let newSelect = document.getElementById("pf_new_scale");
+        
+        if(!currentSelect || !newSelect) return;
+        
+        currentSelect.innerHTML = "";
+        newSelect.innerHTML = "";
+
+        pmcPositionsFull7th.forEach(p => {
+            currentSelect.add(new Option(p.label, p.value));
+            newSelect.add(new Option(p.label, p.value));
+        });
+        suggestNextScale();
+    }
+
+    function suggestNextScale() {
+        let currentVal = document.getElementById("pf_current_scale").value;
+        let newSelect = document.getElementById("pf_new_scale");
+        if(!newSelect || !currentVal) return;
+
+        let curNum = parseInt(currentVal.replace("S-", ""));
+        let optionsOrder = ["S-6", "S-8", "S-10", "S-13", "S-14", "S-15", "S-20", "S-23"];
+        let idx = optionsOrder.indexOf(currentVal);
+        if(idx !== -1 && idx + 1 < optionsOrder.length) {
+            newSelect.value = optionsOrder[idx + 1];
+        }
+    }
+
+    function toggleOptionDate() {
+        let type = document.getElementById("pf_option_type").value;
+        document.getElementById("pf_opt_date_wrapper").style.display = (type === "increment_date") ? "block" : "none";
+    }
+
+    function getDaRateByDate(dateObj) {
+        let y = dateObj.getFullYear();
+        let m = dateObj.getMonth() + 1;
+        if (y < 2024) return 0.46;
+        if (y === 2024) return (m <= 6) ? 0.50 : 0.53;
+        return 0.53; 
+    }
+
+    function getHraRate(basic) {
+        if (basic >= 25500) return 0.24;
+        return 0.20;
+    }
+
+    function processPayFixationAndDiff() {
+        let commType = document.getElementById("pf_comm_type").value;
+        let currentScale = document.getElementById("pf_current_scale").value;
+        let newScale = document.getElementById("pf_new_scale").value;
+        let effDateStr = document.getElementById("pf_eff_date").value;
+        let basicInput = parseFloat(document.getElementById("pf_basic").value) || 0;
+        let optionType = document.getElementById("pf_option_type").value;
+        let optDateStr = document.getElementById("pf_option_date").value;
+        let endDateStr = document.getElementById("pf_end_date").value;
+
+        if (!effDateStr || basicInput <= 0 || !endDateStr) {
+            alert("कृपया अंमलबजावणी तारीख, मूळ वेतन आणि फरक बिलाची शेवटची तारीख अचूक भरा!");
+            return;
+        }
+
+        let effDate = parseDMY(effDateStr);
+        let endDate = parseDMY(endDateStr);
+        
+        // **७ वा वेतन मॅट्रिक्स स्टेजिंग लॉजिक**
+        let finalFixationBasic = basicInput;
+        let cellsList = matrix7thFull[newScale] || matrix7thFull["S-6"];
+        
+        let targetLookupAmount = basicInput + Math.round(basicInput * 0.03); 
+        if (optionType === "increment_date") {
+            targetLookupAmount += Math.round(basicInput * 0.03); // विकल्पानुसार दुहेरी वेतनवाढ
+        }
+
+        // मॅट्रिक्समध्ये समान किंवा उच्च स्टेज शोधणे
+        let matchedBasic = cellsList[0];
+        for (let i = 0; i < cellsList.length; i++) {
+            if (cellsList[i] >= targetLookupAmount) {
+                matchedBasic = cellsList[i];
+                break;
+            }
+        }
+        finalFixationBasic = matchedBasic;
+
+        let resBox = document.getElementById("payFixResult");
+        resBox.style.display = "block";
+        resBox.innerHTML = `
+            <strong>🎯 वरिष्ठ श्रेणी वेतननिश्चिती अहवाल निष्कर्ष (३४ पानांच्या नियमानुसार):</strong><br>
+            • निश्चित सुधारित पे लेव्हल: <strong>${newScale}</strong><br>
+            • सुधारित नवीन मूळ वेतन (Revised Basic): <strong>रु. ${finalFixationBasic} /-</strong><br>
+            • अंमलबजावणी तारीख: ${optionType === 'increment_date' ? optDateStr : effDateStr}<br>
+            • शेरा: परिपत्रकानुसार मॅट्रिक्स सेल योग्य टप्प्यावर फिक्स केले.
+        `;
+
+        payFixationReportData = {
+            commType, currentScale, newScale, effDateStr, basicInput, finalFixationBasic, optionType
+        };
+
+        // मासिक तक्ता जनरेशन
+        let tbody = document.querySelector("#diffTable tbody");
+        tbody.innerHTML = "";
+        let currentDate = new Date(effDate.getFullYear(), effDate.getMonth(), 1);
+        let targetEnd = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        let totalDifferenceSum = 0;
+        let fixActiveDate = (optionType === "increment_date" && optDateStr) ? parseDMY(optDateStr) : effDate;
+
+        while (currentDate <= targetEnd) {
+            let mName = currentDate.toLocaleString('mr', { month: 'long', year: 'numeric' });
+            let currentDueBasic = (currentDate >= new Date(fixActiveDate.getFullYear(), fixActiveDate.getMonth(), 1)) ? finalFixationBasic : basicInput;
+            let currentDrawnBasic = basicInput;
+
+            let daPercent = getDaRateByDate(currentDate);
+            let dueDa = Math.round(currentDueBasic * daPercent);
+            let drawnDa = Math.round(currentDrawnBasic * daPercent);
+            let dueHra = Math.round(currentDueBasic * getHraRate(currentDueBasic));
+            let drawnHra = Math.round(currentDrawnBasic * getHraRate(currentDrawnBasic));
+
+            let totalDue = currentDueBasic + dueDa + dueHra;
+            let totalDrawn = currentDrawnBasic + drawnDa + drawnHra;
+            let diff = totalDue - totalDrawn;
+            totalDifferenceSum += diff;
+
+            let row = tbody.insertRow();
+            row.innerHTML = `
+                <td><strong>${mName}</strong></td>
+                <td style="color: blue;">${currentDueBasic}</td><td>${dueDa}</td><td>${dueHra}</td><td style="font-weight:bold; color:blue;">${totalDue}</td>
+                <td>${currentDrawnBasic}</td><td>${drawnDa}</td><td>${drawnHra}</td><td>${totalDrawn}</td>
+                <td style="font-weight:bold; color:green;">${diff}</td>
+            `;
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+
+        let totalRow = tbody.insertRow();
+        totalRow.className = "grand-total-row";
+        totalRow.innerHTML = `<td>एकूण फरक बेरीज</td><td colspan="4">---</td><td colspan="4">---</td><td style="font-size:14px; font-weight:bold;">रु. ${totalDifferenceSum} /-</td>`;
+
+        document.getElementById("diffChartHeading").style.display = "block";
+        document.getElementById("diffTable").style.display = "table";
+        document.getElementById("downloadFixationBtn").style.display = "inline-block";
+    }
+    function renderTable() { renderTableCore(); }
+    function downloadExcel() { /* Core leave export */ }
+</script>
 </script>
 </body>
 </html>
