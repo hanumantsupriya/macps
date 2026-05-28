@@ -2,89 +2,82 @@
 <html lang="mr">
 <head>
     <meta charset="UTF-8">
-    <title>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</title>
+    <title>पुणे महानगरपालिका वेतननिश्चिती प्रणाली</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .tab-btn.active { background-color: #1a73e8; color: white; }
-        .tab-content { display: none; }
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #e0e0e0; margin-right: 5px; }
+        .tab-btn.active { background: #1a73e8; color: white; }
+        .tab-content { display: none; padding: 20px; border: 1px solid #ddd; }
         .tab-content.active { display: block; }
-        .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-        .btn-add, .btn-calc, .btn-excel { background-color: #1a73e8; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #1a73e8; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #1a73e8; color: white; }
+        .drawn-editable { background-color: #fff9c4; font-weight: bold; color: #d32f2f; cursor: text; border: 1px dashed #d32f2f; }
+        .grand-total-row { background-color: #c8e6c9; font-weight: bold; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>पुणे महानगरपालिका रजा नोंद व वेतननिश्चिती प्रणाली</h2>
+    <h2>पुणे महानगरपालिका वेतननिश्चिती व रजा प्रणाली</h2>
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी</button>
-        <button class="tab-btn" onclick="switchTab('page5', this)">५. वेतननिश्चिती व फरक चार्ट</button>
+        <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती</button>
     </div>
-
     <div id="page1" class="tab-content active">
-        <div class="setup-box">
-            <div><label>मागील रजा दिनांक:</label><input type="text" id="p3_date"></div>
-            <div><label>सुरुवातीची EL:</label><input type="number" id="z3_bal"></div>
-            <div><label>सुरुवातीची ML:</label><input type="number" id="aa3_bal"></div>
-        </div>
-        <div class="entry-box">
-            <div><label>हजर दिनांक (A):</label><input type="text" id="a_start" readonly></div>
-            <div><label>शेवट दिनांक (B):</label><input type="text" id="b_end"></div>
-            <div><button class="btn-add" onclick="addEntry()">नोंद जतन करा</button></div>
-        </div>
-        <table id="recordTable"><thead><tr><th>दिनांक (A-B)</th><th>EL शिल्लक</th><th>ML शिल्लक</th></tr></thead><tbody></tbody></table>
+        <h3>रजा नोंदणी</h3>
+        <table id="recordTable"><thead><tr><th>तारीख</th><th>EL शिल्लक</th><th>ML शिल्लक</th></tr></thead><tbody></tbody></table>
     </div>
-
     <div id="page5" class="tab-content">
-        <h3>५. सुधारित वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</h3>
-        <div class="pay-fix-box">
-            <div><label>मनपा पद निवडा:</label><select id="pf_position_list" onchange="onPmcPositionSelect()"></select></div>
-            <div><label>मूळ वेतन:</label><input type="number" id="pf_basic"></div>
-            <div><label>अंमलबजावणी दिनांक:</label><input type="text" id="pf_eff_date"></div>
-            <div><label>फरक शेवटचा दिनांक:</label><input type="text" id="pf_end_date"></div>
+        <h3>वरिष्ठ श्रेणी वेतननिश्चिती</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="pf_position_list" onchange="onPmcPositionSelect()"></select>
+            <input type="number" id="pf_basic" placeholder="सध्याचे मूळ वेतन">
+            <input type="text" id="pf_eff_date" placeholder="अंमलबजावणी दिनांक">
+            <input type="text" id="pf_end_date" placeholder="फरक शेवटचा दिनांक">
         </div>
-        <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती मोजा</button>
+        <button onclick="processPayFixationAndDiff()" style="margin-top:10px;">फरक चार्ट मोजा</button>
         <table id="diffTable"><thead><tr><th>महिना</th><th>Due</th><th>Drawn</th><th>फरक</th></tr></thead><tbody></tbody></table>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    // सर्व डेटा आणि लॉजिक
-    const matrix7th = { "S-6": [19900, 20500, 21100], "S-8": [25500, 26300, 27100] };
-    const positions = [ { title: "लिपिक", scale: "S-6", next: "S-8" }, { title: "वरिष्ठ लिपिक", scale: "S-8", next: "S-10" } ];
+    const matrix7th = { 
+        "S-6": [19900, 20500, 21100, 21700, 22400], 
+        "S-8": [25500, 26300, 27100, 27900, 28700] 
+    };
+    const positions = [
+        {title: "लिपिक (प्रशासन)", scale: "S-6", next: "S-8"},
+        {title: "वरिष्ठ लिपिक", scale: "S-8", next: "S-10"},
+        {title: "फायरमन (अग्निशमन)", scale: "S-6", next: "S-7"},
+        {title: "स्टेशन ऑफिसर (अग्निशमन)", scale: "S-15", next: "S-20"}
+    ];
 
-    function initPositionsDropdown() {
+    function initPositions() {
         let plist = document.getElementById("pf_position_list");
         positions.forEach((p, i) => plist.add(new Option(`${p.title} (${p.scale})`, i)));
     }
 
-    function onPmcPositionSelect() {
-        let selected = positions[document.getElementById("pf_position_list").value];
-        document.getElementById("pf_current_scale").value = selected.scale;
+    function processPayFixationAndDiff() {
+        let basic = parseFloat(document.getElementById("pf_basic").value) || 0;
+        let tbody = document.querySelector("#diffTable tbody");
+        tbody.innerHTML = "";
+        let row = tbody.insertRow();
+        // १ जुलैचा नियम: पुढील टप्पा + १ (किंवा २ टप्पे)
+        let due = basic + 1500; 
+        row.innerHTML = `<td>जुलै-२०२४</td><td>${due}</td><td contenteditable="true" class="drawn-editable">${basic}</td><td>${due - basic}</td>`;
     }
 
-    function addEntry() { alert("नोंद जतन झाली!"); }
-    function renderTable() {}
-    function switchTab(tabId, btn) {
+    function switchTab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(id).classList.add('active');
         btn.classList.add('active');
     }
-    
-    // कॅलेंडर इनिशियलायझेशन
+
+    window.onload = initPositions;
     flatpickr("input[type='text']", { dateFormat: "d/m/Y" });
-    
-    window.onload = initPositionsDropdown;
 </script>
 </body>
 </html>
