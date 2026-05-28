@@ -274,11 +274,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    let history = []; 
+     let history = []; 
     let pageBreaks = []; 
     let isFirstEntry = true;
     let initialValues = {};
-    let grandTotalLwpGlobal = 0;
+    let tempBonusCalculated = 0; 
+    let tempBonusPeriod = "";
+    let tempTotalDays = 0;
+    let tempSpentDays = 0;
+    let tempDutyDays = 0;
+    let grandTotalLwpGlobal = 0; // ग्लोबल काउंंटर सुरक्षित लिंक
 
     const matrix7thFull = {
         "S-1": [15000,15500,16000,16500,17000,17500,18000,18500,19100,19700,20300,20900,21500,22100,22800,23500,24200,24900,25600,26400,27200,28000,28800,29700,30600,31500,32400,33400,34400,35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600],
