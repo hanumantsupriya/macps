@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -130,11 +128,11 @@
             <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4>
             <div class="grid-3">
                 <div>
-                    <label>अकलूज/अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
+                    <label>अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
                     <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
                 </div>
                 <div>
-                    <label>अकलूज/अतिरिक्त रजा शेवटचा दिनांक:</label>
+                    <label>अतिरिक्त रजा शेवटचा दिनांक:</label>
                     <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
                 </div>
                 <div>
@@ -240,123 +238,81 @@
         </div>
     </div>
 
+     <!-- PAGE 4: ADVANCED MACPS WITH STEPWISE LWP & OPTIONS -->
     <div id="page4" class="tab-content">
-        <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
-        <div class="macp-box">
-            <div>
-                <label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label>
-                <input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateMacp()">
-            </div>
-            <div>
-                <label>एकूण बिनपगारी रजा (LWP दिवस):</label>
-                <input type="number" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
-            </div>
-            <div>
-                <label>निलंबन कालावधी (Suspension दिवस):</label>
-                <input type="number" id="macp_suspension" value="0" oninput="calculateMacp()">
-            </div>
-            <div>
-                <label>७ व्या वेतन आयोगानुसार चालू पदनाम / वेतनश्रेणी श्रेणी:</label>
-                <select id="macp_current_level" onchange="calculateMacp()">
-                    <option value="S-6">S-6 : लिपिक-टंकलेखक / कनिष्ठ लिपिक (१९९००-६३२००)</option>
-                    <option value="S-8" selected>S-8 : वरिष्ठ लिपिक (२५५००-८११००)</option>
-                    <option value="S-10">S-10 : मुख्य लिपिक (२९२००-९२३००)</option>
-                    <option value="S-13">S-13 : अधिक्षक (३५४००-११२४००)</option>
-                </select>
-            </div>
+        <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित आश्वासित प्रगती योजना (MACPS)</h3>
+        <div class="setup-box">
+            <div><label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateAdvancedMacp()"></div>
         </div>
-
-        <h4 style="color:#1a73e8; margin-top:20px;">📋 मागील ५ वर्षांचे गोपनीय अहवाल (CR Grading) नोंदवा:</h4>
-        <div class="cr-grid">
-            <div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-            <div><label>वर्ष २ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-            <div><label>वर्ष ३ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-            <div><label>वर्ष ४ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-            <div><label>वर्ष ५ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-        </div>
-
-        <div id="macpResult" class="macp-result-box">
-            माहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
+        
+        <div id="macp_steps_container" style="margin-top:10px;">
+            <!-- लाभ टप्पा १ -->
+            <div class="macp-row">
+                <div>
+                    <label>१ ला लाभ टप्पा निवड:</label>
+                    <select id="m_y1" onchange="calculateAdvancedMacp()">
+                        <option value="10">१ ला लाभ (१० वर्षे पूर्ण)</option>
+                        <option value="12">१ ला लाभ (१२ वर्षे पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div id="m_res1" class="macp-result-box">पात्रता दिनांक: ---</div>
+            </div>
+            <!-- लाभ टप्पा २ -->
+            <div class="macp-row">
+                <div>
+                    <label>२ रा लाभ टप्पा निवड:</label>
+                    <select id="m_y2" onchange="calculateAdvancedMacp()">
+                        <option value="20">२ रा लाभ (२० वर्षे पूर्ण)</option>
+                        <option value="24">२ रा लाभ (२४ वर्षे पूर्ण)</option>
+                        <option value="8">१२ वर्षे नंतर ८ वर्षे (२० वर्ष पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>१ ल्या लाभापासून २ री लाभापर्यंतचे LWP दिवस:</label><input type="number" id="m_lwp2" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div id="m_res2" class="macp-result-box">पात्रता दिनांक: ---</div>
+            </div>
+            <!-- लाभ टप्पा ३ -->
+            <div class="macp-row">
+                <div>
+                    <label>३ रा लाभ टप्पा निवड:</label>
+                    <select id="m_y3" onchange="calculateAdvancedMacp()">
+                        <option value="30">३ या लाभ (३० वर्षे पूर्ण)</option>
+                        <option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option>
+                        <option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>२ ऱ्या लाभापासून ३ री लाभापर्यंतचे LWP दिवस:</label><input type="number" id="m_lwp3" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div id="m_res3" class="macp-result-box">पात्रता दिनांक: ---</div>
+            </div>
         </div>
     </div>
 
+    <!-- PAGE 5: REVISED PAY FIXATION WITH ABSENT PAY CUT -->
     <div id="page5" class="tab-content">
-        <h3>५. सुधारित सेवांतर्गत आश्वासित प्रगती योजना वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
+        <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता (Present Days कपातीसह)</h3>
         <div class="pay-fix-box">
-            <div>
-                <label>वेतन आयोग प्रकार:</label>
-                <select id="pf_comm_type" onchange="onPayCommChange()">
-                    <option value="6th">६ वा वेतन आयोग</option>
-                    <option value="7th" selected>७ वा वेतन आयोग</option>
-                </select>
-            </div>
-            <div>
-                <label>सध्याचा ग्रेड पे / पे लेव्हल:</label>
-                <select id="pf_current_scale" onchange="suggestNextScale()"></select>
-            </div>
-            <div>
-                <label>नवीन वरिष्ठ श्रेणी पे लेव्हल:</label>
-                <select id="pf_new_scale"></select>
-            </div>
-            <div>
-                <label>अंमलबजावणी दिनांक (Effective Date):</label>
-                <input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY">
-            </div>
-            <div>
-                <label>दिनांकास मूळ वेतन (Basic Pay):</label>
-                <input type="number" id="pf_basic" placeholder="उदा. 25500">
-            </div>
-            <div>
-                <label>विकल्प प्रकार (User Option):</label>
-                <select id="pf_option_type" onchange="toggleOptionDate()">
-                    <option value="effective_date">वरिष्ठ श्रेणी दिनांकापासून वेतननिश्चिती</option>
-                    <option value="increment_date">पुढील वार्षिक वेतनवाढ दिनांकापासून विकल्प</option>
-                </select>
-            </div>
-            <div id="pf_opt_date_wrapper" style="display:none;">
-                <label>विकल्प / पुढील वेतनवाढ दिनांक:</label>
-                <input type="text" id="pf_option_date" placeholder="DD/MM/YYYY">
-            </div>
-            <div>
-                <label>फरक बिल शेवटचा दिनांक:</label>
-                <input type="text" id="pf_end_date" placeholder="DD/MM/YYYY">
-            </div>
+            <div><label>महानगरपालिका पद निवडा:</label><select id="pf_position_list" onchange="onPmcPositionSelect()"></select></div>
+            <div><label>सध्याची पे लेव्हल (S-Level):</label><input type="text" id="pf_current_scale" readonly></div>
+            <div><label>सुचवलेली नवीन वरिष्ठ श्रेणी लेव्हल:</label><select id="pf_new_scale"></select></div>
+            <div><label>अंमलबजावणी दिनांक (Effective Date):</label><input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>सध्याचे मूळ वेतन (Basic Pay):</label><input type="number" id="pf_basic" placeholder="उदा. 29200"></div>
+            <div><label>फरक बिल शेवटचा दिनांक:</label><input type="text" id="pf_end_date" placeholder="DD/MM/YYYY"></div>
         </div>
-
-        <div style="margin-bottom: 20px;">
-            <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
-            <button class="btn-excel" id="downloadFixationBtn" style="display:none;" onclick="downloadPayFixationCSV()">वेतननिश्चिती अहवाल डाउनलोड करा</button>
-        </div>
-
+        <div style="margin-bottom: 20px;"><button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button></div>
         <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
-
-        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता (Statement)</h3>
+        
+        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता [टिप: हिरव्या रकान्यात 'हजर दिवस' आणि पिवळ्या रकान्यात 'Drawn Basic' बदलू शकता]</h3>
         <table id="diffTable" style="display:none;">
             <thead>
-                <tr style="background-color: #2e7d32; color: white;">
-                    <th rowspan="2">महिना/वर्ष</th>
-                    <th colspan="4">Due (वरिष्ठ श्रेणीनुसार देय रक्कम)</th>
-                    <th colspan="4">Drawn (प्रत्यक्षात मिळालेली रक्कम)</th>
-                    <th rowspan="2">मासिक एकूण फरक (रु.)</th>
-                </tr>
-                <tr style="background-color: #388e3c; color: white;">
-                    <th>Basic</th>
-                    <th>DA</th>
-                    <th>HRA</th>
-                    <th>एकूण देय</th>
-                    <th>Basic</th>
-                    <th>DA</th>
-                    <th>HRA</th>
-                    <th>एकूण मिळालेला</th>
-                </tr>
+                <tr style="background-color: #2e7d32; color: white;"><th rowspan="2">महिना/वर्ष</th><th rowspan="2">महिन्याचे एकूण दिवस</th><th rowspan="2">कामावर हजर दिवस (Present Days)</th><th colspan="4">Due (वरिष्ठ श्रेणीनुसार देय)</th><th colspan="4">Drawn (प्रत्यक्षातील कपातीसह)</th><th rowspan="2">मासिक फरक (रु.)</th></tr>
+                <tr style="background-color: #388e3c; color: white;"><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण देय</th><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण मिळालेला</th></tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
     <div class="container footer-msg">
-        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
-    </div>
+        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर संपर्क साधावा. धन्यवाद!
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1284,279 +1240,6 @@
         link.setAttribute("download", `Pay_Fixation_Arrears_Report.csv`);
         link.click();
     }
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="mr">
-<head>
-    <meta charset="UTF-8">
-    <title>पुणे महानगरपालिका वेतननिश्चिती व रजा प्रणाली</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .tab-btn.active { background-color: #1a73e8; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .btn-calc { background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #1a73e8; color: white; }
-        .drawn-editable { background-color: #fff9c4; font-weight: bold; color: #d32f2f; cursor: text; border: 1px dashed #d32f2f; }
-        .grand-total-row { background-color: #c8e6c9; font-weight: bold; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>पुणे महानगरपालिका वेतननिश्चिती व रजा प्रणाली</h2>
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी</button>
-        <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती</button>
-    </div>
-
-    <div id="page1" class="tab-content active">
-        <h3>रजा नोंदणी</h3>
-        <table id="recordTable"><thead><tr><th>तारीख (A-B)</th><th>हजर दिवस</th><th>LWP</th><th>EL शिल्लक</th><th>ML शिल्लक</th></tr></thead><tbody></tbody></table>
-    </div>
-
-    <div id="page5" class="tab-content">
-        <h3>५. सुधारित वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट (Due vs Drawn)</h3>
-        <div class="pay-fix-box">
-            <div><label>मनपा पद (अग्निशमनसह):</label><select id="pf_position_list" onchange="onPmcPositionSelect()"></select></div>
-            <div><label>सध्याचे मूळ वेतन:</label><input type="number" id="pf_basic"></div>
-            <div><label>अंमलबजावणी दिनांक:</label><input type="text" id="pf_eff_date"></div>
-            <div><label>फरक बिल शेवटचा दिनांक:</label><input type="text" id="pf_end_date"></div>
-        </div>
-        <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
-        <table id="diffTable"><thead><tr><th>महिना/वर्ष</th><th>Due Basic</th><th>Due DA</th><th>Due HRA</th><th>Due Total</th><th>Drawn Basic</th><th>Drawn DA</th><th>Drawn HRA</th><th>Drawn Total</th><th>फरक (रु.)</th></tr></thead><tbody></tbody></table>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    const matrix7th = {
-        "S-6": [19900,20500,21100,21700,22400,23100,23800],
-        "S-8": [25500,26300,27100,27900,28700,29600,30500]
-    };
-    const positions = [
-        {title: "लिपिक (प्रशासन)", scale: "S-6", next: "S-8"},
-        {title: "वरिष्ठ लिपिक", scale: "S-8", next: "S-10"},
-        {title: "फायरमन (अग्निशमन)", scale: "S-6", next: "S-7"},
-        {title: "स्टेशन ऑफिसर (अग्निशमन)", scale: "S-15", next: "S-20"}
-    ];
-
-    function initPositions() {
-        let plist = document.getElementById("pf_position_list");
-        positions.forEach((p, i) => plist.add(new Option(`${p.title} (${p.scale})`, i)));
-    }
-
-    // १ जुलैचा नियम: १/२ टप्पे वाढ आणि वेतनवाढ
-    function processPayFixationAndDiff() {
-        let basic = parseFloat(document.getElementById("pf_basic").value) || 0;
-        let tbody = document.querySelector("#diffTable tbody"); tbody.innerHTML = "";
-        
-        let row = tbody.insertRow();
-        let dueBasic = basic + 2500; // हे गणित तुमच्या नियमानुसार ऑटो-अपडेट होईल
-        row.innerHTML = `<td>जुलै-२०२४</td><td>${dueBasic}</td><td>1500</td><td>500</td><td>${dueBasic+2000}</td><td contenteditable="true" class="drawn-editable" oninput="updateDiff(this)">${basic}</td><td>1000</td><td>400</td><td>${basic+1400}</td><td class="row-diff">${(dueBasic+2000)-(basic+1400)}</td>`;
-        
-        let totalRow = tbody.insertRow(); totalRow.className = "grand-total-row";
-        totalRow.innerHTML = `<td colspan="9">एकूण थकबाकी</td><td id="grand-total">${(dueBasic+2000)-(basic+1400)}</td>`;
-    }
-
-    function updateDiff(el) {
-        // मॅन्युअल एडिट केल्यावर फरक आपोआप अपडेट होतो
-        let row = el.parentElement;
-        let basic = parseFloat(row.cells[1].innerText);
-        let drawn = parseFloat(el.innerText);
-        row.cells[9].innerText = (basic+2000) - (drawn+1400);
-        document.getElementById("grand-total").innerText = row.cells[9].innerText;
-    }
-
-    function switchTab(id, btn) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-    }
-<!DOCTYPE html>
-<html lang="mr">
-<head>
-    <meta charset="UTF-8">
-    <title>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .tab-btn.active { background-color: #1a73e8; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .btn-calc { background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .pay-fix-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
-        .drawn-editable { background-color: #fffde7 !important; font-weight: bold; color: #b71c1c; border: 1px dashed #b71c1c; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-        th { background-color: #1a73e8; color: white; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका</button>
-        <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</button>
-    </div>
-
-    <!-- PAGE 5 -->
-    <div id="page5" class="tab-content active">
-        <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
-        <div class="pay-fix-box">
-            <div><label>महानगरपालिका पद निवडा:</label><select id="pf_position_list" onchange="onPmcPositionSelect()"></select></div>
-            <div><label>MACP नियम (वर्ष):</label>
-                <select id="macp_rule_type">
-                    <option value="new">नवीन नियम (१०/२०/३० वर्षे)</option>
-                    <option value="old">जुना नियम (१२/२४/३० वर्षे + ८/६ वर्षे)</option>
-                </select>
-            </div>
-            <div><label>सध्याची मूळ पे लेव्हल (S-Level):</label><input type="text" id="pf_current_scale" readonly></div>
-            <div><label>सुचवलेली नवीन वरिष्ठ श्रेणी लेव्हल:</label><select id="pf_new_scale"></select></div>
-            <div><label>अंमलबजावणी दिनांक (Effective Date):</label><input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY"></div>
-            <div><label>सध्याचे मूळ वेतन (Basic Pay):</label><input type="number" id="pf_basic" placeholder="उदा. 29200"></div>
-            <div><label>विकल्प प्रकार:</label><select id="pf_option_type" onchange="toggleOptionDate()"><option value="effective_date">वरिष्ठ श्रेणी दिनांकापासून</option><option value="increment_date">पुढील वार्षिक वेतनवाढ दिनांकापासून</option></select></div>
-            <div id="pf_opt_date_wrapper" style="display:none;"><label>विकल्प / वेतनवाढ दिनांक:</label><input type="text" id="pf_option_date" placeholder="DD/MM/YYYY"></div>
-            <div><label>फरक बिल शेवटचा दिनांक:</label><input type="text" id="pf_end_date" placeholder="DD/MM/YYYY"></div>
-        </div>
-        <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
-        <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
-        <table id="diffTable" style="display:none;"><thead><tr style="background-color: #2e7d32; color: white;"><th rowspan="2">महिना/वर्ष</th><th colspan="4">Due</th><th colspan="4">Drawn</th><th rowspan="2">फरक (रु.)</th></tr><tr style="background-color: #388e3c; color: white;"><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th></tr></thead><tbody></tbody></table>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    const matrix7thFull = { /* (तक्ता इथेच ठेवा) */ };
-    const pmcFullPagingPositions = [ /* (पदांची यादी इथेच ठेवा) */ ];
-
-    function processPayFixationAndDiff() {
-        let macpRule = document.getElementById("macp_rule_type").value; // जुना किंवा नवीन नियम
-        // बाकी लॉजिक तसंच राहील, फक्त stepsToMove ठरवताना macpRule तपासा
-        // जर macpRule == 'old' असेल, तर १२/२४/३० वर्षांच्या हिशोबात टप्पे कमी/जास्त करा.
-    }
-    
-    // बाकी सर्व फंक्शन्स (renderTable, switchTab इ.) जुन्या कोडप्रमाणेच राहतील.
-    <!DOCTYPE html>
-<html lang="mr">
-<head>
-    <meta charset="UTF-8">
-    <title>पुणे महानगरपालिका वेतननिश्चिती व रजा प्रणाली</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .tab-btn.active { background-color: #1a73e8; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .macp-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .btn-calc { background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .macp-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>पुणे महानगरपालिका वेतननिश्चिती व रजा प्रणाली</h2>
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('page4', this)">४. आश्वासित प्रगती योजना (MACP)</button>
-        <button class="tab-btn" onclick="switchTab('page5', this)">५. वेतननिश्चिती व फरक चार्ट</button>
-    </div>
-
-    <!-- MACP TAB -->
-    <div id="page4" class="tab-content active">
-        <h3>आश्वासित प्रगती योजना (MACP) पात्रता तक्ता</h3>
-        <div class="macp-box">
-            <div><label>प्रथम नियुक्ती दिनांक:</label><input type="text" id="macp_join_date" onchange="calculateMacp()"></div>
-            <div><label>MACP नियम निवडा:</label>
-                <select id="macp_rule_type" onchange="calculateMacp()">
-                    <option value="10_20_30">१०, २०, ३० वर्षे सेवा</option>
-                    <option value="12_24_36">१२, २४, ३६ वर्षे सेवा</option>
-                </select>
-            </div>
-            <div><label>एकूण LWP दिवस (वजावटी):</label><input type="number" id="macp_lwp" value="0" oninput="calculateMacp()"></div>
-        </div>
-        <div id="macpResult" class="macp-result-box">वर्षे मोजण्यासाठी दिनांक निवडा.</div>
-    </div>
-
-    <!-- PAY FIXATION TAB -->
-    <div id="page5" class="tab-content">
-        <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती ( Due vs Drawn )</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="number" id="pf_basic" placeholder="सध्याचे मूळ वेतन">
-            <button class="btn-calc" onclick="processPayFixationAndDiff()">फरक चार्ट मोजा</button>
-        </div>
-        <table id="diffTable"><thead><tr><th>महिना</th><th>Due</th><th>Drawn</th><th>फरक</th></tr></thead><tbody></tbody></table>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    function calculateMacp() {
-        let joinStr = document.getElementById('macp_join_date').value;
-        let rule = document.getElementById('macp_rule_type').value;
-        let lwp = parseInt(document.getElementById('macp_lwp').value) || 0;
-        let resultBox = document.getElementById('macpResult');
-
-        if(!joinStr) return;
-
-        let jd = new Date(joinStr.split("/")[2], joinStr.split("/")[1]-1, joinStr.split("/")[0]);
-        
-        // नियमाप्रमाणे वर्षे ठरवणे
-        let y1 = (rule === '10_20_30') ? 10 : 12;
-        let y2 = (rule === '10_20_30') ? 20 : 24;
-        let y3 = (rule === '10_20_30') ? 30 : 36;
-
-        let d1 = new Date(jd.getFullYear() + y1, jd.getMonth(), jd.getDate());
-        let d2 = new Date(jd.getFullYear() + y2, jd.getMonth(), jd.getDate());
-        let d3 = new Date(jd.getFullYear() + y3, jd.getMonth(), jd.getDate());
-
-        // LWP दिवसांची बेरीज करणे (प्रत्येक ३६५ दिवसांसाठी १ वर्ष पुढे ढकलणे)
-        d1.setDate(d1.getDate() + lwp);
-        d2.setDate(d2.getDate() + lwp);
-        d3.setDate(d3.getDate() + lwp);
-
-        resultBox.innerHTML = `
-            <strong>निवडलेला नियम: ${rule === '10_20_30' ? '१०-२०-३० वर्षे' : '१२-२४-३६ वर्षे'}</strong><br>
-            • १ ला लाभ देय दिनांक: ${formatDMY(d1)}<br>
-            • २ रा लाभ देय दिनांक: ${formatDMY(d2)}<br>
-            • ३ रा लाभ देय दिनांक: ${formatDMY(d3)}
-        `;
-    }
-
-    function formatDMY(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
-    function switchTab(id, btn) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-    }
-    flatpickr("input[type='text']", { dateFormat: "d/m/Y" });
-</script>
-</body>
-</html>
-</script>
-</body>
-</html>
-    window.onload = initPositions;
-    flatpickr("input[type='text']", { dateFormat: "d/m/Y" });
 </script>
 </body>
 </html>
