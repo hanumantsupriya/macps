@@ -559,12 +559,42 @@
         document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
     }
 
+    // ** दुरुस्ती: रजा रेंडर करताना एकूण बिनपगारी रजा मोजून ग्लोबल व्हेरिएबल अपडेट करणे **
     function renderTable() {
         let tbody = document.querySelector("#recordTable tbody"); if(!tbody) return; tbody.innerHTML = "";
+        let totalLwpSum = 0;
+
         history.forEach(item => {
             let row = tbody.insertRow();
-            row.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${item.e}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td>${item.k_val.toFixed(2)}</td><td>${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td>${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>`;
+            let lwpValue = item.e || 0;
+            totalLwpSum += lwpValue; // एकूण LWP बेरीज करणे
+            row.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${lwpValue}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td>${item.k_val.toFixed(2)}</td><td>${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td>${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>`;
         });
+
+        // ** ४ थ्या टॅबच्या (MACPS) इनपुट कंट्रोलमध्ये आकडा रिफ्लेक्ट करणे **
+        grandTotalLwpGlobal = totalLwpSum;
+        let macpLwpInput = document.getElementById("macp_lwp");
+        if(macpLwpInput) {
+            macpLwpInput.value = totalLwpSum;
+        }
+    }
+
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        let targetContent = document.getElementById(tabId);
+        if(targetContent) targetContent.classList.add('active');
+        if (btnElement) btnElement.classList.add('active');
+        
+        if(tabId === 'page2' && history.length > 0) {
+            document.getElementById('total_el_shilak').value = Math.floor(history[history.length - 1].finalEL);
+            calculateEncashment();
+        }
+        if(tabId === 'page4') {
+            document.getElementById('macp_lwp').value = grandTotalLwpGlobal; // टॅब बदलताच सिंक
+            calculateMacp();
+        }
     }
 
     function processPayFixationAndDiff() {
