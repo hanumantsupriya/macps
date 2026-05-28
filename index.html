@@ -1383,7 +1383,78 @@
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
     }
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+        .tab-btn.active { background-color: #1a73e8; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .btn-calc { background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .pay-fix-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
+        .drawn-editable { background-color: #fffde7 !important; font-weight: bold; color: #b71c1c; border: 1px dashed #b71c1c; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background-color: #1a73e8; color: white; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका</button>
+        <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</button>
+    </div>
 
+    <!-- PAGE 5 -->
+    <div id="page5" class="tab-content active">
+        <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
+        <div class="pay-fix-box">
+            <div><label>महानगरपालिका पद निवडा:</label><select id="pf_position_list" onchange="onPmcPositionSelect()"></select></div>
+            <div><label>MACP नियम (वर्ष):</label>
+                <select id="macp_rule_type">
+                    <option value="new">नवीन नियम (१०/२०/३० वर्षे)</option>
+                    <option value="old">जुना नियम (१२/२४/३० वर्षे + ८/६ वर्षे)</option>
+                </select>
+            </div>
+            <div><label>सध्याची मूळ पे लेव्हल (S-Level):</label><input type="text" id="pf_current_scale" readonly></div>
+            <div><label>सुचवलेली नवीन वरिष्ठ श्रेणी लेव्हल:</label><select id="pf_new_scale"></select></div>
+            <div><label>अंमलबजावणी दिनांक (Effective Date):</label><input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>सध्याचे मूळ वेतन (Basic Pay):</label><input type="number" id="pf_basic" placeholder="उदा. 29200"></div>
+            <div><label>विकल्प प्रकार:</label><select id="pf_option_type" onchange="toggleOptionDate()"><option value="effective_date">वरिष्ठ श्रेणी दिनांकापासून</option><option value="increment_date">पुढील वार्षिक वेतनवाढ दिनांकापासून</option></select></div>
+            <div id="pf_opt_date_wrapper" style="display:none;"><label>विकल्प / वेतनवाढ दिनांक:</label><input type="text" id="pf_option_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>फरक बिल शेवटचा दिनांक:</label><input type="text" id="pf_end_date" placeholder="DD/MM/YYYY"></div>
+        </div>
+        <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
+        <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
+        <table id="diffTable" style="display:none;"><thead><tr style="background-color: #2e7d32; color: white;"><th rowspan="2">महिना/वर्ष</th><th colspan="4">Due</th><th colspan="4">Drawn</th><th rowspan="2">फरक (रु.)</th></tr><tr style="background-color: #388e3c; color: white;"><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th><th>Basic</th><th>DA</th><th>HRA</th><th>एकूण</th></tr></thead><tbody></tbody></table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    const matrix7thFull = { /* (तक्ता इथेच ठेवा) */ };
+    const pmcFullPagingPositions = [ /* (पदांची यादी इथेच ठेवा) */ ];
+
+    function processPayFixationAndDiff() {
+        let macpRule = document.getElementById("macp_rule_type").value; // जुना किंवा नवीन नियम
+        // बाकी लॉजिक तसंच राहील, फक्त stepsToMove ठरवताना macpRule तपासा
+        // जर macpRule == 'old' असेल, तर १२/२४/३० वर्षांच्या हिशोबात टप्पे कमी/जास्त करा.
+    }
+    
+    // बाकी सर्व फंक्शन्स (renderTable, switchTab इ.) जुन्या कोडप्रमाणेच राहतील.
+</script>
+</body>
+</html>
     window.onload = initPositions;
     flatpickr("input[type='text']", { dateFormat: "d/m/Y" });
 </script>
