@@ -1124,134 +1124,95 @@
     }
 
     function processPayFixationAndDiff() {
-        let commType = document.getElementById("pf_comm_type").value;
-        let currentScale = document.getElementById("pf_current_scale").value;
-        let newScale = document.getElementById("pf_new_scale").value;
-        let effDateStr = document.getElementById("pf_eff_date").value;
-        let basicInput = parseFloat(document.getElementById("pf_basic").value) || 0;
-        let optionType = document.getElementById("pf_option_type").value;
-        let optDateStr = document.getElementById("pf_option_date").value;
-        let endDateStr = document.getElementById("pf_end_date").value;
+    let currentScale = document.getElementById("pf_current_scale").value;
+    let newScale = document.getElementById("pf_new_scale").value;
+    let effDateStr = document.getElementById("pf_eff_date").value;
+    let basicInput = parseFloat(document.getElementById("pf_basic").value) || 0;
+    let optionType = document.getElementById("pf_option_type").value;
+    let optDateStr = document.getElementById("pf_option_date").value;
+    let endDateStr = document.getElementById("pf_end_date").value;
 
-        if (!effDateStr || basicInput <= 0 || !endDateStr) {
-            alert("कृपया अंमलबजावणी तारीख, मूळ वेतन आणि फरक बिलाची शेवटची तारीख अचूक भरा!");
-            return;
-        }
+    if (!effDateStr || basicInput <= 0 || !endDateStr) { alert("कृपया सर्व आवश्यक रकाने अचूक भरा!"); return; }
 
-        let effDate = parseDMY(effDateStr);
-        let endDate = parseDMY(endDateStr);
-        if (endDate < effDate) {
-            alert("शेवटची तारीख अंमलबजावणीच्या तारखेपेक्षा पुढे असणे आवश्यक आहे!");
-            return;
-        }
+    let effDate = parseDMY(effDateStr);
+    let endDate = parseDMY(endDateStr);
+    let effMonth = effDate.getMonth() + 1;
 
-        // --- SECTION A: CALCULATE REVISED PAY FIXATION STAGE ---
-        let finalFixationBasic = basicInput;
-        let fixationRemarks = "";
-        let incrementalBonus = Math.round(basicInput * 0.03); // Standard 3% increment rule
-
-        if (optionType === "effective_date") {
-            let rawDue = basicInput + incrementalBonus;
-            if (commType === "7th") {
-                let targetMin = matrix7th[newScale] || 0;
-                finalFixationBasic = Math.max(rawDue, targetMin);
-                // Round to next hundreds cell match if above min
-                if (finalFixationBasic > targetMin) {
-                    finalFixationBasic = Math.ceil(finalFixationBasic / 100) * 100;
-                }
-            } else {
-                finalFixationBasic = rawDue; // 6th pay direct addition step
-            }
-            fixationRemarks = `वरिष्ठ श्रेणी दिनांकास थेट १ काल्पनिक वेतनवाढ (रु. ${incrementalBonus}) जोडून वेतननिश्चिती केली.`;
-        } else {
-            // Option chosen: fix from next normal annual increment date
-            let dualBonus = Math.round(basicInput * 0.03) + Math.round(basicInput * 0.03); // Combined annual + promotion steps
-            let rawDue = basicInput + dualBonus;
-            if (commType === "7th") {
-                let targetMin = matrix7th[newScale] || 0;
-                finalFixationBasic = Math.max(rawDue, targetMin);
-                if (finalFixationBasic > targetMin) {
-                    finalFixationBasic = Math.ceil(finalFixationBasic / 100) * 100;
-                }
-            } else {
-                finalFixationBasic = rawDue;
-            }
-            fixationRemarks = `विकल्प तारखेनुसार वार्षिक वेतनवाढ + वरिष्ठ श्रेणी वेतनवाढ एकत्र (रु. ${dualBonus}) जोडून सुधारित फिक्सिंग केले.`;
-        }
-
-        // Render Summary block
-        let resBox = document.getElementById("payFixResult");
-        resBox.style.display = "block";
-        resBox.innerHTML = `
-            <strong>🎯 वरिष्ठ श्रेणी वेतननिश्चिती अहवाल निष्कर्ष:</strong><br>
-            • निश्चित पे लेव्हल / श्रेणी स्तर: <strong>${commType === '7th' ? newScale : 'GP ' + newScale}</strong><br>
-            • सुधारित नवीन मूळ वेतन (Revised Basic): <strong>रु. ${finalFixationBasic} /-</strong><br>
-            • अंमलबजावणी/वेतन निश्चिती तारीख: ${optionType === 'increment_date' ? optDateStr : effDateStr}<br>
-            • शेरा (Rules applied): ${fixationRemarks}
-        `;
-
-        // Save report snapshot for CSV export
-        payFixationReportData = {
-            commType, currentScale, newScale, effDateStr, basicInput, finalFixationBasic, optionType, fixationRemarks
-        };
-
-        // --- SECTION B: DUE VS DRAWN MONTHLY STATEMENT GENERATION ---
-        let tbody = document.querySelector("#diffTable tbody");
-        tbody.innerHTML = "";
-        
-        let currentDate = new Date(effDate.getFullYear(), effDate.getMonth(), 1);
-        let targetEnd = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-        let totalDifferenceSum = 0;
-
-        let fixActiveDate = (optionType === "increment_date" && optDateStr) ? parseDMY(optDateStr) : effDate;
-
-        while (currentDate <= targetEnd) {
-            let mName = currentDate.toLocaleString('mr', { month: 'long', year: 'numeric' });
-            
-            // Basic values before vs after active date transition boundary
-            let currentDueBasic = basicInput;
-            if (currentDate >= new Date(fixActiveDate.getFullYear(), fixActiveDate.getMonth(), 1)) {
-                currentDueBasic = finalFixationBasic;
-            }
-            let currentDrawnBasic = basicInput;
-
-            // Compute allowances via sheet configurations
-            let daPercent = getDaRateByDate(currentDate);
-            let dueDa = Math.round(currentDueBasic * daPercent);
-            let drawnDa = Math.round(currentDrawnBasic * daPercent);
-
-            let dueHra = Math.round(currentDueBasic * getHraRate(currentDueBasic));
-            let drawnHra = Math.round(currentDrawnBasic * getHraRate(currentDrawnBasic));
-
-            let totalDue = currentDueBasic + dueDa + dueHra;
-            let totalDrawn = currentDrawnBasic + drawnDa + drawnHra;
-            let diff = totalDue - totalDrawn;
-            totalDifferenceSum += diff;
-
-            let row = tbody.insertRow();
-            row.innerHTML = `
-                <td><strong>${mName}</strong></td>
-                <td style="color: blue;">${currentDueBasic}</td><td>${dueDa}</td><td>${dueHra}</td><td style="font-weight:bold; color:blue;">${totalDue}</td>
-                <td>${currentDrawnBasic}</td><td>${drawnDa}</td><td>${drawnHra}</td><td>${totalDrawn}</td>
-                <td style="font-weight:bold; color:${diff > 0 ? 'green' : '#333'};">${diff}</td>
-            `;
-
-            currentDate.setMonth(currentDate.getMonth() + 1);
-        }
-
-        // Append final Grand Total row
-        let totalRow = tbody.insertRow();
-        totalRow.className = "grand-total-row";
-        totalRow.innerHTML = `
-            <td>एकूण फरक थकबाकी बेरीज (Grand Total Arrears)</td>
-            <td colspan="4">---</td><td colspan="4">---</td>
-            <td style="font-size:14px; font-weight:bold; color:#1b5e20;">रु. ${totalDifferenceSum} /-</td>
-        `;
-
-        document.getElementById("diffChartHeading").style.display = "block";
-        document.getElementById("diffTable").style.display = "table";
-        document.getElementById("downloadFixationBtn").style.display = "inline-block";
+    let dueCells = matrix7thFull[newScale] || matrix7thFull["S-8"];
+    let drawnCells = matrix7thFull[currentScale] || matrix7thFull["S-6"];
+    
+    // ** मनपा नियम: १ जानेवारी ते ३० जून (+१ टप्पा), १ जुलै ते ३१ डिसेंबर (+२ टप्पे) **
+    let matchedIndex = 0;
+    for (let i = 0; i < dueCells.length; i++) {
+        if (dueCells[i] >= basicInput) { matchedIndex = i; break; }
     }
+    
+    let stepsToMove = (effMonth >= 1 && effMonth <= 6) ? 1 : 2; 
+    let targetIndex = matchedIndex + stepsToMove;
+    if (targetIndex >= dueCells.length) targetIndex = dueCells.length - 1;
+    
+    let finalFixationBasic = dueCells[targetIndex];
+
+    let resBox = document.getElementById("payFixResult"); resBox.style.display = "block";
+    resBox.innerHTML = `<strong>🎯 मनपा वरिष्ठ श्रेणी वेतननिश्चिती निष्कर्ष (६-महिने नियम लागू):</strong><br>• स्तर: <strong>${newScale}</strong> | अवधी टप्पा वाढ: <strong>+${stepsToMove} वेतनवाढ टप्पे</strong><br>• सुधारित निश्चित मूळ वेतन: <strong>रु. ${finalFixationBasic} /-</strong>`;
+
+    let tbody = document.querySelector("#diffTable tbody"); tbody.innerHTML = "";
+    let currentDate = new Date(effDate.getFullYear(), effDate.getMonth(), 1);
+    let targetEnd = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+    let totalDifferenceSum = 0;
+    let fixActiveDate = (optionType === "increment_date" && optDateStr) ? parseDMY(optDateStr) : effDate;
+
+    let activeDueBasic = basicInput;
+    let activeDrawnBasic = basicInput;
+
+    let monthCounter = 0;
+    while (currentDate <= targetEnd) {
+        let mName = currentDate.toLocaleString('mr', { month: 'long', year: 'numeric' });
+        let currentMonthNum = currentDate.getMonth() + 1;
+
+        // ** दरवर्षी १ जुलै रोजी देय असणारी ३% ची वार्षिक वेतनवाढ (Due & Drawn दोन्हीं बाजूला सिंक केली) **
+        if (monthCounter > 0 && currentMonthNum === 7) {
+            activeDrawnBasic = getNextMatrixCell(activeDrawnBasic, drawnCells);
+            if (currentDate >= new Date(fixActiveDate.getFullYear(), fixActiveDate.getMonth(), 1)) {
+                activeDueBasic = getNextMatrixCell(activeDueBasic, dueCells);
+            } else {
+                activeDueBasic = getNextMatrixCell(activeDueBasic, drawnCells);
+            }
+        }
+
+        if (currentDate >= new Date(fixActiveDate.getFullYear(), fixActiveDate.getMonth(), 1) && activeDueBasic < finalFixationBasic) {
+            activeDueBasic = finalFixationBasic;
+        }
+
+        let daPercent = getDaRateByDateFromExcel(currentDate); 
+        let dueDa = Math.round(activeDueBasic * daPercent);
+        let drawnDa = Math.round(activeDrawnBasic * daPercent);
+        let dueHra = Math.round(activeDueBasic * getHraRate(activeDueBasic));
+        let drawnHra = Math.round(activeDrawnBasic * getHraRate(activeDrawnBasic));
+
+        let totalDue = activeDueBasic + dueDa + dueHra;
+        let totalDrawn = activeDrawnBasic + drawnDa + drawnHra;
+        let diff = totalDue - totalDrawn; totalDifferenceSum += diff;
+
+        let row = tbody.insertRow();
+        row.innerHTML = `
+            <td><strong>${mName}</strong></td>
+            <td>${activeDueBasic}</td><td>${dueDa}</td><td>${dueHra}</td><td style='color:blue;font-weight:bold;'>${totalDue}</td>
+            <td contenteditable='true' class='drawn-editable' oninput='recalculateRowDiff(this, ${daPercent})'>${activeDrawnBasic}</td>
+            <td>${drawnDa}</td><td>${drawnHra}</td><td>${totalDrawn}</td>
+            <td style='color:green;font-weight:bold;' class='row-diff-cell'>${diff}</td>
+        `;
+        
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        monthCounter++;
+    }
+
+    let totalRow = tbody.insertRow(); totalRow.className = "grand-total-row";
+    totalRow.id = "grand_total_arrears_row";
+    totalRow.innerHTML = `<td>एकूण फरक थकबाकी</td><td colspan="4">---</td><td colspan="4">---</td><td style="font-size:14px; font-weight:bold;" id="grand_total_cell_val">रु. ${totalDifferenceSum} /-</td>`;
+    
+    document.getElementById("diffChartHeading").style.display = "block"; document.getElementById("diffTable").style.display = "table";
+}
 
     function downloadPayFixationCSV() {
         if (!payFixationReportData) return;
@@ -1283,6 +1244,44 @@
         link.setAttribute("download", `Pay_Fixation_Arrears_Report.csv`);
         link.click();
     }
+    // १. मॅट्रिक्समधील पुढील उच्च ३% टप्पा शोधणारे फंक्शन
+function getNextMatrixCell(currentBasic, levelCells) {
+    let target = currentBasic + Math.round(currentBasic * 0.03);
+    for (let i = 0; i < levelCells.length; i++) { if (levelCells[i] >= target) return levelCells[i]; }
+    return Math.ceil(target / 100) * 100;
+}
+
+// २. एक्सलमधून दर सहा महिन्यांनी बदलणारे महागाई भत्ता दरपत्रक मोजणे
+function getDaRateByDateFromExcel(dateObj) {
+    let y = dateObj.getFullYear();
+    let m = dateObj.getMonth() + 1;
+    if (y < 2023) return 0.38;
+    if (y === 2023) return (m <= 6) ? 0.42 : 0.46; 
+    if (y === 2024) return (m <= 6) ? 0.50 : 0.53; 
+    if (y === 2025) return (m <= 6) ? 0.55 : 0.58; 
+    return 0.60; 
+}
+
+// ३. स्क्रीनवर युजरने जुना पगार टाईप केल्यास जागच्या जागी बेरीज बदलणारे फंक्शन
+function recalculateRowDiff(cellElement, daPercent) {
+    let row = cellElement.parentElement;
+    let newDrawnBasic = parseFloat(cellElement.innerText.trim()) || 0;
+    let dueTotal = parseFloat(row.cells[4].innerText.trim()) || 0;
+    
+    let newDrawnDa = Math.round(newDrawnBasic * daPercent);
+    let newDrawnHra = Math.round(newDrawnBasic * ((newDrawnBasic >= 25500) ? 0.24 : 0.20));
+    let newDrawnTotal = newDrawnBasic + newDrawnDa + newDrawnHra;
+    let newDiff = dueTotal - newDrawnTotal;
+    
+    row.cells[6].innerText = newDrawnDa;
+    row.cells[7].innerText = newDrawnHra;
+    row.cells[8].innerText = newDrawnTotal;
+    row.cells[9].innerText = newDiff;
+    
+    let sum = 0;
+    document.querySelectorAll(".row-diff-cell").forEach(c => { sum += parseFloat(c.innerText.trim()) || 0; });
+    document.getElementById("grand_total_cell_val").innerText = `रु. ${sum} /-`;
+}
 </script>
 </body>
 </html>
