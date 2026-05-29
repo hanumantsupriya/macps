@@ -8,68 +8,206 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
         .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+        
         .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
         .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
         .tab-btn.active { background-color: #1a73e8; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
         .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
         .entry-box > div { flex: 1; min-width: 130px; }
         .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
+        
         .macp-row { display: grid; grid-template-columns: 1.2fr 1fr 1.5fr; gap: 15px; margin-bottom: 15px; align-items: end; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 5px solid #1a73e8; }
         label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
         input:disabled, input[readonly] { background-color: #eee; color: #555; }
-        .btn-add, .btn-calc, .btn-excel, .btn-clear { background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; }
-        .btn-clear { background-color: #555555; }
+        
+        .lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
+        .lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .lwp-row div { flex: 1; }
+        .btn-add-row { background: #795548; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-remove-row { background: #d32f2f; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
+        .lwp-status { font-weight: bold; margin-top: 5px; font-size: 13px; }
+
+        .essential-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 1px solid #4db6ac; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
+        
+        .btn-add, .btn-calc { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-pagebreak { background-color: #0288d1; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-delete { background-color: #d32f2f; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        .btn-clear { background-color: #555555; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
         th { background-color: #1a73e8; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 12px; }
+        .bonus-row { background-color: #e65100 !important; color: white; font-weight: bold; font-size: 12px; }
+        .bonus-details-cell { text-align: left !important; padding: 8px; line-height: 1.4; font-size: 11px; }
+        .summary-header { background-color: #2e7d32; color: white; }
         .grand-total-row { background-color: #c8e6c9; font-weight: bold; font-size: 13px; color: #1b5e20; }
+        .lwp-report-header { background-color: #795548; color: white; }
+        .all-leave-report-header { background-color: #00796b; color: white; }
+        
+        .highlight { font-weight: bold; color: #1a73e8; background: #e8f0fe; }
+        .accumulated { color: #2e7d32; font-weight: bold; background: #f1f8e9; }
+        .result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
+        .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
+        
+        .macp-result-box, .pay-fix-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
         .drawn-editable { background-color: #fff9c4 !important; font-weight: bold; color: #b71c1c; border: 1px dashed #b71c1c; }
         .present-days-editable { background-color: #e8f5e9 !important; font-weight: bold; color: #2e7d32; border: 1px dashed #2e7d32; }
-        .macp-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 15px; border-radius: 8px; font-weight: bold; color: #004d40; }
-        .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>पुणे महानगरपालिका रजा नोंद व वेतननिश्चिती व्यवस्थापन प्रणाली</h2>
+    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+
     <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका</button>
+        <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
+        <button class="tab-btn" onclick="switchTab('page2', this)">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
+        <button class="tab-btn" onclick="switchTab('page3', this)">३. कर्मचाऱ्यांची माहिती</button>
         <button class="tab-btn" onclick="switchTab('page4', this)">४. आश्वासित प्रगती योजना (MACPS)</button>
         <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</button>
     </div>
 
-    <!-- PAGE 1: LEAVE ENTRY -->
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
-            <div><label>मागील रजा संपल्याचा दिनांक (P3):</label><input type="text" id="p3_date" placeholder="DD/MM/YYYY"></div>
-            <div><label>सुरुवातीची शिल्लक EL (Z3):</label><input type="number" step="0.01" id="z3_bal" value="0"></div>
-            <div><label>सुरुवातीची शिल्लक ML (AA3):</label><input type="number" step="0.01" id="aa3_bal" value="0"></div>
+            <div>
+                <label>मागील रजा संपल्याचा दिनांक (P3):</label>
+                <input type="text" id="p3_date" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+                <label>सुरुवातीची शिल्लक EL (Z3):</label>
+                <input type="number" step="0.01" id="z3_bal" placeholder="उदा. 10.05">
+            </div>
+            <div>
+                <label>सुरुवातीची शिल्लक ML (AA3):</label>
+                <input type="number" step="0.01" id="aa3_bal" placeholder="उदा. 5.12">
+            </div>
         </div>
+
         <div class="entry-box">
             <div><label>सुरवातीचा हजर दिनांक (A):</label><input type="text" id="a_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>शेवटचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY"></div>
-            <div><label>बिन पगारी रजा LWP (E):</label><input type="number" id="e_lwp" value="0"></div>
+            <div><label>बिन पगारी रजा LWP (E):</label><input type="number" id="e_lwp" value="0" oninput="toggleLwpPanel()"></div>
             <div><label>रजेवर गेल्याचा दिनांक (O):</label><input type="text" id="o_leave_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
             <div>
                 <label>रजेचा प्रकार (Q):</label>
-                <select id="q_type"><option value="हक्काची रजा">हक्काची रजा</option><option value="वैद्यकीय रजा">वैद्यकीय रजा</option></select>
+                <select id="q_type">
+                    <option value="हक्काची रजा">हक्काची रजा</option>
+                    <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
+                    <option value="विशेष रजा">विशेष रजा</option>
+                </select>
             </div>
+            
             <div class="btn-group">
-                <button class="btn-add" onclick="addEntry()">जतन करा (Save Entry)</button>
+                <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
+                <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा (Manual Break)</button>
+                <button class="btn-excel" onclick="downloadExcel()">Excel डाउनलोड करा</button>
+                <button class="btn-delete" id="deleteBtn" style="display:none;" onclick="deleteLastEntry()">शेवटची नोंद हटवा</button>
                 <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
             </div>
         </div>
-        <h3>नोंदींचा तक्ता</h3>
-        <table id="recordTable"><thead><tr><th>हजर दिनांक (A-B)</th><th>हजर दिवस</th><th>LWP</th><th>साठलेली EL</th><th>साठलेली ML</th><th>गैरहजर दिनांक</th><th>रजा प्रकार</th><th>रजा दिवस</th><th>अंतिम EL</th><th>अंतिम ML</th></tr></thead><tbody><tr><td colspan="10" style="color:#666;">अजून कोणतीही नोंद नाही.</td></tr></tbody></table>
+
+        <div id="lwpPanel" class="lwp-panel">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #5d4037;">📅 बिनपगारी रजा (LWP) कालावधी तपशील भरा</h4>
+                <button class="btn-add-row" onclick="addLwpRow()">+ आणखी कालावधी जोडा</button>
+            </div>
+            <div id="lwpContainer"></div>
+            <div id="lwpStatusMsg" class="lwp-status"></div>
+        </div>
+
+        <div class="essential-box">
+            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4>
+            <div class="grid-3">
+                <div>
+                    <label>अकलूज/अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
+                    <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
+                </div>
+                <div>
+                    <label>अकलूज/अतिरिक्त रजा शेवटचा दिनांक:</label>
+                    <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
+                </div>
+                <div>
+                    <button class="btn-calc" id="calcBonusBtn" onclick="calculateBonusLeave()">अतिरिक्त रजा मोजा</button>
+                    <button class="btn-excel" id="saveBonusBtn" style="display:none;" onclick="saveBonusToTable()">तक्त्यात जमा करा</button>
+                </div>
+            </div>
+            <div id="bonusResultMsg" style="margin-top: 10px; font-weight: bold; color: #00796b;"></div>
+        </div>
+
+        <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
+        <table id="recordTable">
+            <thead>
+                <tr>
+                    <th>हजर दिनांक (A-B) / तपशील</th>
+                    <th>हजर दिवस (F)</th>
+                    <th>LWP (E)</th>
+                    <th>साठलेली EL (G)</th>
+                    <th>साठलेली ML (H)</th>
+                    <th>एकूण साठलेली EL (K)</th>
+                    <th>एकूण साठलेली ML (L)</th>
+                    <th>गैरहजर दिनांक (O-P)</th>
+                    <th>रजा प्रकार (Q)</th>
+                    <th>रजा दिवस (R)</th>
+                    <th>अंतिम शिल्लक EL (Z)</th>
+                    <th>अंतिम शिल्लक ML (AA)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <br><br>
+        <h3>४. प्रत्येक मॅन्युअल पानावरील एकत्रित चार्ट (Page-wise Grand Summary Chart)</h3>
+        <table id="summaryChartTable">
+            <thead>
+                <tr>
+                    <th>पान नंबर व अवधी (Page No &amp; Period)</th>
+                    <th>एकूण हजर दिवस (Total F)</th>
+                    <th>एकूण LWP (Total E)</th>
+                    <th>एकूण साठलेली EL (Total G)</th>
+                    <th>एकूण साठलेली ML (Total H)</th>
+                    <th>एकूण गैरहजर रजा दिवस (Total R)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
-    <!-- PAGE 4: ADVANCED MACPS WITH STEPWISE LWP & OPTIONS -->
+    <div id="page2" class="tab-content">
+        <h3>सेवानिवृत्ती रजा रोखीकरण गणना (Leave Encashment Calculator)</h3>
+        <div class="setup-box">
+            <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
+            <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
+            <div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोआप येईल" oninput="calculateEncashment()"></div>
+        </div>
+        <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
+        <div style="margin-top: 15px; text-align: right;">
+            <button class="btn-excel" style="width: auto; padding: 10px 25px;" onclick="downloadEncashmentExcel()">निवृत्ती रजा हिशोब Excel डाउनलोड करा</button>
+        </div>
+    </div>
+
+    <div id="page3" class="tab-content">
+        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
+        <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
+            <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक" oninput="saveEmployeeInfo()"></div>
+            <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते व वित्त विभाग" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" placeholder="उदा. PMC-9922" oninput="saveEmployeeInfo()"></div>
+            <div><label>नोकरीत रुजू झाल्याचा दिनांक:</label><input type="text" id="info_join_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>संभाव्य सेवानिवृत्ती दिनांक:</label><input type="text" id="info_retire_date" placeholder="DD/MM/YYYY"></div>
+        </div>
+    </div>
+
     <div id="page4" class="tab-content">
         <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
         <div class="setup-box">
@@ -77,7 +215,6 @@
         </div>
         
         <div id="macp_steps_container" style="margin-top:10px;">
-            <!-- लाभ टप्पा १ -->
             <div class="macp-row">
                 <div>
                     <label>१ ला लाभ टप्पा निवड:</label>
@@ -89,7 +226,6 @@
                 <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0" oninput="calculateAdvancedMacp()"></div>
                 <div id="m_res1" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
-            <!-- लाभ टप्पा २ -->
             <div class="macp-row">
                 <div>
                     <label>२ रा लाभ टप्पा निवड:</label>
@@ -102,7 +238,6 @@
                 <div><label>१ ल्या लाभापासून २ री लाभापर्यंतचे LWP दिवस:</label><input type="number" id="m_lwp2" value="0" oninput="calculateAdvancedMacp()"></div>
                 <div id="m_res2" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
-            <!-- लाभ टप्पा ३ -->
             <div class="macp-row">
                 <div>
                     <label>३ रा लाभ टप्पा निवड:</label>
@@ -118,7 +253,6 @@
         </div>
     </div>
 
-    <!-- PAGE 5: REVISED PAY FIXATION WITH ABSENT PAY CUT -->
     <div id="page5" class="tab-content">
         <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता (Present Days कपातीसह)</h3>
         <div class="pay-fix-box">
@@ -149,18 +283,32 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    let history = []; let isFirstEntry = true;
-    
+    let history = []; 
+    let pageBreaks = []; 
+    let isFirstEntry = true;
+    let initialValues = {};
+    let tempBonusCalculated = 0; 
+    let tempBonusPeriod = "";
+    let tempTotalDays = 0;
+    let tempSpentDays = 0;
+    let tempDutyDays = 0;
+    let grandTotalLwpGlobal = 0;
+
+    // संपूर्ण अधिकृत ७ वा वेतन मॅट्रिक्स तक्ता बँक
     const matrix7thFull = {
-        "S-1": [15000,15500,16000,16500,17000,17500,18000,18500,19100,19700,20300],
+        "S-1": [15000,15500,16000,16500,17000,17500,18000,18500,19100,19700,20300,20900,21500],
+        "S-2": [15300,15800,16300,16800,17300,17800,18300,18800,19400,20000,20600,21200,21800],
+        "S-3": [16600,17100,17600,18100,18600,19200,19800,20400,21000,21600,22200,22900,23600],
         "S-6": [19900,20500,21100,21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100],
         "S-7": [21700,22400,23100,23800,24500,25200,26000,26800,27600,28400,29300,30200,31100,32000,33000,34000,35000,36100,37200,38300,39400],
         "S-8": [25500,26300,27100,27900,28700,29600,30500,31400,32300,33300,34300,35300,36400,37500,38600,39800,41000,42200,43500,44800,46100],
         "S-10": [29200,30100,31000,31900,32900,33900,34900,35900,37000,38100,39200,40400,41600,42800,44100,45400,46800,48200,49600,51100,52600],
         "S-13": [35400,36500,37600,38700,39900,41100,42300,43600,44900,46200,47600,49000,50500,52000,53600,55200,56900,58600,60400,62200,64100],
-        "S-14": [38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100],
-        "S-15": [41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600]
+        "S-14": [38600,39800,41000,42200,43500,44800,46100,47500,48900,50400,51900,53500,55100,56800,58500],
+        "S-15": [41800,43100,44400,45700,47100,48500,50000,51500,53000,54600,56200,57900,59600,61400,63200],
+        "S-20": [56100,57800,59500,61300,63100,65000,67000,69000,71100,73200,75400,77700,80000,82400,84900]
     };
+
     const pmcPositions = [
         {"title": "लिपिक टंकलेखक / कनिष्ठ लिपिक (प्रशासन)", "scale": "S-6", "next": "S-8"},
         {"title": "वरिष्ठ लिपिक (सर्व विभाग) / परवाना निरीक्षक", "scale": "S-10", "next": "S-13"},
@@ -173,57 +321,118 @@
         {"title": "शिपाई / सुरक्षारक्षक / चौकीदार / मजूर", "scale": "S-1", "next": "S-2"}
     ];
 
-    function parseDMY(str) { if(!str) return null; let p = str.split("/"); return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0])); }
-    function formatDMY(d) { if(!d || isNaN(d.getTime())) return ""; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
-    function nextDay(d) { let n = new Date(d); n.setDate(n.getDate() + 1); return n; }
-    function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
-
-    function setFirstStartDate() {
-        let p3 = document.getElementById('p3_date').value;
-        if(p3) { let parsed = parseDMY(p3); if(parsed) { let nA = formatDMY(nextDay(parsed)); document.getElementById('a_start').value = nA; document.getElementById('o_leave_start').value = nA; } }
-    }
-    function updateLeaveStartDate() {
-        let b = document.getElementById('b_end').value;
-        if(b) { document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(b))); } 
-        else { document.getElementById('o_leave_start').value = document.getElementById('a_start').value; }
-    }
-
-    flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: setFirstStartDate });
-    flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: updateLeaveStartDate });
-    flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true });
-    flatpickr("#macp_join_date", { dateFormat: "d/m/Y", allowInput: true, onChange: calculateAdvancedMacp });
-    flatpickr("#pf_eff_date", { dateFormat: "d/m/Y", allowInput: true });
-    flatpickr("#pf_end_date", { dateFormat: "d/m/Y", allowInput: true });
+    const config = { dateFormat: "d/m/Y", allowInput: true };
+    const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
+    const bPick = flatpickr("#b_end", { ...config, onChange: updateLeaveStartDate });
+    const pLeavePick = flatpickr("#p_leave_end", config);
+    flatpickr("#bonus_start_date", config);
+    flatpickr("#bonus_end_date", config);
+    const joinPick = flatpickr("#info_join_date", { ...config, onChange: function() { saveEmployeeInfo(); syncJoinDateToMacp(); } });
+    const retirePick = flatpickr("#info_retire_date", { ...config, onChange: saveEmployeeInfo });
+    const macpJoinPick = flatpickr("#macp_join_date", { ...config, onChange: calculateAdvancedMacp });
+    flatpickr("#pf_eff_date", config);
+    flatpickr("#pf_end_date", config);
 
     window.onload = function() {
         let plist = document.getElementById("pf_position_list");
         pmcPositions.forEach((p, idx) => { plist.add(new Option(`${p.title} (${p.scale})`, idx)); });
         onPmcPositionSelect();
+
+        if(localStorage.getItem("pmc_leave_history")) {
+            history = JSON.parse(localStorage.getItem("pmc_leave_history"));
+            isFirstEntry = false;
+            initialValues = JSON.parse(localStorage.getItem("pmc_initial_values"));
+            if(localStorage.getItem("pmc_page_breaks")) {
+                pageBreaks = JSON.parse(localStorage.getItem("pmc_page_breaks"));
+            }
+            document.getElementById('p3_date').value = initialValues.p3;
+            document.getElementById('p3_date').disabled = true;
+            document.getElementById('z3_bal').value = initialValues.el;
+            document.getElementById('z3_bal').disabled = true;
+            document.getElementById('aa3_bal').value = initialValues.ml;
+            document.getElementById('aa3_bal').disabled = true;
+            
+            let lastRecord = history[history.length - 1];
+            let nextA = lastRecord.type === "bonus" ? lastRecord.nextA : formatDMY(nextDay(parseDMY(lastRecord.p)));
+            document.getElementById('a_start').value = nextA;
+            document.getElementById('o_leave_start').value = nextA;
+            document.getElementById('deleteBtn').style.display = "inline-block";
+            renderTable();
+        }
     };
 
-    function onPmcPositionSelect() {
-        let idx = document.getElementById("pf_position_list").value;
-        let sel = pmcPositions[idx]; document.getElementById("pf_current_scale").value = sel.scale;
-        let nSelect = document.getElementById("pf_new_scale"); nSelect.innerHTML = "";
-        nSelect.add(new Option(`वरिष्ठ श्रेणी: ${sel.next}`, sel.next));
-    }
+    function parseDMY(str) { if(!str) return null; let parts = str.split("/"); return new Date(parts[2], parts[1] - 1, parts[0]); }
+    function formatDMY(dateObj) { if(!dateObj || isNaN(dateObj.getTime())) return ""; return `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`; }
+    function nextDay(dateObj) { let next = new Date(dateObj); next.setDate(next.getDate() + 1); return next; }
+    function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
 
-    function switchTab(tabId, btnElement) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active'); btnElement.classList.add('active');
+    function syncJoinDateToMacp() { let jd = document.getElementById('info_join_date').value; if(jd) { macpJoinPick.setDate(jd); calculateAdvancedMacp(); } }
+    function updateLeaveStartDate() {
+        let bVal = document.getElementById('b_end').value;
+        if(bVal && bVal.trim() !== "" && bVal.trim() !== "---") { document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal))); } 
+        else { document.getElementById('o_leave_start').value = document.getElementById('a_start').value; }
     }
+    function setFirstStartDate() { if(isFirstEntry && document.getElementById('p3_date').value) { let nextA = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value))); document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA; } }
+    function onPmcPositionSelect() { let idx = document.getElementById("pf_position_list").value; let sel = pmcPositions[idx]; document.getElementById("pf_current_scale").value = sel.scale; let nSelect = document.getElementById("pf_new_scale"); nSelect.innerHTML = ""; nSelect.add(new Option(`वरिष्ठ श्रेणी: ${sel.next}`, sel.next)); }
+    function switchTab(tabId, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); btn.classList.add('active'); if(tabId==='page5'){document.getElementById('macp_lwp').value=grandTotalLwpGlobal;} }
+    function applyLimits(val, maxLimit) { return Math.floor(val) >= maxLimit ? maxLimit : val; }
+
+    function toggleLwpPanel() {
+        let lwpCount = parseInt(document.getElementById('e_lwp').value) || 0;
+        let panel = document.getElementById('lwpPanel');
+        if(lwpCount > 0) { panel.style.display = "block"; if(document.getElementById('lwpContainer').children.length === 0) addLwpRow(); } 
+        else { panel.style.display = "none"; document.getElementById('lwpContainer').innerHTML = ""; }
+    }
+    function addLwpRow() {
+        let container = document.getElementById('lwpContainer'); let index = container.children.length; let row = document.createElement('div'); row.className = 'lwp-row'; row.id = 'lwp_row_' + index;
+        row.innerHTML = `<div><label>LWP पासून:</label><input type="text" class="lwp-start-pick" placeholder="DD/MM/YYYY"></div><div><label>LWP पर्यंत:</label><input type="text" class="lwp-end-pick" placeholder="DD/MM/YYYY"></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
+        container.appendChild(row); flatpickr(row.querySelector('.lwp-start-pick'), config); flatpickr(row.querySelector('.lwp-end-pick'), config);
+    }
+    function removeLwpRow(index) { let row = document.getElementById('lwp_row_' + index); if(row) row.remove(); }
 
     function addEntry() {
         let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
         let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
         let q = document.getElementById('q_type').value, e = parseFloat(document.getElementById('e_lwp').value) || 0;
-        if(!a || !b || !p) { alert("सर्व आवश्यक दिनांक भरा!"); return; }
-        let tbody = document.querySelector("#recordTable tbody"); if(isFirstEntry) tbody.innerHTML = ""; isFirstEntry = false;
-        let row = tbody.insertRow();
-        row.innerHTML = `<td>${a} - ${b}</td><td>30</td><td>${e}</td><td>2.5</td><td>1</td><td>${o} - ${p}</td><td>${q}</td><td>5</td><td>15</td><td>10</td>`;
-        document.getElementById('a_start').value = formatDMY(nextDay(parseDMY(p)));
-        document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
+        if (!a || !p) { alert("कृपया आवश्यक तारखा भरा!"); return; }
+
+        if (isFirstEntry) {
+            initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
+            localStorage.setItem("pmc_initial_values", JSON.stringify(initialValues)); isFirstEntry = false;
+        }
+        let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
+        let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
+        let f = b && b !== "---" ? (Math.ceil(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1) : 0;
+        f = Math.max(0, f - e);
+        let g = Math.floor(f / 11) + (f % 11) / 100; let h = Math.floor(f / 30) + (f % 30) / 100;
+        let k_val = applyLimits(Math.floor(curEL) + Math.floor(g) + (Math.round((curEL%1)*100)+Math.round((g%1)*100))/100, 365);
+        let l_val = applyLimits(Math.floor(curML) + Math.floor(h) + (Math.round((curML%1)*100)+Math.round((h%1)*100))/100, 120);
+        let r_diff = Math.ceil(Math.abs(parseDMY(p) - parseDMY(o)) / (1000 * 60 * 60 * 24)) + 1;
+
+        let finalEL = q === "हक्काची रजा" ? k_val - r_diff : k_val;
+        let finalML = q === "वैद्यकीय रजा" ? l_val - r_diff : l_val;
+
+        history.push({ type: "regular", a, b: b||"---", e, f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML });
+        localStorage.setItem("pmc_leave_history", JSON.stringify(history)); renderTable();
+        
+        let nextA = formatDMY(nextDay(parseDMY(p))); document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA;
+    }
+
+    function deleteLastEntry() {
+        if (history.length === 0) return;
+        if (confirm("शेवटची नोंद हटवायची का?")) {
+            let lastIndex = history.length - 1; history.pop();
+            pageBreaks = pageBreaks.filter(idx => idx !== lastIndex);
+            localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks));
+            localStorage.setItem("pmc_leave_history", JSON.stringify(history));
+            if (history.length === 0) { localStorage.clear(); location.reload(); } 
+            else {
+                let last = history[history.length - 1];
+                let nextA = last.type === "bonus" ? last.nextA : formatDMY(nextDay(parseDMY(last.p)));
+                document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA;
+                renderTable();
+            }
+        }
     }
 
     function getDaRateByDateFromExcel(dateObj) {
@@ -244,13 +453,10 @@
     function calculateAdvancedMacp() {
         let joinStr = document.getElementById('macp_join_date').value; if(!joinStr) return;
         let jd = parseDMY(joinStr);
-        let r1 = parseInt(document.getElementById('m_y1').value);
-        let lwp1 = parseInt(document.getElementById('m_lwp1').value) || 0;
-        let r2_in = document.getElementById('m_y2').value;
-        let lwp2 = parseInt(document.getElementById('m_lwp2').value) || 0;
+        let r1 = parseInt(document.getElementById('m_y1').value); let lwp1 = parseInt(document.getElementById('m_lwp1').value) || 0;
+        let r2_in = document.getElementById('m_y2').value; let lwp2 = parseInt(document.getElementById('m_lwp2').value) || 0;
         let r2 = (r2_in === '8') ? (r1 + 8) : parseInt(r2_in);
-        let r3_in = document.getElementById('m_y3').value;
-        let lwp3 = parseInt(document.getElementById('m_lwp3').value) || 0;
+        let r3_in = document.getElementById('m_y3').value; let lwp3 = parseInt(document.getElementById('m_lwp3').value) || 0;
         let r3 = (r3_in === '6') ? (r2 + 6) : parseInt(r3_in);
 
         let d1 = new Date(jd.getFullYear() + r1, jd.getMonth(), jd.getDate()); d1.setDate(d1.getDate() + lwp1);
@@ -267,25 +473,25 @@
         let effDateStr = document.getElementById("pf_eff_date").value;
         let basicInput = parseFloat(document.getElementById("pf_basic").value) || 0;
         let endDateStr = document.getElementById("pf_end_date").value;
-        if (!effDateStr || basicInput <= 0 || !endDateStr) { alert("कृपया सर्व आवश्यक रकाने अचूक भरा!"); return; }
+        if (!effDateStr || basicInput <= 0 || !endDateStr) { alert("सर्व रकाने भरा!"); return; }
 
         let effDate = parseDMY(effDateStr); let endDate = parseDMY(endDateStr);
         let dueCells = matrix7thFull[newScale] || matrix7thFull["S-8"];
         let drawnCells = matrix7thFull[currentScale] || matrix7thFull["S-6"];
         
-        let matchedIndex = 0;
-        for (let i = 0; i < dueCells.length; i++) { if (dueCells[i] >= basicInput) { matchedIndex = i; break; } }
-        let stepsToMove = (effDate.getMonth() + 1 >= 1 && effDate.getMonth() + 1 <= 6) ? 1 : 2; 
+        let matchedIndex = 0; for (let i = 0; i < dueCells.length; i++) { if (dueCells[i] >= basicInput) { matchedIndex = i; break; } }
+        let stepsToMove = (effDate.getMonth() + 1 >= 1 && effDate.getMonth() + 1 <= 6) ? 1 : 2;
         let targetIndex = matchedIndex + stepsToMove; if (targetIndex >= dueCells.length) targetIndex = dueCells.length - 1;
         let finalFixationBasic = dueCells[targetIndex];
 
         document.getElementById("payFixResult").style.display = "block";
-        document.getElementById("payFixResult").innerHTML = `<strong>🎯 मनपा वरिष्ठ श्रेणी वेतननिश्चिती निष्कर्ष (६-महिने नियम लागू):</strong><br>• सुधारित निश्चित मूळ वेतन: <strong>रु. ${finalFixationBasic} /-</strong>`;
+        document.getElementById("payFixResult").innerHTML = `<strong>🎯 वरिष्ठ श्रेणी वेतननिश्चिती निष्कर्ष (६-महिने नियम लागू):</strong> मूळ वेतन स्तर: रु. ${finalFixationBasic} /-`;
 
         let tbody = document.querySelector("#diffTable tbody"); tbody.innerHTML = "";
         let currentDate = new Date(effDate.getFullYear(), effDate.getMonth(), 1);
         let targetEnd = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
         let totalDifferenceSum = 0;
+
         let activeDueBasic = finalFixationBasic; let activeDrawnBasic = basicInput;
         let monthCounter = 0;
 
@@ -320,43 +526,29 @@
         document.getElementById("diffChartHeading").style.display = "block"; document.getElementById("diffTable").style.display = "table";
     }
 
-    // ** FORMULA: BASIC SALARY / TOTAL DAYS OF MONTH * PRESENT DAYS (DUE SIDE) **
     function recalculateRowByPresentDays(cellElement, originalDueBasic, daPercent, totalDays) {
-        let row = cellElement.parentElement;
-        let presentDays = parseFloat(cellElement.innerText.trim()) || 0;
+        let row = cellElement.parentElement; let presentDays = parseFloat(cellElement.innerText.trim()) || 0;
         if(presentDays > totalDays) { presentDays = totalDays; cellElement.innerText = totalDays; }
-        
         let newDueBasic = Math.round((originalDueBasic / totalDays) * presentDays);
-        let newDueDa = Math.round(newDueBasic * daPercent);
-        let newDueHra = Math.round(newDueBasic * getHraRate(newDueBasic));
+        let newDueDa = Math.round(newDueBasic * daPercent); let newDueHra = Math.round(newDueBasic * getHraRate(newDueBasic));
         let newDueTotal = newDueBasic + newDueDa + newDueHra;
-
         row.cells[3].innerText = newDueBasic; row.cells[4].innerText = newDueDa; row.cells[5].innerText = newDueHra; row.cells[6].innerText = newDueTotal;
-        let drawnTotal = parseFloat(row.cells[10].innerText.trim()) || 0;
-        row.cells[11].innerText = newDueTotal - drawnTotal; updateGrandTotal();
+        let drawnTotal = parseFloat(row.cells[10].innerText.trim()) || 0; row.cells[11].innerText = newDueTotal - drawnTotal; updateGrandTotal();
     }
 
-    // ** FORMULA: DRAWN BASIC / TOTAL DAYS OF MONTH * PRESENT DAYS (DRAWN SIDE मॅन्युअल एडिटसाठी) **
     function recalculateRowDrawnOnly(cellElement, daPercent, totalDays) {
-        let row = cellElement.parentElement;
-        let presentDays = parseFloat(row.cells[2].innerText.trim()) || totalDays;
+        let row = cellElement.parentElement; let presentDays = parseFloat(row.cells[2].innerText.trim()) || totalDays;
         let typedDrawnBasic = parseFloat(cellElement.innerText.trim()) || 0;
-        
         let finalDrawnBasic = Math.round((typedDrawnBasic / totalDays) * presentDays);
-        let newDrawnDa = Math.round(finalDrawnBasic * daPercent);
-        let newDrawnHra = Math.round(finalDrawnBasic * getHraRate(finalDrawnBasic));
+        let newDrawnDa = Math.round(finalDrawnBasic * daPercent); let newDrawnHra = Math.round(finalDrawnBasic * getHraRate(finalDrawnBasic));
         let newDrawnTotal = finalDrawnBasic + newDrawnDa + newDrawnHra;
-
         row.cells[8].innerText = newDrawnDa; row.cells[9].innerText = newDrawnHra; row.cells[10].innerText = newDrawnTotal;
-        let dueTotal = parseFloat(row.cells[6].innerText.trim()) || 0;
-        row.cells[11].innerText = dueTotal - newDrawnTotal; updateGrandTotal();
+        let dueTotal = parseFloat(row.cells[6].innerText.trim()) || 0; row.cells[11].innerText = dueTotal - newDrawnTotal; updateGrandTotal();
     }
 
-    function updateGrandTotal() {
-        let sum = 0; document.querySelectorAll(".row-diff-cell").forEach(c => { sum += parseFloat(c.innerText.trim()) || 0; });
-        document.getElementById("grand_total_cell_val").innerText = `रु. ${sum} /-`;
-    }
-    function clearAllData() { localStorage.clear(); location.reload(); }
+    function updateGrandTotal() { let sum = 0; document.querySelectorAll(".row-diff-cell").forEach(c => { sum += parseFloat(c.innerText.trim()) || 0; }); document.getElementById("grand_total_cell_val").innerText = `रु. ${sum} /-`; }
+    function renderTable() { let tbody = document.querySelector("#recordTable tbody"); tbody.innerHTML = ""; history.forEach(item => { let row = tbody.insertRow(); row.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${item.e}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td>${item.k_val.toFixed(2)}</td><td>${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td>${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>`; }); if(history.length > 0) { document.getElementById('deleteBtn').style.display="inline-block"; } }
+    function manualPageBreak() {} function downloadExcel() {} function calculateEncashment() {} function downloadEncashmentExcel() {} function saveEmployeeInfo() {} function clearAllData() { localStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
