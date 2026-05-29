@@ -6,31 +6,37 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1380px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+        
         .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
         .tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
         .tab-btn.active { background-color: #1a73e8; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
         .setup-box, .macp-box, .pay-fix-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
         .entry-box > div { flex: 1; min-width: 130px; }
         .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
+        
         .macp-row { display: grid; grid-template-columns: 1.2fr 1fr 1.5fr; gap: 15px; margin-bottom: 15px; align-items: end; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 5px solid #1a73e8; }
         label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
         input:disabled, input[readonly] { background-color: #eee; color: #555; }
+        
         .lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
         .lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .lwp-row div { flex: 1; }
         .btn-add-row { background: #795548; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-remove-row { background: #d32f2f; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
         .lwp-status { font-weight: bold; margin-top: 5px; font-size: 13px; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
         th { background-color: #1a73e8; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
+        
         .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 12px; }
         .grand-total-row { background-color: #c8e6c9; font-weight: bold; font-size: 13px; color: #1b5e20; }
         .drawn-editable { background-color: #fff9c4 !important; font-weight: bold; color: #b71c1c; border: 1px dashed #b71c1c; }
@@ -40,8 +46,10 @@
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+    <h2>पुणे महानगरपालिका रजा नोंद व वेतननिश्चिती व्यवस्थापन प्रणाली</h2>
+
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
         <button class="tab-btn" onclick="switchTab('page2', this)">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
@@ -57,6 +65,7 @@
             <div><label>सुरुवातीची शिल्लक EL (Z3):</label><input type="number" step="0.01" id="z3_bal" value="0"></div>
             <div><label>सुरुवातीची शिल्लक ML (AA3):</label><input type="number" step="0.01" id="aa3_bal" value="0"></div>
         </div>
+
         <div class="entry-box">
             <div><label>सुरवातीचा हजर दिनांक (A):</label><input type="text" id="a_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>शेवटचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY"></div>
@@ -65,8 +74,12 @@
             <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
             <div>
                 <label>रजेचा प्रकार (Q):</label>
-                <select id="q_type"><option value="हक्काची रजा">हक्काची रजा</option><option value="वैद्यकीय रजा">वैद्यकीय रजा</option></select>
+                <select id="q_type">
+                    <option value="हक्काची रजा">हक्काची रजा</option>
+                    <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
+                </select>
             </div>
+            
             <div class="btn-group">
                 <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
                 <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा (Manual Break)</button>
@@ -74,6 +87,7 @@
                 <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
             </div>
         </div>
+
         <div id="lwpPanel" class="lwp-panel">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                 <h4 style="margin: 0; color: #5d4037;">📅 बिनपगारी रजा (LWP) कालावधी तपशील भरा</h4>
@@ -82,6 +96,7 @@
             <div id="lwpContainer"></div>
             <div id="lwpStatusMsg" class="lwp-status"></div>
         </div>
+
         <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
         <table id="recordTable">
             <thead>
@@ -91,15 +106,20 @@
             </thead>
             <tbody></tbody>
         </table>
-        <br>
+
+        <br><br>
         <h3>मॅन्युअल पानावरील एकत्रित चार्ट (Page-wise Summary)</h3>
         <table id="summaryChartTable">
-            <thead><tr><th>पान नंबर व अवधी</th><th>एकूण हजर दिवस</th><th>एकूण LWP</th><th>एकूण साठलेली EL</th><th>एकूण साठलेली ML</th><th>एकूण रजा दिवस</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>पान नंबर व अवधी</th><th>एकूण हजर दिवस</th><th>एकूण LWP</th><th>एकूण साठलेली EL</th><th>एकूण साठलेली ML</th><th>एकूण रजा दिवस</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <!-- PAGE 2: LEAVE ENCASHMENT (AUTO SYNC) -->
+    <!-- PAGE 2: ENCASHMENT -->
     <div id="page2" class="tab-content">
         <h3>सेवानिवृत्ती रजा रोखीकरण गणना (Auto Sync)</h3>
         <div class="setup-box">
@@ -110,7 +130,7 @@
         <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
     </div>
 
-    <!-- PAGE 3: EMPLOYEE DETAILS -->
+    <!-- PAGE 3: EMPLOYEE INFO -->
     <div id="page3" class="tab-content">
         <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती</h3>
         <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
@@ -123,7 +143,7 @@
         </div>
     </div>
 
-    <!-- PAGE 4: DYNAMIC MACPS WITH HOLIDAY / LEAVE ATTENDANCE CHECK -->
+    <!-- PAGE 4: MACPS -->
     <div id="page4" class="tab-content">
         <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
         <div class="setup-box">
@@ -131,24 +151,44 @@
         </div>
         <div id="macp_steps_container">
             <div class="macp-row">
-                <div><label>१ ला लाभ टप्पा:</label><select id="m_y1" onchange="calculateAdvancedMacp()"><option value="10">१० वर्षे पूर्ण</option><option value="12">१२ वर्षे पूर्ण</option></select></div>
-                <div><label>१ ल्या लाभापूर्वीचे LWP दिवस:</label><input type="number" id="m_lwp1" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div>
+                    <label>१ ला लाभ टप्पा निवड:</label>
+                    <select id="m_y1" onchange="calculateAdvancedMacp()">
+                        <option value="10">१ ला लाभ (१० वर्षे पूर्ण)</option>
+                        <option value="12">१ ला लाभ (१२ वर्षे पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0" oninput="calculateAdvancedMacp()"></div>
                 <div id="m_res1" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
             <div class="macp-row">
-                <div><label>२ रा लाभ टप्पा:</label><select id="m_y2" onchange="calculateAdvancedMacp()"><option value="20">२० वर्षे पूर्ण</option><option value="24">२४ वर्षे पूर्ण</option><option value="8">१२ नंतर ८ वर्षे (२० वर्ष)</option></select></div>
-                <div><label>१ ल्या लाभापासून २ री पर्यंतचे LWP:</label><input type="number" id="m_lwp2" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div>
+                    <label>२ रा लाभ टप्पा निवड:</label>
+                    <select id="m_y2" onchange="calculateAdvancedMacp()">
+                        <option value="20">२ रा लाभ (२० वर्षे पूर्ण)</option>
+                        <option value="24">२ रा लाभ (२४ वर्षे पूर्ण)</option>
+                        <option value="8">१२ वर्षे नंतर ८ वर्षे (२० वर्ष पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>१ ल्या लाभापासून २ री लाभापर्यंतचे LWP दिवस:</label><input type="number" id="m_lwp2" value="0" oninput="calculateAdvancedMacp()"></div>
                 <div id="m_res2" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
             <div class="macp-row">
-                <div><label>३ रा लाभ टप्पा:</label><select id="m_y3" onchange="calculateAdvancedMacp()"><option value="30">३० वर्षे पूर्ण</option><option value="36">३६ वर्षे पूर्ण</option><option value="6">२४ नंतर ६ वर्षे (३० वर्ष)</option></select></div>
-                <div><label>२ ऱ्या लाभापासून ३ री पर्यंतचे LWP:</label><input type="number" id="m_lwp3" value="0" oninput="calculateAdvancedMacp()"></div>
+                <div>
+                    <label>३ रा लाभ टप्पा निवड:</label>
+                    <select id="m_y3" onchange="calculateAdvancedMacp()">
+                        <option value="30">३ या लाभ (३० वर्षे पूर्ण)</option>
+                        <option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option>
+                        <option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष पूर्ण)</option>
+                    </select>
+                </div>
+                <div><label>२ ऱ्या लाभापासून ३ री लाभापर्यंतचे LWP दिवस:</label><input type="number" id="m_lwp3" value="0" oninput="calculateAdvancedMacp()"></div>
                 <div id="m_res3" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 5: PAY FIXATION WITH CPS & CHS ALLOWANCES -->
+    <!-- PAGE 5: PAY FIXATION -->
     <div id="page5" class="tab-content">
         <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता (CPS & CHS सह)</h3>
         <div class="pay-fix-box">
@@ -160,7 +200,8 @@
         </div>
         <button class="btn-calc" onclick="processPayFixationAndDiff()">वेतननिश्चिती व फरक चार्ट मोजा</button>
         <div id="payFixResult" class="pay-fix-result-box" style="display:none;"></div>
-        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता (Statement)</h3>
+        
+        <h3 id="diffChartHeading" style="display:none; margin-top:30px;">Due vs Drawn मासिक फरक तक्ता</h3>
         <table id="diffTable" style="display:none;">
             <thead>
                 <tr style="background-color: #1a73e8; color: white;"><th rowspan="2">महिना/वर्ष</th><th rowspan="2">एकूण दिवस</th><th rowspan="2">हजर दिवस</th><th colspan="6">Due (वरिष्ठ श्रेणी देय रक्कम)</th><th colspan="6">Drawn (मिळालेली रक्कम)</th><th rowspan="2">फरक (रु.)</th></tr>
@@ -169,13 +210,14 @@
             <tbody></tbody>
         </table>
     </div>
-    <div class="container footer-msg">सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर संपर्क साधावा. धन्यवाद!</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     let history = []; let pageBreaks = []; let isFirstEntry = true; let initialValues = {};
     const matrix7thFull = {};
+    
+    // S-1 ते S-31 मॅट्रिक्स ऑटो जनरेशन (GitHub सुसंगत लॉक प्रकार)
     for(let i=1; i<=31; i++){
         let base = 15000 + (i*1100);
         matrix7thFull["S-"+i] = Array.from({length:40}, (_,k)=> Math.round((base * Math.pow(1.03, k))/100)*100);
@@ -300,7 +342,7 @@
     function renderTable() {
         let tbody = document.querySelector("#recordTable tbody"); tbody.innerHTML = "";
         let chart = document.querySelector("#summaryChartTable tbody"); chart.innerHTML = "";
-        if(history.length === 0) { tbody.innerHTML = '<tr><td colspan="12" style="color:#666;">अजून कोणतीही नोंद नाही.</td></tr>'; document.getElementById('deleteBtn').style.display="none"; return; }
+        if(history.length === 0) { document.getElementById('deleteBtn').style.display="none"; return; }
         document.getElementById('deleteBtn').style.display="inline-block";
         document.getElementById('total_el_shilak').value = Math.floor(history[history.length-1].finalEL); calculateEncashment();
 
@@ -320,18 +362,13 @@
         calculateAdvancedMacp();
     }
 
-    // ** सुधारित कर्मचारी हजेरी नियम (MACP Check on Active Holiday/Leave Duty) **
     function checkEmployeeDutyStatusOnDate(checkDate) {
-        let finalDate = new Date(checkDate);
-        let foundConflict = true;
+        let finalDate = new Date(checkDate); let foundConflict = true;
         while(foundConflict) {
             foundConflict = false;
             for(let i=0; i<history.length; i++) {
                 let o = parseDMY(history[i].o); let p = parseDMY(history[i].p);
-                if(o && p && finalDate >= o && finalDate <= p) {
-                    finalDate = nextDay(p); // रजा संपवून हजर झाल्याचा पुढचा थेट वार धरला
-                    foundConflict = true; break;
-                }
+                if(o && p && finalDate >= o && finalDate <= p) { finalDate = nextDay(p); foundConflict = true; break; }
             }
         }
         return finalDate;
@@ -380,7 +417,6 @@
             let daPercent = getDaRateByDateFromExcel(currentDate);
             let hraPercent = getHraRate(activeDueBasic);
 
-            // ** विशेष नियम: मे, जून, जुलै २०२० मध्ये CHS = 0% भत्ता **
             let isChsZeroPeriod = (currentDate.getFullYear() === 2020 && (currentDate.getMonth()+1 === 5 || currentDate.getMonth()+1 === 6 || currentDate.getMonth()+1 === 7));
             let chsRate = isChsZeroPeriod ? 0.00 : 0.01;
 
@@ -418,6 +454,7 @@
     function saveEmployeeInfo() { localStorage.setItem("pmc_emp_info", JSON.stringify({ name:document.getElementById('info_name').value, desig:document.getElementById('info_desig').value, dept:document.getElementById('info_dept').value, pf:document.getElementById('info_pf').value, joinDate:document.getElementById('info_join_date').value, retireDate:document.getElementById('info_retire_date').value })); }
     function loadData() { if(localStorage.getItem("pmc_leave_history")) { history=JSON.parse(localStorage.getItem("pmc_leave_history")); isFirstEntry=false; initialValues=JSON.parse(localStorage.getItem("pmc_initial_values")); if(localStorage.getItem("pmc_page_breaks")) pageBreaks=JSON.parse(localStorage.getItem("pmc_page_breaks")); renderTable(); } }
     function clearAllData() { localStorage.clear(); location.reload(); }
+    function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
 </script>
 </body>
 </html>
