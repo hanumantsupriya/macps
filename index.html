@@ -175,7 +175,7 @@
             <div class="macp-row">
                 <div>
                     <label>३ रा लाभ टप्पा निवड:</label>
-                    <select id="m_y3"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
+                    <select id="m_y3"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२4 वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
                 </div>
                 <div><label>२ ऱ्या लाभापासून ३ री पर्यंतचे LWP:</label><input type="number" id="m_lwp3" value="0"></div>
                 <div id="m_res3" class="macp-result-box">पात्रता दिनांक: ---</div>
@@ -235,31 +235,26 @@
         matrix7thFull["S-"+i] = Array.from({length:40}, (_,k)=> Math.round((base * Math.pow(1.03, k))/100)*100);
     }
 
-    // जागतिक स्कोपमध्ये जोडलेले अचूक ऑटो-डेट फंक्शन (आता कॉम्प्युटर आणि गिटहब दोन्हीकडे चालणार)
-    function setFirstStartDate() {
-        let p3Val = document.getElementById('p3_date').value;
-        if(isFirstEntry && p3Val) {
-            let nA = formatDMY(nextDay(parseDMY(p3Val)));
-            document.getElementById('a_start').value = nA;
-            document.getElementById('o_leave_start').value = nA;
-        }
+    // खात्रीशीर उपाय: flatpickr इव्हेंटद्वारे बदललेली तारीख थेट ओळखणारे फंक्शन्स (Global Trigger System)
+    function setFirstStartDate(selectedDates, dateStr) {
+        if(!dateStr) return;
+        let nA = formatDMY(nextDay(parseDMY(dateStr)));
+        document.getElementById('a_start').value = nA;
+        document.getElementById('o_leave_start').value = nA;
     }
 
-    function updateLeaveStartDate() {
-        let bVal = document.getElementById('b_end').value;
-        if(bVal && bVal !== "---" && bVal.trim() !== "") {
-            document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal)));
-        } else {
-            document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
-        }
+    function updateLeaveStartDate(selectedDates, dateStr) {
+        if(!dateStr) return;
+        document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(dateStr)));
         checkLwpValidation();
     }
 
-    // डोम लोड होताच इव्हेंट मॅपिंग
     document.addEventListener("DOMContentLoaded", function() {
+        // थेट इव्हेंट लिस्नर मॅपिंग ज्यामुळे गिटहबवर आपोआप तारीख बदलणे सुरू होईल
         flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: setFirstStartDate });
         flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: updateLeaveStartDate });
         flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true });
+        
         flatpickr("#info_join_date", { dateFormat: "d/m/Y", allowInput: true, onChange: function(selectedDates, dateStr) { saveEmployeeInfo(); if(dateStr) { document.getElementById("macp_join_date").value = dateStr; calculateAdvancedMacp(); } } });
         flatpickr("#info_retire_date", { dateFormat: "d/m/Y", allowInput: true, onChange: saveEmployeeInfo });
         flatpickr("#macp_join_date", { dateFormat: "d/m/Y", allowInput: true, onChange: calculateAdvancedMacp });
@@ -344,12 +339,13 @@
         let l_val = Math.min(120, Math.floor(curML) + Math.floor(h) + (Math.round((curML%1)*100)+Math.round((h%1)*100))/100);
         let r_diff = Math.round(Math.abs(parseDMY(p) - parseDMY(o)) / (1000 * 60 * 60 * 24)) + 1;
 
-        let finalEL = q === "हक्काची रजा" ? k_val - r_diff : k_val;
-        let finalML = q === "वैद्यकीय रजा" ? l_val - r_diff : l_val;
+        // कडक नियम: रजा वजा करताना ती शून्यापेक्षा कमी (Negative) होऊ नये
+        let finalEL = q === "हक्काची रजा" ? Math.max(0, k_val - r_diff) : k_val;
+        let finalML = q === "वैद्यकीय रजा" ? Math.max(0, l_val - r_diff) : l_val;
 
         let lwpStr = "---";
         if(e > 0) {
-            let arr = []; document.querySelectorAll('.lwp-start-pick').forEach((inp, i) => { arr.push(`${inp.value}-${document.querySelectorAll('.lwp-end-pick')[i].value}`); });
+            let arr = []; document.querySelectorAll('.lwp-start-pick').forEach((inp, i) => { if(inp.value) arr.push(`${inp.value}-${document.querySelectorAll('.lwp-end-pick')[i].value}`); });
             lwpStr = `${e} दिवस (${arr.join(", ")})`;
         }
 
