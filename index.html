@@ -340,7 +340,17 @@
         let parts = pickerEl.value.split("-"); // YYYY-MM-DD
         let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY फॉरमॅट फिक्स
         document.getElementById(targetInputId).value = formattedDate;
-        
+        // P3 निवडल्यावर पहिल्यांदा A आणि O आपोआप भरा
+if (targetInputId === 'p3_date' && isFirstEntry) {
+    let p3Date = parseDMY(formattedDate);
+
+    if (p3Date) {
+        let nextDate = formatDMY(nextDay(p3Date));
+
+        document.getElementById('a_start').value = nextDate;
+        document.getElementById('o_leave_start').value = nextDate;
+    }
+}
         forceDateCalculation();
         
         if(targetInputId === 'info_join_date' || targetInputId === 'macp_join_date') {
