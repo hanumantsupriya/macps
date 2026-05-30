@@ -23,8 +23,10 @@
         .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
         .macp-row { display: grid; grid-template-columns: 1.2fr 1fr 1.5fr; gap: 15px; margin-bottom: 15px; align-items: end; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 5px solid #1a73e8; }
         label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
+        
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
         input:disabled { background-color: #e9ecef; color: #495057; font-weight: bold; }
+        
         .lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
         .lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .lwp-row div { flex: 1; }
@@ -85,7 +87,7 @@
             <div>
                 <label>마गील रजा संपल्याचा दिनांक (P3):</label>
                 <div class="date-input-group">
-                    <input type="text" id="p3_date" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()">
+                    <input type="text" id="p3_date" placeholder="DD/MM/YYYY" oninput="forceDateCalculation()">
                     <button class="btn-cal-trigger" onclick="openInternalCalendar('p3_picker')">📅 निवडा</button>
                     <input type="date" id="p3_picker" class="hidden-picker" onchange="syncInternalDate(this, 'p3_date')">
                 </div>
@@ -98,7 +100,7 @@
             <div>
                 <label>शेवटचा हजर दिनांक (B):</label>
                 <div class="date-input-group">
-                    <input type="text" id="b_end" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()">
+                    <input type="text" id="b_end" placeholder="DD/MM/YYYY" oninput="forceDateCalculation()">
                     <button class="btn-cal-trigger" onclick="openInternalCalendar('b_picker')">📅 निवडा</button>
                     <input type="date" id="b_picker" class="hidden-picker" onchange="syncInternalDate(this, 'b_end')">
                 </div>
@@ -108,7 +110,7 @@
             <div>
                 <label>रजा संपल्याचा दिनांक (P):</label>
                 <div class="date-input-group">
-                    <input type="text" id="p_leave_end" placeholder="DD/MM/YYYY">
+                    <input type="text" id="p_leave_end" placeholder="DD/MM/YYYY" oninput="forceDateCalculation()">
                     <button class="btn-cal-trigger" onclick="openInternalCalendar('p_picker')">📅 निवडा</button>
                     <input type="date" id="p_picker" class="hidden-picker" onchange="syncInternalDate(this, 'p_leave_end')">
                 </div>
@@ -297,7 +299,7 @@
                 <tr>
                     <td><strong>कर्मचाऱ्याचे नाव:</strong> <span id="p_name">---</span></td>
                     <td><strong>पदनाम:</strong> <span id="p_desig">---</span></td>
-                    <td><strong>विभाग / खाते:</strong> <span id="p_dept">---</span></td>
+                    <td><strong> विभाग / खाते:</strong> <span id="p_dept">---</span></td>
                 </tr>
                 <tr>
                     <td><strong>मूळ पे लेव्हल:</strong> <span id="p_cur_s">---</span></td>
@@ -332,14 +334,13 @@
         document.getElementById(pickerId).showPicker();
     }
 
-    // 🚀 सुधारित सिंक: तारीख सिलेक्ट झाल्यावर ऑन-द-स्पॉट 'forceDateCalculation()' ट्रिगर करणे
+    // 🎯 शक्तिशाली मराठी सिंक इंजिन: सिलेक्ट केलेली तारीख थेट DD/MM/YYYY स्वरूपातच इनपुटमध्ये जमा करेल.
     function syncInternalDate(pickerEl, targetInputId) {
         if(!pickerEl.value) return;
-        let parts = pickerEl.value.split("-");
-        let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        let parts = pickerEl.value.split("-"); // YYYY-MM-DD
+        let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY फॉरमॅट फिक्स
         document.getElementById(targetInputId).value = formattedDate;
         
-        // लाईव्ह कॅल्क्युलेटर इन्जेक्शन ट्रिगर
         forceDateCalculation();
         
         if(targetInputId === 'info_join_date' || targetInputId === 'macp_join_date') {
@@ -349,7 +350,7 @@
     }
 
     function parseDMY(str) {
-        if(!str || str.trim() === "") return null;
+        if(!str || str.trim() === "" || str.length !== 10) return null;
         let p = str.split("/");
         if(p.length !== 3) return null;
         return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
@@ -366,7 +367,7 @@
     function nextDay(d) { let n = new Date(d); n.setDate(n.getDate() + 1); return n; }
     function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
 
-    // 🎯 अंतिम पडताळणी दुरुस्ती (onchange & onkeyup दोन्ही बाजूंनी कव्हर)
+    // 🚀 कडक व्हॅल्यू ऑब्झर्वर: टाईप किंवा कॅलेंडर निवडीनुसार १० अक्षरे पूर्ण होताच लाइव्ह अपडेट करणार!
     function forceDateCalculation() {
         let p3Val = document.getElementById('p3_date').value;
         let bVal = document.getElementById('b_end').value;
@@ -385,28 +386,28 @@
             if(bd) {
                 document.getElementById('o_leave_start').value = formatDMY(nextDay(bd));
             }
-        } else if (p3Val && isFirstEntry) {
+        } else if (p3Val && isFirstEntry && p3Val.length === 10) {
             document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
         }
         checkLwpValidation();
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        let cSel = document.getElementById("pf_current_scale");
-        let nSel = document.getElementById("pf_new_scale");
-        for(let i=1; i<=31; i++) { 
-            cSel.add(new Option("S-"+i, "S-"+i)); 
-            nSel.add(new Option("S-"+i, "S-"+i)); 
-        }
-        cSel.value = "S-8"; nSel.value = "S-10";
-        cSel.addEventListener("change", suggestNextScale);
+        let ArrayS = ["pf_current_scale", "pf_new_scale"];
+        ArrayS.forEach(id => {
+            let sel = document.getElementById(id);
+            for(let i=1; i<=31; i++) { sel.add(new Option("S-"+i, "S-"+i)); }
+        });
+        document.getElementById("pf_current_scale").value = "S-8";
+        document.getElementById("pf_new_scale").value = "S-10";
+        document.getElementById("pf_current_scale").addEventListener("change", suggestNextScale);
         loadData();
     });
 
     function suggestNextScale() {
         let curr = document.getElementById("pf_current_scale").value;
-        let num = parseInt(curr.split("-")[1]); let nextNum = Math.min(31, num + 2);
-        document.getElementById("pf_new_scale").value = "S-" + nextNum;
+        let num = parseInt(curr.split("-")[1]);
+        document.getElementById("pf_new_scale").value = "S-" + Math.min(31, num + 2);
     }
 
     function toggleLwpPanel() {
@@ -418,7 +419,7 @@
     
     function addLwpRow() {
         let c = document.getElementById('lwpContainer'); let index = c.children.length; let r = document.createElement('div'); r.className = 'lwp-row'; r.id = 'lwp_row_' + index;
-        r.innerHTML = `<div><label>LWP पासून:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-start-pick" onchange="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwps_${index}')">📅</button><input type="date" id="lwps_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'start')"></div></div><div><label>LWP पर्यंत:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-end-pick" onchange="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwpe_${index}')">📅</button><input type="date" id="lwpe_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'end')"></div></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
+        r.innerHTML = `<div><label>LWP पासून (DD/MM/YYYY):</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-start-pick" oninput="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwps_${index}')">📅</button><input type="date" id="lwps_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'start')"></div></div><div><label>LWP पर्यंत (DD/MM/YYYY):</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-end-pick" oninput="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwpe_${index}')">📅</button><input type="date" id="lwpe_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'end')"></div></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
         c.appendChild(r);
     }
     function removeLwpRow(idx) { let row = document.getElementById('lwp_row_' + idx); if(row) row.remove(); checkLwpValidation(); }
@@ -450,10 +451,14 @@
     }
 
     function addEntry() {
-        let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
-        let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
-        let q = document.getElementById('q_type').value, e = parseFloat(document.getElementById('e_lwp').value) || 0;
-        if (!a || !p) { alert("माहिती अपूर्ण आहे!"); return; }
+        let a = document.getElementById('a_start').value;
+        let b = document.getElementById('b_end').value;
+        let o = document.getElementById('o_leave_start').value;
+        let p = document.getElementById('p_leave_end').value;
+        let q = document.getElementById('q_type').value;
+        let e = parseFloat(document.getElementById('e_lwp').value) || 0;
+        
+        if (!a || !p || a.length !== 10 || p.length !== 10) { alert("माहिती अपूर्ण आहे! तारखा पूर्ण लिहा (DD/MM/YYYY)."); return; }
 
         if (isFirstEntry) {
             initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
@@ -463,13 +468,12 @@
             document.getElementById('aa3_bal').disabled = true;
             isFirstEntry = false;
         }
+        
         let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
         let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
         
         let f = 0;
-        if(b && b.trim() !== "" && b !== "---") {
-            f = Math.round(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1;
-        }
+        if(b && b !== "---" && b.length === 10) { f = Math.round(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1; }
         f = Math.max(0, f - e);
         
         let g = 0, h = 0;
@@ -516,7 +520,6 @@
         let extraLeaveFloor = Math.floor((dutyDays * 15) / 365); 
 
         tempBonusCalculated = extraLeaveFloor; tempBonusPeriod = `${startStr} ते ${endStr}`;
-        tempTotalDays = totalCalendarDays; tempSpentDays = totalR; tempDutyDays = dutyDays;
 
         document.getElementById('bonusResultMsg').innerHTML = `निवडलेल्या अवधीचे एकूण दिवस: ${totalCalendarDays} दिवस<br>सर्व रजा दिवस: ${totalR} दिवस | एकूण LWP: ${totalE} दिवस<br>प्रत्यक्ष कामाचे दिवस: ${dutyDays} दिवस<br>🎯 एकूण पात्र अतिरिक्त रजा: ${extraLeaveFloor} दिवस`;
         document.getElementById('saveBonusBtn').style.display = "inline-block";
@@ -687,7 +690,7 @@
             let diff = dueTotal - drawnTotal; totalDifferenceSum += diff;
 
             let r = tbody.insertRow();
-            r.innerHTML = `<td><strong>${mName}</strong></td><td>${totalDays}</td><td contenteditable='true' class='present-days-editable' oninput='recalcRowFix(this,${activeDueBasic},${activeDrawnBasic},${daPercent},${totalDays},${chsRate})'>${totalDays}</td><td>${dueD}</td><td>${dueDa}</td><td>${dueHra}</td><td>${dueCps}</td><td>${dueChs}</td><td style='color:blue;'>${dueTotal}</td><td contenteditable='true' class='drawn-editable' oninput='recalcRowDrawn(this,${daPercent},${totalDays},${chsRate})'>${drawnD}</td><td>${drawnDa}</td><td>${drawnHra}</td><td>${drawnCps}</td><td>${drawnChs}</td><td>${drawnTotal}</td><td style='color:green;font-weight:bold;' class='row-diff-cell'>${diff}</td>`;
+            r.innerHTML = `<td><strong>${mName}</strong></td><td>${totalDays}</td><td contenteditable='true' class='present-days-editable' oninput='recalcRowFix(this,${activeDueBasic},${activeDrawnBasic},${daPercent},${totalDays},${chsRate})'>${totalDays}</td><td>${dueD}</td><td>${dueDa}</td><td>${dueHra}</td><td>${dueCps}</td><td>${dueChs}</td><td style='color:blue;'>${dueTotal}</td><td contenteditable='true' class='drawn-editable' oninput='recalcRowDrawn(this,${daPercent},${totalDays},${chsRate})'>${drawnD}</td><td>${drawnDa}</td><td>${drawnHra}</td><td>${drawnCps}</td><td>drawnChs</td><td>${drawnTotal}</td><td style='color:green;font-weight:bold;' class='row-diff-cell'>${diff}</td>`;
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
         let tot = tbody.insertRow(); tot.className = "grand-total-row"; tot.innerHTML = `<td>ग्रँड एकूण फरक</td><td colspan="14">---</td><td id='gt_cell'>रु. ${totalDifferenceSum} /-</td>`;
@@ -704,8 +707,6 @@
     }
     function clearAllData() { localStorage.clear(); location.reload(); }
     function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
-    function getDaRateByDateFromExcel(d) { let y=d.getFullYear(), m=d.getMonth()+1; if(y<2023) return 0.38; if(y===2023) return m<=6?0.42:0.46; if(y===2024) return m<=6?0.50:0.53; if(y===2025) return m<=6?0.55:0.58; return 0.60; }
-    function getHraRate(b) { return b>=25500?0.24:0.20; }
 </script>
 </body>
 </html>
