@@ -70,7 +70,7 @@
     <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('page1', this)">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
-        <button class="tab-btn" onclick="switchTab('page2', this)">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
+        <button class="tab-btn" onclick="switchTab('page2', this)">२. निवृत्ती शिल्लक रजा वेतन (रोखीकरण)</button>
         <button class="tab-btn" onclick="switchTab('page3', this)">३. कर्मचाऱ्यांची माहिती</button>
         <button class="tab-btn" onclick="switchTab('page4', this)">४. आश्वासित प्रगती योजना (MACPS)</button>
         <button class="tab-btn" onclick="switchTab('page5', this)">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक चार्ट</button>
@@ -79,13 +79,13 @@
     <!-- PAGE 1 -->
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
-            <div><label>मागील रजा संपल्याचा दिनांक (P3):</label><input type="text" id="p3_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>मागील रजा संपल्याचा दिनांक (P3):</label><input type="text" id="p3_date" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()"></div>
             <div><label>सुरुवातीची शिल्लक EL (Z3):</label><input type="number" step="0.01" id="z3_bal" value="0"></div>
             <div><label>सुरुवातीची शिल्लक ML (AA3):</label><input type="number" step="0.01" id="aa3_bal" value="0"></div>
         </div>
         <div class="entry-box">
             <div><label>सुरवातीचा हजर दिनांक (A):</label><input type="text" id="a_start" placeholder="DD/MM/YYYY" readonly></div>
-            <div><label>शेवटचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY"></div>
+            <div><label>शेवटचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()"></div>
             <div><label>बिन पगारी रजा LWP (E):</label><input type="number" id="e_lwp" value="0" oninput="toggleLwpPanel()"></div>
             <div><label>रजेवर गेल्याचा दिनांक (O):</label><input type="text" id="o_leave_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
@@ -98,8 +98,8 @@
                 </select>
             </div>
             <div class="btn-group">
-                <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
-                <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा (Manual Break)</button>
+                <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा</button>
+                <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा</button>
                 <button class="btn-delete" id="deleteBtn" style="display:none;" onclick="deleteLastEntry()">शेवटची नोंद हटवा</button>
                 <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
             </div>
@@ -112,6 +112,19 @@
             <div id="lwpContainer"></div>
             <div id="lwpStatusMsg" class="lwp-status"></div>
         </div>
+        
+        <!-- अकलूज / अतिरिक्त १५ दिवस रजा गणना तक्ता (User Option) -->
+        <div class="setup-box" style="background-color: #e0f2f1; border-color: #4db6ac;">
+            <div style="grid-column: 1 / -1;"><h4 style="margin:0; color:#004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4></div>
+            <div><label>अतिरिक्त रजा सुरुवातीचा दिनांक:</label><input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>अतिरिक्त रजा शेवटचा दिनांक:</label><input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY"></div>
+            <div style="display:flex; gap:10px; align-items:flex-end;">
+                <button class="btn-add" style="background-color:#00796b;" onclick="calculateBonusLeave()">अतिरिक्त रजा मोजा</button>
+                <button class="btn-pagebreak" id="saveBonusBtn" style="background-color:#004d40; display:none;" onclick="saveBonusToTable()">तक्त्यात जमा करा</button>
+            </div>
+            <div id="bonusResultMsg" style="grid-column: 1 / -1; font-weight: bold; color: #004d40; margin-top: 5px;"></div>
+        </div>
+
         <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
         <table id="recordTable">
             <thead>
@@ -157,13 +170,13 @@
     <div id="page4" class="tab-content">
         <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
         <div class="setup-box">
-            <div><label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY"></div>
+            <div><label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY" onchange="calculateAdvancedMacp()"></div>
         </div>
         <div id="macp_steps_container">
             <div class="macp-row">
                 <div>
                     <label>१ ला लाभ टप्पा निवड:</label>
-                    <select id="m_y1"><option value="10">१ ला लाभ (१० वर्षे पूर्ण)</option><option value="12">१ ला लाभ (१२ वर्षे पूर्ण)</option></select>
+                    <select id="m_y1" onchange="calculateAdvancedMacp()"><option value="10">१ ला लाभ (१० वर्षे पूर्ण)</option><option value="12">१ ला लाभ (१२ वर्षे पूर्ण)</option></select>
                 </div>
                 <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0" readonly></div>
                 <div id="m_res1" class="macp-result-box">पात्रता दिनांक: ---</div>
@@ -171,7 +184,7 @@
             <div class="macp-row">
                 <div>
                     <label>२ रा लाभ टप्पा निवड:</label>
-                    <select id="m_y2"><option value="20">२ रा लाभ (२० वर्षे पूर्ण)</option><option value="24">२ रा लाभ (२४ वर्षे पूर्ण)</option><option value="8">१२ वर्षे नंतर ८ वर्षे (२० वर्ष)</option></select>
+                    <select id="m_y2" onchange="calculateAdvancedMacp()"><option value="20">२ रा लाभ (२० वर्षे पूर्ण)</option><option value="24">२ रा लाभ (२४ वर्षे पूर्ण)</option><option value="8">१२ वर्षे नंतर ८ वर्षे (२० वर्ष)</option></select>
                 </div>
                 <div><label>१ ल्या लाभापासून २ री पर्यंतचे LWP:</label><input type="number" id="m_lwp2" value="0" readonly></div>
                 <div id="m_res2" class="macp-result-box">पात्रता दिनांक: ---</div>
@@ -179,7 +192,7 @@
             <div class="macp-row">
                 <div>
                     <label>३ रा लाभ टप्पा निवड:</label>
-                    <select id="m_y3"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
+                    <select id="m_y3" onchange="calculateAdvancedMacp()"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
                 </div>
                 <div><label>२ ऱ्या लाभापासून ३ री पर्यंतचे LWP:</label><input type="number" id="m_lwp3" value="0" readonly></div>
                 <div id="m_res3" class="macp-result-box">पात्रता दिनांक: ---</div>
@@ -235,6 +248,7 @@
 <script>
     let history = []; let pageBreaks = []; let isFirstEntry = true; let initialValues = {};
     let macpDatesGlobal = { "1": "", "2": "", "3": "" };
+    let tempBonusCalculated = 0, tempBonusPeriod = "", tempTotalDays = 0, tempSpentDays = 0, tempDutyDays = 0;
     const matrix7thFull = {};
     
     for(let i=1; i<=31; i++){
@@ -242,14 +256,14 @@
         matrix7thFull["S-"+i] = Array.from({length:40}, (_,k)=> Math.round((base * Math.pow(1.03, k))/100)*100);
     }
 
-    let bPickInstance, pLeavePickInstance, p3PickInstance;
+    let bPickInstance, pLeavePickInstance;
 
     function parseDMY(str) { if(!str) return null; let p = str.split("/"); return new Date(p[2], p[1]-1, p[0]); }
     function formatDMY(d) { if(!d || isNaN(d.getTime())) return ""; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
     function nextDay(d) { let n = new Date(d); n.setDate(n.getDate() + 1); return n; }
     function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
 
-    // 🚀 लाइव्ह इव्हेंट लिस्नर्स: कॅलेंडर बदलताच बॅकग्राउंडला तारखा फोर्स-अपडेट करणे
+    // 🎯 लाइव्ह इव्हेंट ड्रायव्हर (कॅलेंडर निवडताच किंवा इनपुट चेंज होताच काम करेल)
     function forceDateCalculation() {
         let p3Val = document.getElementById('p3_date').value;
         let bVal = document.getElementById('b_end').value;
@@ -269,10 +283,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        // flatpickr जोडणी
-        p3PickInstance = flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: forceDateCalculation });
+        flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: forceDateCalculation });
         bPickInstance = flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: forceDateCalculation });
-        pLeavePickInstance = flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true, onChange: forceDateCalculation });
+        pLeavePickInstance = flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true });
+        
+        flatpickr("#bonus_start_date", { dateFormat: "d/m/Y", allowInput: true });
+        flatpickr("#bonus_end_date", { dateFormat: "d/m/Y", allowInput: true });
         
         flatpickr("#info_join_date", { dateFormat: "d/m/Y", allowInput: true, onChange: function(selectedDates, dateStr) { saveEmployeeInfo(); if(dateStr) { document.getElementById("macp_join_date").value = dateStr; calculateAdvancedMacp(); } } });
         flatpickr("#info_retire_date", { dateFormat: "d/m/Y", allowInput: true, onChange: saveEmployeeInfo });
@@ -280,11 +296,9 @@
         flatpickr("#pf_eff_date", { dateFormat: "d/m/Y", allowInput: true });
         flatpickr("#pf_end_date", { dateFormat: "d/m/Y", allowInput: true });
 
-        // इनपुट बॉक्समध्ये युझरने टाईप केल्यास किंवा कॅलेंडर बंद होताच ट्रिगर लावला
-        document.getElementById('p3_date').addEventListener('input', forceDateCalculation);
-        document.getElementById('b_end').addEventListener('input', forceDateCalculation);
-        document.getElementById('p3_date').addEventListener('blur', forceDateCalculation);
-        document.getElementById('b_end').addEventListener('blur', forceDateCalculation);
+        // लाइव्ह लिस्नर्स बाईंडिंग
+        document.getElementById('p3_date').addEventListener('keyup', forceDateCalculation);
+        document.getElementById('b_end').addEventListener('keyup', forceDateCalculation);
 
         let cSel = document.getElementById("pf_current_scale");
         let nSel = document.getElementById("pf_new_scale");
@@ -294,10 +308,6 @@
         }
         cSel.value = "S-8"; nSel.value = "S-10";
         cSel.addEventListener("change", suggestNextScale);
-        
-        document.getElementById("m_y1").addEventListener("change", calculateAdvancedMacp);
-        document.getElementById("m_y2").addEventListener("change", calculateAdvancedMacp);
-        document.getElementById("m_y3").addEventListener("change", calculateAdvancedMacp);
         
         loadData();
     });
@@ -383,6 +393,44 @@
         bPickInstance.clear(); pLeavePickInstance.clear(); toggleLwpPanel();
     }
 
+    // अकलूज / अतिरिक्त रजा मोजणी कार्यपद्धती
+    function calculateBonusLeave() {
+        let startStr = document.getElementById('bonus_start_date').value;
+        let endStr = document.getElementById('bonus_end_date').value;
+        if(!startStr || !endStr) { alert("कृपया सुरुवातीचा आणि शेवटचा दिनांक निवडा!"); return; }
+        if(history.length === 0) { alert("तक्त्यामध्ये नोंदी असणे आवश्यक आहे!"); return; }
+
+        let dStart = parseDMY(startStr); let dEnd = parseDMY(endStr);
+        let totalCalendarDays = Math.ceil(Math.abs(dEnd - dStart) / (1000 * 60 * 60 * 24)) + 1;
+        let totalR = 0, totalE = 0;
+
+        history.forEach(item => {
+            let itemO = parseDMY(item.o), itemP = parseDMY(item.p);
+            if(itemO >= dStart && itemP <= dEnd) { totalR += item.r_diff; totalE += item.e; }
+        });
+        let dutyDays = totalCalendarDays - (totalR + totalE); if(dutyDays < 0) dutyDays = 0;
+        let rawExtraLeave = (dutyDays * 15) / 365; let extraLeaveFloor = Math.floor(rawExtraLeave); 
+
+        tempBonusCalculated = extraLeaveFloor; tempBonusPeriod = `${startStr} ते ${endStr}`;
+        tempTotalDays = totalCalendarDays; tempSpentDays = totalR; tempDutyDays = dutyDays;
+
+        document.getElementById('bonusResultMsg').innerHTML = `निवडलेल्या अवधीचे एकूण दिवस: ${totalCalendarDays} दिवस<br>सर्व रजा दिवस: ${totalR} दिवस | एकूण LWP: ${totalE} दिवस<br>प्रत्यक्ष कामाचे दिवस: ${dutyDays} दिवस<br>🎯 एकूण पात्र अतिरिक्त रजा: ${extraLeaveFloor} दिवस`;
+        document.getElementById('saveBonusBtn').style.display = "inline-block";
+    }
+
+    function saveBonusToTable() {
+        if(tempBonusCalculated <= 0) return;
+        let lastRecord = history[history.length - 1];
+        let currentEL = lastRecord.finalEL; let currentML = lastRecord.finalML;
+        let updatedEL = Math.min(365, Math.floor(currentEL) + tempBonusCalculated + (Math.round((currentEL % 1) * 100) / 100));
+
+        let nextStartDateStr = lastRecord.type === "bonus" ? lastRecord.nextA : formatDMY(nextDay(parseDMY(lastRecord.p)));
+        history.push({ type: "bonus", details: `अतिरिक्त रजा अवधी (${tempBonusPeriod})`, earnedBonus: tempBonusCalculated, finalEL: updatedEL, finalML: currentML, nextA: nextStartDateStr, lwpStr: "---", f: 0, e: 0, g: 0, h: 0, k_val: updatedEL, l_val: currentML, o: "---", p: "---", q: "अतिरिक्त रजा", r_diff: tempBonusCalculated, a: nextStartDateStr, b: "---" });
+        localStorage.setItem("pmc_leave_history", JSON.stringify(history)); renderTable();
+        document.getElementById('bonusResultMsg').innerText = "अतिरिक्त रजा तक्त्यात जमा केली आहे!";
+        document.getElementById('saveBonusBtn').style.display = "none";
+    }
+
     function manualPageBreak() {
         if(history.length === 0) return;
         pageBreaks.push(history.length - 1); localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks)); renderTable();
@@ -399,7 +447,8 @@
             if (history.length === 0) { localStorage.clear(); location.reload(); } 
             else {
                 let last = history[history.length - 1];
-                let nA = formatDMY(nextDay(parseDMY(last.p))); document.getElementById('a_start').value = nA; document.getElementById('o_leave_start').value = nA;
+                let nA = last.type === "bonus" ? last.nextA : formatDMY(nextDay(parseDMY(last.p)));
+                document.getElementById('a_start').value = nA; document.getElementById('o_leave_start').value = nA;
                 renderTable();
             }
         }
@@ -426,13 +475,20 @@
         let pageNum = 1; let pF=0, pE=0, pG=0, pH=0, pR=0; let startA = history[0].a;
         history.forEach((item, idx) => {
             let r = tbody.insertRow();
-            r.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${item.lwpStr}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td class="accumulated">${item.k_val.toFixed(2)}</td><td class="accumulated">${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td class="highlight">${item.finalEL.toFixed(2)}</td><td class="highlight">${item.finalML.toFixed(2)}</td>`;
-            pF+=item.f; pE+=item.e; pG+=item.g; pH+=item.h; pR+=item.r_diff;
+            if(item.type === "bonus") {
+                r.className = "bonus-row";
+                r.innerHTML = `<td>${item.details}</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा</td><td>+${item.earnedBonus}</td><td class="highlight">${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>`;
+                pR += item.earnedBonus;
+            } else {
+                r.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${item.lwpStr}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td class="accumulated">${item.k_val.toFixed(2)}</td><td class="accumulated">${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td class="highlight">${item.finalEL.toFixed(2)}</td><td class="highlight">${item.finalML.toFixed(2)}</td>`;
+                pF+=item.f; pE+=item.e; pG+=item.g; pH+=item.h; pR+=item.r_diff;
+            }
 
             if(pageBreaks.includes(idx) || idx === history.length - 1) {
+                let pageEndDate = item.type === "bonus" ? "---" : item.p;
                 let brk = tbody.insertRow(); brk.className = "page-break-row";
-                brk.innerHTML = `<td colspan="12">[मॅन्युअल पान नंबर ${pageNum} एकूण बेरीज (${startA} ते ${item.p})] -> हजर दिवस: ${pF} | LWP: ${pE} | रजा दिवस: ${pR}</td>`;
-                let crt = chart.insertRow(); crt.innerHTML = `<td>पान नंबर ${pageNum} (${startA} ते ${item.p})</td><td>${pF}</td><td>${pE}</td><td>${pG.toFixed(2)}</td><td>${pH.toFixed(2)}</td><td>${pR}</td>`;
+                brk.innerHTML = `<td colspan="12">[मॅन्युअल पान नंबर ${pageNum} एकूण बेरीज (${startA} ते ${pageEndDate})] -> हजर दिवस: ${pF} | LWP: ${pE} | रजा दिवस: ${pR}</td>`;
+                let crt = chart.insertRow(); crt.innerHTML = `<td>पान नंबर ${pageNum} (${startA} ते ${pageEndDate})</td><td>${pF}</td><td>${pE}</td><td>${pG.toFixed(2)}</td><td>${pH.toFixed(2)}</td><td>${pR}</td>`;
                 pageNum++; pF=0; pE=0; pG=0; pH=0; pR=0; if(history[idx+1]) startA = history[idx+1].a;
             }
         });
@@ -444,8 +500,10 @@
         while(foundConflict) {
             foundConflict = false;
             for(let i=0; i<history.length; i++) {
-                let o = parseDMY(history[i].o); let p = parseDMY(history[i].p);
-                if(o && p && finalDate >= o && finalDate <= p) { finalDate = nextDay(p); foundConflict = true; break; }
+                if(history[i].type !== "bonus") {
+                    let o = parseDMY(history[i].o); let p = parseDMY(history[i].p);
+                    if(o && p && finalDate >= o && finalDate <= p) { finalDate = nextDay(p); foundConflict = true; break; }
+                }
             }
         }
         return finalDate;
@@ -477,9 +535,7 @@
 
     function syncMacpDateToFixation() {
         let selectedType = document.getElementById("pf_macp_type").value;
-        if(macpDatesGlobal[selectedType]) {
-            document.getElementById("pf_eff_date").value = macpDatesGlobal[selectedType];
-        }
+        if(macpDatesGlobal[selectedType]) { document.getElementById("pf_eff_date").value = macpDatesGlobal[selectedType]; }
     }
 
     function processPayFixationAndDiff() {
@@ -562,8 +618,6 @@
     }
     function clearAllData() { localStorage.clear(); location.reload(); }
     function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
-    function getDaRateByDateFromExcel(d) { let y=d.getFullYear(), m=d.getMonth()+1; if(y<2023) return 0.38; if(y===2023) return m<=6?0.42:0.46; if(y===2024) return m<=6?0.50:0.53; if(y===2025) return m<=6?0.55:0.58; return 0.60; }
-    function getHraRate(b) { return b>=25500?0.24:0.20; }
 </script>
 </body>
 </html>
