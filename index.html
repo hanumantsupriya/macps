@@ -336,7 +336,13 @@
 
     // 🎯 शक्तिशाली मराठी सिंक इंजिन: सिलेक्ट केलेली तारीख थेट DD/MM/YYYY स्वरूपातच इनपुटमध्ये जमा करेल.
     function syncInternalDate(pickerEl, targetInputId) {
-        if(!pickerEl.value) return;
+        function syncInternalDate(pickerEl, targetInputId) {
+    alert("syncInternalDate चालले");
+
+    if(!pickerEl.value) return;
+
+    ...
+}if(!pickerEl.value) return;
         let parts = pickerEl.value.split("-"); // YYYY-MM-DD
         let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY फॉरमॅट फिक्स
         document.getElementById(targetInputId).value = formattedDate;
