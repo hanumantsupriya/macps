@@ -235,8 +235,8 @@
 <script>
     let history = []; let pageBreaks = []; let isFirstEntry = true; let initialValues = {};
     let macpDatesGlobal = { "1": "", "2": "", "3": "" };
-    
     const matrix7thFull = {};
+    
     for(let i=1; i<=31; i++){
         let base = 15000 + (i*1100);
         matrix7thFull["S-"+i] = Array.from({length:40}, (_,k)=> Math.round((base * Math.pow(1.03, k))/100)*100);
@@ -244,13 +244,12 @@
 
     let bPickInstance, pLeavePickInstance;
 
+    // जागतिक ट्रिगर सिस्टम (कॅलेंडर निवडले की लगेच एक्झिक्युट होणार)
     function setFirstStartDate(selectedDates, dateStr) {
         if(!dateStr) return;
-        if(isFirstEntry) {
-            let nA = formatDMY(nextDay(parseDMY(dateStr)));
-            document.getElementById('a_start').value = nA;
-            document.getElementById('o_leave_start').value = nA;
-        }
+        let nA = formatDMY(nextDay(parseDMY(dateStr)));
+        document.getElementById('a_start').value = nA;
+        document.getElementById('o_leave_start').value = nA;
     }
 
     function updateLeaveStartDate(selectedDates, dateStr) {
@@ -259,6 +258,7 @@
         checkLwpValidation();
     }
 
+    // डोम लोड होताच कडक बाईंडिंग (No Block System)
     document.addEventListener("DOMContentLoaded", function() {
         flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: setFirstStartDate });
         bPickInstance = flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: updateLeaveStartDate });
@@ -335,8 +335,6 @@
         if (isFirstEntry) {
             initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
             localStorage.setItem("pmc_initial_values", JSON.stringify(initialValues)); 
-            
-            // सुधारणा: P3, Z3, AA3 इनपुट ब्लॉक (Disabled) करणे
             document.getElementById('p3_date').disabled = true;
             document.getElementById('z3_bal').disabled = true;
             document.getElementById('aa3_bal').disabled = true;
@@ -371,15 +369,13 @@
         
         let nA = formatDMY(nextDay(parseDMY(p))); document.getElementById('a_start').value = nA; document.getElementById('o_leave_start').value = nA;
         document.getElementById('e_lwp').value = "0"; 
-        
-        // सुधारणा: तारीख ऑप्शन ब्लँक करणे
         bPickInstance.clear(); pLeavePickInstance.clear(); toggleLwpPanel();
     }
 
     function manualPageBreak() {
         if(history.length === 0) return;
         pageBreaks.push(history.length - 1); localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks)); renderTable();
-        alert("यशस्वी! मॅन्युअल पेज ब्रेक जोडला गेला आहे."); // सुधारणा: सूचना अलर्ट
+        alert("यशस्वी! मॅन्युअल पेज ब्रेक जोडला गेला आहे.");
     }
 
     function deleteLastEntry() {
@@ -398,7 +394,6 @@
         }
     }
 
-    // ऑटो-कॅल्क्युलेट LWP दिवस जे रजा तक्त्यामधून थेट मोजले जातात
     function autoCalculateMacpLwp(years) {
         let joinStr = document.getElementById('macp_join_date').value; if(!joinStr) return 0;
         let jd = parseDMY(joinStr); let targetDate = new Date(jd.getFullYear() + years, jd.getMonth(), jd.getDate());
@@ -448,7 +443,6 @@
     function calculateAdvancedMacp() {
         let joinStr = document.getElementById('macp_join_date').value; if(!joinStr) return;
         
-        // सुधारणा: LWP दिवस आता तक्त्यावरून ऑटोमॅटिक मोजले जातात
         let lwp1 = autoCalculateMacpLwp(12); document.getElementById("m_lwp1").value = lwp1;
         let lwp2 = autoCalculateMacpLwp(24); document.getElementById("m_lwp2").value = lwp2;
         let lwp3 = autoCalculateMacpLwp(36); document.getElementById("m_lwp3").value = lwp3;
@@ -470,7 +464,6 @@
         syncMacpDateToFixation();
     }
 
-    // सुधारणा: निवडलेल्या १ल्या, २ऱ्या, ३ऱ्या लाभानुसार ५ व्या टॅबचा तारीख सेट करणे
     function syncMacpDateToFixation() {
         let selectedType = document.getElementById("pf_macp_type").value;
         if(macpDatesGlobal[selectedType]) {
@@ -558,8 +551,6 @@
     }
     function clearAllData() { localStorage.clear(); location.reload(); }
     function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
-    function getDaRateByDateFromExcel(d) { let y=d.getFullYear(), m=d.getMonth()+1; if(y<2023) return 0.38; if(y===2023) return m<=6?0.42:0.46; if(y===2024) return m<=6?0.50:0.53; if(y===2025) return m<=6?0.55:0.58; return 0.60; }
-    function getHraRate(b) { return b>=25500?0.24:0.20; }
 </script>
 </body>
 </html>
