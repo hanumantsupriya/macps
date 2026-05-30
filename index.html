@@ -24,7 +24,7 @@
         .macp-row { display: grid; grid-template-columns: 1.2fr 1fr 1.5fr; gap: 15px; margin-bottom: 15px; align-items: end; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 5px solid #1a73e8; }
         label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
-        input:disabled, input[readonly] { background-color: #e9ecef; color: #495057; font-weight: bold; }
+        input:disabled { background-color: #e9ecef; color: #495057; font-weight: bold; }
         .lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
         .lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .lwp-row div { flex: 1; }
@@ -83,9 +83,9 @@
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
             <div>
-                <label>मागील रजा संपल्याचा दिनांक (P3):</label>
+                <label>마गील रजा संपल्याचा दिनांक (P3):</label>
                 <div class="date-input-group">
-                    <input type="text" id="p3_date" placeholder="DD/MM/YYYY">
+                    <input type="text" id="p3_date" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()">
                     <button class="btn-cal-trigger" onclick="openInternalCalendar('p3_picker')">📅 निवडा</button>
                     <input type="date" id="p3_picker" class="hidden-picker" onchange="syncInternalDate(this, 'p3_date')">
                 </div>
@@ -98,7 +98,7 @@
             <div>
                 <label>शेवटचा हजर दिनांक (B):</label>
                 <div class="date-input-group">
-                    <input type="text" id="b_end" placeholder="DD/MM/YYYY">
+                    <input type="text" id="b_end" placeholder="DD/MM/YYYY" onchange="forceDateCalculation()">
                     <button class="btn-cal-trigger" onclick="openInternalCalendar('b_picker')">📅 निवडा</button>
                     <input type="date" id="b_picker" class="hidden-picker" onchange="syncInternalDate(this, 'b_end')">
                 </div>
@@ -193,9 +193,9 @@
 
     <!-- PAGE 3 -->
     <div id="page3" class="tab-content">
-        <h3>कर्मчаऱ्यांची वैयक्तिक व सेवा माहिती</h3>
+        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती</h3>
         <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
-            <div><label>कर्मчаऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" oninput="saveEmployeeInfo()"></div>
             <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" oninput="saveEmployeeInfo()"></div>
             <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" oninput="saveEmployeeInfo()"></div>
             <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" oninput="saveEmployeeInfo()"></div>
@@ -332,14 +332,14 @@
         document.getElementById(pickerId).showPicker();
     }
 
-    // 🚀 थेट फोर्स-इंजेक्शन पद्धत: ब्राउझर पॉलिसीला बायपास करून बॉक्समध्ये थेट डेटा भरणे
+    // 🚀 सुधारित सिंक: तारीख सिलेक्ट झाल्यावर ऑन-द-स्पॉट 'forceDateCalculation()' ट्रिगर करणे
     function syncInternalDate(pickerEl, targetInputId) {
         if(!pickerEl.value) return;
         let parts = pickerEl.value.split("-");
         let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
         document.getElementById(targetInputId).value = formattedDate;
         
-        // सुरक्षा कवच बायपास ट्रिगर
+        // लाईव्ह कॅल्क्युलेटर इन्जेक्शन ट्रिगर
         forceDateCalculation();
         
         if(targetInputId === 'info_join_date' || targetInputId === 'macp_join_date') {
@@ -366,6 +366,7 @@
     function nextDay(d) { let n = new Date(d); n.setDate(n.getDate() + 1); return n; }
     function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
 
+    // 🎯 अंतिम पडताळणी दुरुस्ती (onchange & onkeyup दोन्ही बाजूंनी कव्हर)
     function forceDateCalculation() {
         let p3Val = document.getElementById('p3_date').value;
         let bVal = document.getElementById('b_end').value;
@@ -374,7 +375,6 @@
             let pd = parseDMY(p3Val);
             if(pd) {
                 let nA = formatDMY(nextDay(pd));
-                // ब्राउझर पॉलिसी बायपास व्हॅल्यू इन्जेक्शन
                 document.getElementById('a_start').value = nA;
                 document.getElementById('o_leave_start').value = nA;
             }
@@ -418,7 +418,7 @@
     
     function addLwpRow() {
         let c = document.getElementById('lwpContainer'); let index = c.children.length; let r = document.createElement('div'); r.className = 'lwp-row'; r.id = 'lwp_row_' + index;
-        r.innerHTML = `<div><label>LWP पासून:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-start-pick" oninput="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwps_${index}')">📅</button><input type="date" id="lwps_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'start')"></div></div><div><label>LWP पर्यंत:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-end-pick" oninput="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwpe_${index}')">📅</button><input type="date" id="lwpe_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'end')"></div></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
+        r.innerHTML = `<div><label>LWP पासून:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-start-pick" onchange="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwps_${index}')">📅</button><input type="date" id="lwps_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'start')"></div></div><div><label>LWP पर्यंत:</label><div class="date-input-group"><input type="text" placeholder="DD/MM/YYYY" class="lwp-end-pick" onchange="checkLwpValidation()"><button class="btn-cal-trigger" onclick="openInternalCalendar('lwpe_${index}')">📅</button><input type="date" id="lwpe_${index}" class="hidden-picker" onchange="syncLwpDate(this, 'end')"></div></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
         c.appendChild(r);
     }
     function removeLwpRow(idx) { let row = document.getElementById('lwp_row_' + idx); if(row) row.remove(); checkLwpValidation(); }
