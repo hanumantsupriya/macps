@@ -91,7 +91,11 @@
             <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
             <div>
                 <label>रजेचा प्रकार (Q):</label>
-                <select id="q_type"><option value="हक्काची रजा">हक्काची रजा</option><option value="वैद्यकीय रजा">वैद्यकीय रजा</option></select>
+                <select id="q_type">
+                    <option value="हक्काची रजा">हक्काची रजा</option>
+                    <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
+                    <option value="विशेष रजा">विशेष रजा</option>
+                </select>
             </div>
             <div class="btn-group">
                 <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
@@ -161,7 +165,7 @@
                     <label>१ ला लाभ टप्पा निवड:</label>
                     <select id="m_y1"><option value="10">१ ला लाभ (१० वर्षे पूर्ण)</option><option value="12">१ ला लाभ (१२ वर्षे पूर्ण)</option></select>
                 </div>
-                <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0"></div>
+                <div><label>१ ल्या लाभापूर्वीचे एकूण LWP दिवस:</label><input type="number" id="m_lwp1" value="0" readonly></div>
                 <div id="m_res1" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
             <div class="macp-row">
@@ -169,15 +173,15 @@
                     <label>२ रा लाभ टप्पा निवड:</label>
                     <select id="m_y2"><option value="20">२ रा लाभ (२० वर्षे पूर्ण)</option><option value="24">२ रा लाभ (२४ वर्षे पूर्ण)</option><option value="8">१२ वर्षे नंतर ८ वर्षे (२० वर्ष)</option></select>
                 </div>
-                <div><label>१ ल्या लाभापासून २ री पर्यंतचे LWP:</label><input type="number" id="m_lwp2" value="0"></div>
+                <div><label>१ ल्या लाभापासून २ री पर्यंतचे LWP:</label><input type="number" id="m_lwp2" value="0" readonly></div>
                 <div id="m_res2" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
             <div class="macp-row">
                 <div>
                     <label>३ रा लाभ टप्पा निवड:</label>
-                    <select id="m_y3"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२4 वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
+                    <select id="m_y3"><option value="30">३ या लाभ (३० वर्षे पूर्ण)</option><option value="36">३ या लाभ (३६ वर्षे पूर्ण)</option><option value="6">२४ वर्षे नंतर ६ वर्षे (३० वर्ष)</option></select>
                 </div>
-                <div><label>२ ऱ्या लाभापासून ३ री पर्यंतचे LWP:</label><input type="number" id="m_lwp3" value="0"></div>
+                <div><label>२ ऱ्या लाभापासून ३ री पर्यंतचे LWP:</label><input type="number" id="m_lwp3" value="0" readonly></div>
                 <div id="m_res3" class="macp-result-box">पात्रता दिनांक: ---</div>
             </div>
         </div>
@@ -187,6 +191,7 @@
     <div id="page5" class="tab-content">
         <h3>५. वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता</h3>
         <div class="pay-fix-box">
+            <div><label>MACP लाभ प्रकार निवडा:</label><select id="pf_macp_type" onchange="syncMacpDateToFixation()"><option value="1">१ ला वरिष्ठ श्रेणी लाभ</option><option value="2">२ रा वरिष्ठ श्रेणी लाभ</option><option value="3">३ रा वरिष्ठ श्रेणी लाभ</option></select></div>
             <div><label>सध्याची पे लेव्हल निवडा (S-1 to S-31):</label><select id="pf_current_scale"></select></div>
             <div><label>नवीन वरिष्ठ श्रेणी पे लेव्हल निवडा (S-1 to S-31):</label><select id="pf_new_scale"></select></div>
             <div><label>अंमलबजावणी दिनांक (Effective Date):</label><input type="text" id="pf_eff_date" placeholder="DD/MM/YYYY"></div>
@@ -229,18 +234,23 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     let history = []; let pageBreaks = []; let isFirstEntry = true; let initialValues = {};
+    let macpDatesGlobal = { "1": "", "2": "", "3": "" };
+    
     const matrix7thFull = {};
     for(let i=1; i<=31; i++){
         let base = 15000 + (i*1100);
         matrix7thFull["S-"+i] = Array.from({length:40}, (_,k)=> Math.round((base * Math.pow(1.03, k))/100)*100);
     }
 
-    // खात्रीशीर उपाय: flatpickr इव्हेंटद्वारे बदललेली तारीख थेट ओळखणारे फंक्शन्स (Global Trigger System)
+    let bPickInstance, pLeavePickInstance;
+
     function setFirstStartDate(selectedDates, dateStr) {
         if(!dateStr) return;
-        let nA = formatDMY(nextDay(parseDMY(dateStr)));
-        document.getElementById('a_start').value = nA;
-        document.getElementById('o_leave_start').value = nA;
+        if(isFirstEntry) {
+            let nA = formatDMY(nextDay(parseDMY(dateStr)));
+            document.getElementById('a_start').value = nA;
+            document.getElementById('o_leave_start').value = nA;
+        }
     }
 
     function updateLeaveStartDate(selectedDates, dateStr) {
@@ -250,10 +260,9 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        // थेट इव्हेंट लिस्नर मॅपिंग ज्यामुळे गिटहबवर आपोआप तारीख बदलणे सुरू होईल
         flatpickr("#p3_date", { dateFormat: "d/m/Y", allowInput: true, onChange: setFirstStartDate });
-        flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: updateLeaveStartDate });
-        flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true });
+        bPickInstance = flatpickr("#b_end", { dateFormat: "d/m/Y", allowInput: true, onChange: updateLeaveStartDate });
+        pLeavePickInstance = flatpickr("#p_leave_end", { dateFormat: "d/m/Y", allowInput: true });
         
         flatpickr("#info_join_date", { dateFormat: "d/m/Y", allowInput: true, onChange: function(selectedDates, dateStr) { saveEmployeeInfo(); if(dateStr) { document.getElementById("macp_join_date").value = dateStr; calculateAdvancedMacp(); } } });
         flatpickr("#info_retire_date", { dateFormat: "d/m/Y", allowInput: true, onChange: saveEmployeeInfo });
@@ -273,9 +282,6 @@
         document.getElementById("m_y1").addEventListener("change", calculateAdvancedMacp);
         document.getElementById("m_y2").addEventListener("change", calculateAdvancedMacp);
         document.getElementById("m_y3").addEventListener("change", calculateAdvancedMacp);
-        document.getElementById("m_lwp1").addEventListener("input", calculateAdvancedMacp);
-        document.getElementById("m_lwp2").addEventListener("input", calculateAdvancedMacp);
-        document.getElementById("m_lwp3").addEventListener("input", calculateAdvancedMacp);
         
         loadData();
     });
@@ -328,18 +334,29 @@
 
         if (isFirstEntry) {
             initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
-            localStorage.setItem("pmc_initial_values", JSON.stringify(initialValues)); isFirstEntry = false;
+            localStorage.setItem("pmc_initial_values", JSON.stringify(initialValues)); 
+            
+            // सुधारणा: P3, Z3, AA3 इनपुट ब्लॉक (Disabled) करणे
+            document.getElementById('p3_date').disabled = true;
+            document.getElementById('z3_bal').disabled = true;
+            document.getElementById('aa3_bal').disabled = true;
+            isFirstEntry = false;
         }
         let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
         let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
         let f = b && b !== "---" ? (Math.round(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1) : 0;
         f = Math.max(0, f - e);
-        let g = Math.floor(f / 11) + (f % 11) / 100; let h = Math.floor(f / 30) + (f % 30) / 100;
+        
+        let g = 0, h = 0;
+        if(q !== "विशेष रजा") {
+            g = Math.floor(f / 11) + (f % 11) / 100; 
+            h = Math.floor(f / 30) + (f % 30) / 100;
+        }
+        
         let k_val = Math.min(365, Math.floor(curEL) + Math.floor(g) + (Math.round((curEL%1)*100)+Math.round((g%1)*100))/100);
         let l_val = Math.min(120, Math.floor(curML) + Math.floor(h) + (Math.round((curML%1)*100)+Math.round((h%1)*100))/100);
         let r_diff = Math.round(Math.abs(parseDMY(p) - parseDMY(o)) / (1000 * 60 * 60 * 24)) + 1;
 
-        // कडक नियम: रजा वजा करताना ती शून्यापेक्षा कमी (Negative) होऊ नये
         let finalEL = q === "हक्काची रजा" ? Math.max(0, k_val - r_diff) : k_val;
         let finalML = q === "वैद्यकीय रजा" ? Math.max(0, l_val - r_diff) : l_val;
 
@@ -353,12 +370,16 @@
         localStorage.setItem("pmc_leave_history", JSON.stringify(history)); renderTable();
         
         let nA = formatDMY(nextDay(parseDMY(p))); document.getElementById('a_start').value = nA; document.getElementById('o_leave_start').value = nA;
-        document.getElementById('e_lwp').value = "0"; toggleLwpPanel();
+        document.getElementById('e_lwp').value = "0"; 
+        
+        // सुधारणा: तारीख ऑप्शन ब्लँक करणे
+        bPickInstance.clear(); pLeavePickInstance.clear(); toggleLwpPanel();
     }
 
     function manualPageBreak() {
         if(history.length === 0) return;
         pageBreaks.push(history.length - 1); localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks)); renderTable();
+        alert("यशस्वी! मॅन्युअल पेज ब्रेक जोडला गेला आहे."); // सुधारणा: सूचना अलर्ट
     }
 
     function deleteLastEntry() {
@@ -375,6 +396,18 @@
                 renderTable();
             }
         }
+    }
+
+    // ऑटो-कॅल्क्युलेट LWP दिवस जे रजा तक्त्यामधून थेट मोजले जातात
+    function autoCalculateMacpLwp(years) {
+        let joinStr = document.getElementById('macp_join_date').value; if(!joinStr) return 0;
+        let jd = parseDMY(joinStr); let targetDate = new Date(jd.getFullYear() + years, jd.getMonth(), jd.getDate());
+        let totalLwpSum = 0;
+        history.forEach(item => {
+            let itemB = parseDMY(item.b);
+            if(itemB && itemB <= targetDate) { totalLwpSum += item.e; }
+        });
+        return totalLwpSum;
     }
 
     function renderTable() {
@@ -414,19 +447,35 @@
 
     function calculateAdvancedMacp() {
         let joinStr = document.getElementById('macp_join_date').value; if(!joinStr) return;
+        
+        // सुधारणा: LWP दिवस आता तक्त्यावरून ऑटोमॅटिक मोजले जातात
+        let lwp1 = autoCalculateMacpLwp(12); document.getElementById("m_lwp1").value = lwp1;
+        let lwp2 = autoCalculateMacpLwp(24); document.getElementById("m_lwp2").value = lwp2;
+        let lwp3 = autoCalculateMacpLwp(36); document.getElementById("m_lwp3").value = lwp3;
+
         let jd = parseDMY(joinStr);
-        let r1 = parseInt(document.getElementById('m_y1').value); let lwp1 = parseInt(document.getElementById('m_lwp1').value) || 0;
-        let r2_in = document.getElementById('m_y2').value; let lwp2 = parseInt(document.getElementById('m_lwp2').value) || 0;
-        let r2 = (r2_in === '8') ? (r1 + 8) : parseInt(r2_in);
-        let r3_in = document.getElementById('m_y3').value; let lwp3 = parseInt(document.getElementById('m_lwp3').value) || 0;
-        let r3 = (r3_in === '6') ? (r2 + 6) : parseInt(r3_in);
+        let r1 = parseInt(document.getElementById('m_y1').value); 
+        let r2_in = document.getElementById('m_y2').value; let r2 = (r2_in === '8') ? (r1 + 8) : parseInt(r2_in);
+        let r3_in = document.getElementById('m_y3').value; let r3 = (r3_in === '6') ? (r2 + 6) : parseInt(r3_in);
 
         let d1 = new Date(jd.getFullYear() + r1, jd.getMonth(), jd.getDate()); d1.setDate(d1.getDate() + lwp1); d1 = checkEmployeeDutyStatusOnDate(d1);
-        document.getElementById('m_res1').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d1)}</strong>`;
+        document.getElementById('m_res1').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d1)}</strong>`; macpDatesGlobal["1"] = formatDMY(d1);
+        
         let d2 = new Date(jd.getFullYear() + r2, jd.getMonth(), jd.getDate()); d2.setDate(d2.getDate() + lwp1 + lwp2); d2 = checkEmployeeDutyStatusOnDate(d2);
-        document.getElementById('m_res2').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d2)}</strong>`;
+        document.getElementById('m_res2').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d2)}</strong>`; macpDatesGlobal["2"] = formatDMY(d2);
+        
         let d3 = new Date(jd.getFullYear() + r3, jd.getMonth(), jd.getDate()); d3.setDate(d3.getDate() + lwp1 + lwp2 + lwp3); d3 = checkEmployeeDutyStatusOnDate(d3);
-        document.getElementById('m_res3').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d3)}</strong>`;
+        document.getElementById('m_res3').innerHTML = `पात्रता दिनांक: <strong>${formatDMY(d3)}</strong>`; macpDatesGlobal["3"] = formatDMY(d3);
+        
+        syncMacpDateToFixation();
+    }
+
+    // सुधारणा: निवडलेल्या १ल्या, २ऱ्या, ३ऱ्या लाभानुसार ५ व्या टॅबचा तारीख सेट करणे
+    function syncMacpDateToFixation() {
+        let selectedType = document.getElementById("pf_macp_type").value;
+        if(macpDatesGlobal[selectedType]) {
+            document.getElementById("pf_eff_date").value = macpDatesGlobal[selectedType];
+        }
     }
 
     function processPayFixationAndDiff() {
@@ -439,8 +488,6 @@
 
         let effDate = parseDMY(effDateStr); let endDate = parseDMY(endDateStr);
         let dueCells = matrix7thFull[newScale];
-        let drawnCells = matrix7thFull[currentScale];
-        
         let matchedIndex = 0; for (let i = 0; i < dueCells.length; i++) { if (dueCells[i] >= basicInput) { matchedIndex = i; break; } }
         let finalFixationBasic = dueCells[matchedIndex + 2]; 
 
@@ -511,6 +558,8 @@
     }
     function clearAllData() { localStorage.clear(); location.reload(); }
     function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
+    function getDaRateByDateFromExcel(d) { let y=d.getFullYear(), m=d.getMonth()+1; if(y<2023) return 0.38; if(y===2023) return m<=6?0.42:0.46; if(y===2024) return m<=6?0.50:0.53; if(y===2025) return m<=6?0.55:0.58; return 0.60; }
+    function getHraRate(b) { return b>=25500?0.24:0.20; }
 </script>
 </body>
 </html>
