@@ -421,15 +421,18 @@
     function deleteLastEntry() {
         if (history.length === 0) return;
         if (confirm("शेवटची नोंद हटवायची का?")) {
-            let lastIndex = history.length - 1; history.pop();
+            let lastIndex = history.length - 1; 
+            history.pop();
             pageBreaks = pageBreaks.filter(idx => idx !== lastIndex);
             localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks));
             localStorage.setItem("pmc_leave_history", JSON.stringify(history));
-            if (history.length === 0) { localStorage.clear(); location.reload(); } 
-            else {
+            if (history.length === 0) { 
+                localStorage.clear(); location.reload(); 
+            } else {
                 let last = history[history.length - 1];
                 let nextA = last.type === "bonus" ? last.nextA : formatDMY(nextDay(parseDMY(last.p)));
-                document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA;
+                document.getElementById('a_start').value = nextA; 
+                document.getElementById('o_leave_start').value = nextA;
                 renderTable();
             }
         }
