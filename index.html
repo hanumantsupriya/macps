@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -53,6 +52,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 .footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
 .macp-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
 .cr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+.macp-options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; background: #fff3e0; padding: 12px; border-radius: 8px; border: 1px solid #ffe0b2; }
 </style>
 </head>
 <body>
@@ -232,6 +232,35 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
 <div id="page4" class="tab-content">
 <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
+
+<!-- नवीन जोडलेले कस्टमाइज्ड लाभ टप्पे ऑप्शन्स -->
+<h4 style="color:#e65100; margin-top:10px;">⚙️ लाभ टप्पा सेवा कालावधी निश्चित करा (Select Options):</h4>
+<div class="macp-options-grid">
+<div>
+<label>१ ला लाभ टप्पा वर्ष:</label>
+<select id="macp_term1" onchange="calculateMacp()">
+<option value="10" selected>१० वर्षे सेवा (नवीन सुधारित)</option>
+<option value="12">१२ वर्षे सेवा (जुन्या नियमानुसार)</option>
+</select>
+</div>
+<div>
+<label>२ रा लाभ टप्पा वर्ष (मागील प्रत्यक्ष दिनांकापासून पुढील):</label>
+<select id="macp_term2" onchange="calculateMacp()">
+<option value="10" selected>१० वर्षे सेवा (एकूण २० वर्षे / १२+८)</option>
+<option value="12">१२ वर्षे सेवा (एकूण २४ वर्षे / जुना नियम)</option>
+<option value="8">८ वर्षे सेवा (१२+८ = २० वर्षे विशेष)</option>
+</select>
+</div>
+<div>
+<label>३ रा लाभ टप्पा वर्ष (मागील प्रत्यक्ष दिनांकापासून पुढील):</label>
+<select id="macp_term3" onchange="calculateMacp()">
+<option value="10" selected>१० वर्षे सेवा (एकूण ३० वर्षे / २४+६)</option>
+<option value="12">१२ वर्षे सेवा (एकूण ३६ वर्षे / जुना नियम)</option>
+<option value="6">६ वर्षे सेवा (२४+६ = ३० वर्षे विशेष)</option>
+</select>
+</div>
+</div>
+
 <div class="macp-box">
 <div>
 <label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label>
@@ -239,7 +268,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 <div>
 <label>एकूण बिनपगारी रजा (LWP दिवस):</label>
-<input type="number" id="macp_lwp" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
+<input type="number" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
 </div>
 <div>
 <label>निलंबन कालावधी (Suspension दिवस):</label>
@@ -266,7 +295,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 
 <div id="macpResult" class="macp-result-box">
-маहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
+माहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
 </div>
 </div>
 
@@ -406,7 +435,7 @@ function switchTab(tabId) {
 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 document.getElementById(tabId).classList.add('active');
-event.currentTarget.classList.add('active');
+event.currentTarget.currentTarget ? event.currentTarget.classList.add('active') : null;
 if(tabId === 'page2' && history.length > 0) {
 document.getElementById('total_el_shilak').value = Math.floor(history[history.length - 1].finalEL);
 calculateEncashment();
@@ -690,7 +719,7 @@ joinDate: document.getElementById('info_join_date').value, retireDate: document.
 }
 
 function checkActualDueDate(hypotheticalDate) {
-    if (!hypotheticalDate) return "";
+    if (!hypotheticalDate) return null;
     let actualDate = new Date(hypotheticalDate.getTime());
     
     for (let i = 0; i < history.length; i++) {
@@ -704,14 +733,14 @@ function checkActualDueDate(hypotheticalDate) {
             }
         }
     }
-    return formatDMY(actualDate);
+    return actualDate;
 }
 
-// ** सुधारित MACPS मोजणी - LWP ऑटो-अपडेट फिक्स **
+// ** सुधारित MACPS मोजणी - डायनॅमिक पर्याय व प्रत्यक्ष दिनांकावरून पुढील गणना फिक्स **
 function calculateMacp() {
 let joinStr = document.getElementById('macp_join_date').value;
-let lwpDays = grandTotalLwpGlobal; // जागतिक स्तरावर मोजलेली LWP थेट येथे पास केली
-document.getElementById('macp_lwp').value = lwpDays; // इनपुट बॉक्समध्ये डेटा सेट करणे
+let lwpDays = grandTotalLwpGlobal;
+document.getElementById('macp_lwp').value = lwpDays;
 
 let suspDays = parseInt(document.getElementById('macp_suspension').value) || 0;
 let currentLevel = document.getElementById('macp_current_level').value;
@@ -724,22 +753,30 @@ resultBox.innerHTML = "⚠️ कृपया आधी कर्मचाऱ्
 let joinDate = parseDMY(joinStr);
 let totalPenaltyDays = lwpDays + suspDays;
 
-let macp1 = new Date(joinDate.getFullYear() + 10, joinDate.getMonth(), joinDate.getDate());
-let macp2 = new Date(joinDate.getFullYear() + 20, joinDate.getMonth(), joinDate.getDate());
-let macp3 = new Date(joinDate.getFullYear() + 30, joinDate.getMonth(), joinDate.getDate());
+// मॅन्युअल सिलेक्ट केलेले वर्षांचे टप्पे गोळा करणे
+let t1Years = parseInt(document.getElementById('macp_term1').value) || 10;
+let t2Years = parseInt(document.getElementById('macp_term2').value) || 10;
+let t3Years = parseInt(document.getElementById('macp_term3').value) || 10;
 
+// १ ला लाभ: मूळ रुजू तारखेपासून मोजणे (+ अकृताकारी दिवस)
+let macp1_hypo = new Date(joinDate.getFullYear() + t1Years, joinDate.getMonth(), joinDate.getDate());
 if(totalPenaltyDays > 0) {
-macp1.setDate(macp1.getDate() + totalPenaltyDays);
-macp2.setDate(macp2.getDate() + totalPenaltyDays);
-macp3.setDate(macp3.getDate() + totalPenaltyDays);
+    macp1_hypo.setDate(macp1_hypo.getDate() + totalPenaltyDays);
 }
+let macp1_actual = checkActualDueDate(macp1_hypo);
 
-let actualMacp1Str = checkActualDueDate(macp1);
-let actualMacp2Str = checkActualDueDate(macp2);
-let actualMacp3Str = checkActualDueDate(macp3);
+// २ रा लाभ: पहिल्या प्रत्यक्ष लाभ देय दिनांकावरून (Actual Due Date) पुढे मोजणे
+let macp2_hypo = new Date(macp1_actual.getTime());
+macp2_hypo.setFullYear(macp2_hypo.getFullYear() + t2Years);
+let macp2_actual = checkActualDueDate(macp2_hypo);
+
+// ३ रा लाभ: दुसऱ्या प्रत्यक्ष लाभ देय दिनांकावरून (Actual Due Date) पुढे मोजणे
+let macp3_hypo = new Date(macp2_actual.getTime());
+macp3_hypo.setFullYear(macp3_hypo.getFullYear() + t3Years);
+let macp3_actual = checkActualDueDate(macp3_hypo);
 
 let nxt1 = "S-7 (रु. २१७००-६९१००)", nxt2 = "S-9 (रु. २९२००-९२३००)", nxt3 = "S-11 (रु. ३५४००-११२४००)";
-if(currentLevel === "S-8") { nxt1 = "S-10 (रु. २९२००-९२३००)"; nxt2 = "S-13 (रु. ३५४००-११२४००)"; nxt3 = "S-14 (रु. ३८६००-१२२८००)"; }
+if(currentLevel === "S-8") { nxt1 = "S-10 (रु. २९२००-९२३००)"; nxt2 = "S-13 (रु. ३५४००-११२4००)"; nxt3 = "S-14 (रु. ३८६००-१२२८००)"; }
 if(currentLevel === "S-10") { nxt1 = "S-13 (रु. ३५४००-११२४००)"; nxt2 = "S-14 (रु. ३८६००-१२२८००)"; nxt3 = "S-15 (रु. ४१८४००-१३२३००)"; }
 
 let crGrades = document.querySelectorAll('.cr-grade');
@@ -751,37 +788,37 @@ if(select.value === "साधारण") isEligible = false;
 let statusText = isEligible ? "<span style='color:green; font-weight:bold;'>✅ पात्र (Eligible)</span>" : "<span style='color:red; font-weight:bold;'>❌ अपात्र (मागील ५ वर्षात 'साधारण' शेरा असल्यामुळे लाभ पुढे ढकलला जाईल)</span>";
 
 resultBox.innerHTML = `
-<strong>🎯 अधिकृत परिपत्रक क्र. मआ/मुने ३१९३ नुसार MACPS अहवाल:</strong><br>
+<strong>🎯 अधिकृत परिपत्रक क्र. मआ/मुने ३१९३ नुसार सुधारित MACPS अहवाल:</strong><br>
 • मूळ सेवा रुजू दिनांक: ${joinStr}<br>
 • एकूण वजा होणारे अकृताकारी दिवस (LWP ${lwpDays} + निलंबन ${suspDays}): <strong>${totalPenaltyDays} दिवस लाभ पुढे जाणार</strong><br>
 • गोपनीय अहवाल पात्रता स्थिती (CR Status): ${statusText}<br><br>
 <table style='width:100%; font-size:13px;'>
 <tr style='background:#004d40; color:white;'>
     <th>लाभ टप्पा</th>
-    <th>आवश्यक सेवा अवधी</th>
+    <th>निवडलेला अवधी</th>
     <th>काल्पनिक लाभ देय दिनांक</th>
     <th>प्रत्यक्ष लाभ देय दिनांक</th>
     <th>७ वा वेतन आयोग सुधारित वेतनश्रेणी स्तर</th>
 </tr>
 <tr>
-    <td><strong>१ ला लाभ (१० वर्षे पूर्ण)</strong></td>
-    <td>१० वर्षे सेवा</td>
-    <td>${formatDMY(macp1)}</td>
-    <td><span style='color:green;font-weight:bold;'>${actualMacp1Str}</span></td>
+    <td><strong>१ ला लाभ</strong></td>
+    <td>${t1Years} वर्षे सेवा</td>
+    <td>${formatDMY(macp1_hypo)}</td>
+    <td><span style='color:green;font-weight:bold;'>${formatDMY(macp1_actual)}</span></td>
     <td><span style='color:blue;font-weight:bold;'>${nxt1}</span></td>
 </tr>
 <tr>
-    <td><strong>२ रा लाभ (२० वर्षे पूर्ण)</strong></td>
-    <td>२० वर्षे सेवा</td>
-    <td>${formatDMY(macp2)}</td>
-    <td><span style='color:green;font-weight:bold;'>${actualMacp2Str}</span></td>
+    <td><strong>२ रा लाभ</strong></td>
+    <td>+${t2Years} वर्षे सेवा</td>
+    <td>${formatDMY(macp2_hypo)}</td>
+    <td><span style='color:green;font-weight:bold;'>${formatDMY(macp2_actual)}</span></td>
     <td><span style='color:blue;font-weight:bold;'>${nxt2}</span></td>
 </tr>
 <tr>
-    <td><strong>३ रा लाभ (३० वर्षे पूर्ण)</strong></td>
-    <td>३० वर्षे सेवा</td>
-    <td>${formatDMY(macp3)}</td>
-    <td><span style='color:green;font-weight:bold;'>${actualMacp3Str}</span></td>
+    <td><strong>३ रा लाभ</strong></td>
+    <td>+${t3Years} वर्षे सेवा</td>
+    <td>${formatDMY(macp3_hypo)}</td>
+    <td><span style='color:green;font-weight:bold;'>${formatDMY(macp3_actual)}</span></td>
     <td><span style='color:blue;font-weight:bold;'>${nxt3}</span></td>
 </tr>
 </table>
@@ -814,7 +851,6 @@ current = nextMonthFirstDay;
 }
 });
 } else if (item.e > 0) {
-    // जर जुन्या डेटा मध्ये intervals नसतील तर थेट मुख्य दिवसांची बेरीज करणे
     grandLwpSum += parseFloat(item.e);
 }
 
