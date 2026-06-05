@@ -233,7 +233,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <div id="page4" class="tab-content">
 <h3>७ व्या वेतन आयोग परिपत्रकानुसार सुधारित सेवांतर्गत आश्वासित प्रगती योजना (MACPS)</h3>
 
-<!-- नवीन जोडलेले कस्टमाइज्ड लाभ टप्पे ऑप्शन्स -->
 <h4 style="color:#e65100; margin-top:10px;">⚙️ लाभ टप्पा सेवा कालावधी निश्चित करा (Select Options):</h4>
 <div class="macp-options-grid">
 <div>
@@ -435,7 +434,6 @@ function switchTab(tabId) {
 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 document.getElementById(tabId).classList.add('active');
-event.currentTarget.currentTarget ? event.currentTarget.classList.add('active') : null;
 if(tabId === 'page2' && history.length > 0) {
 document.getElementById('total_el_shilak').value = Math.floor(history[history.length - 1].finalEL);
 calculateEncashment();
@@ -736,7 +734,7 @@ function checkActualDueDate(hypotheticalDate) {
     return actualDate;
 }
 
-// ** सुधारित MACPS मोजणी - डायनॅमिक पर्याय व प्रत्यक्ष दिनांकावरून पुढील गणना फिक्स **
+// ** सुधारित MACPS मोजणी - प्रत्येक टप्प्यात काल्पनिक दिनांकात LWP जोडणे फिक्स **
 function calculateMacp() {
 let joinStr = document.getElementById('macp_join_date').value;
 let lwpDays = grandTotalLwpGlobal;
@@ -753,30 +751,38 @@ resultBox.innerHTML = "⚠️ कृपया आधी कर्मचाऱ्
 let joinDate = parseDMY(joinStr);
 let totalPenaltyDays = lwpDays + suspDays;
 
-// मॅन्युअल सिलेक्ट केलेले वर्षांचे टप्पे गोळा करणे
 let t1Years = parseInt(document.getElementById('macp_term1').value) || 10;
 let t2Years = parseInt(document.getElementById('macp_term2').value) || 10;
 let t3Years = parseInt(document.getElementById('macp_term3').value) || 10;
 
-// १ ला लाभ: मूळ रुजू तारखेपासून मोजणे (+ अकृताकारी दिवस)
-let macp1_hypo = new Date(joinDate.getFullYear() + t1Years, joinDate.getMonth(), joinDate.getDate());
+// --- १ ला लाभ टप्पा ---
+let macp1_base = new Date(joinDate.getFullYear() + t1Years, joinDate.getMonth(), joinDate.getDate());
+let macp1_hypo = new Date(macp1_base.getTime());
 if(totalPenaltyDays > 0) {
-    macp1_hypo.setDate(macp1_hypo.getDate() + totalPenaltyDays);
+    macp1_hypo.setDate(macp1_hypo.getDate() + totalPenaltyDays); // काल्पनिक तारखेत अकृताकारी दिवस अधिक केले
 }
 let macp1_actual = checkActualDueDate(macp1_hypo);
 
-// २ रा लाभ: पहिल्या प्रत्यक्ष लाभ देय दिनांकावरून (Actual Due Date) पुढे मोजणे
-let macp2_hypo = new Date(macp1_actual.getTime());
-macp2_hypo.setFullYear(macp2_hypo.getFullYear() + t2Years);
+// --- २ रा लाभ टप्पा ---
+// मागील प्रत्यक्ष लाभ देय दिनांकावरून (Actual Due Date) पुढील मूळ सेवा कालावधी वाढवणे
+let macp2_base = new Date(macp1_actual.getTime());
+macp2_base.setFullYear(macp2_base.getFullYear() + t2Years);
+
+// मूळ ९१ दिवस काल्पनिक गणनेत देखील कायम पुढे ढकलणे
+let macp2_hypo = new Date(macp2_base.getTime());
 let macp2_actual = checkActualDueDate(macp2_hypo);
 
-// ३ रा लाभ: दुसऱ्या प्रत्यक्ष लाभ देय दिनांकावरून (Actual Due Date) पुढे मोजणे
-let macp3_hypo = new Date(macp2_actual.getTime());
-macp3_hypo.setFullYear(macp3_hypo.getFullYear() + t3Years);
+// --- ३ रा लाभ टप्पा ---
+// दुसऱ्या प्रत्यक्ष लाभ देय दिनांकावरून पुढील मूळ सेवा कालावधी वाढवणे
+let macp3_base = new Date(macp2_actual.getTime());
+macp3_base.setFullYear(macp3_base.getFullYear() + t3Years);
+
+// मूळ ९१ दिवस काल्पनिक गणनेत कायम ठेवणे
+let macp3_hypo = new Date(macp3_base.getTime());
 let macp3_actual = checkActualDueDate(macp3_hypo);
 
 let nxt1 = "S-7 (रु. २१७००-६९१००)", nxt2 = "S-9 (रु. २९२००-९२३००)", nxt3 = "S-11 (रु. ३५४००-११२४००)";
-if(currentLevel === "S-8") { nxt1 = "S-10 (रु. २९२००-९२३००)"; nxt2 = "S-13 (रु. ३५४००-११२4००)"; nxt3 = "S-14 (रु. ३८६००-१२२८००)"; }
+if(currentLevel === "S-8") { nxt1 = "S-10 (रु. २९२००-९२३००)"; nxt2 = "S-13 (रु. ३५४००-११२४००)"; nxt3 = "S-14 (रु. ३८६००-१२२८००)"; }
 if(currentLevel === "S-10") { nxt1 = "S-13 (रु. ३५४००-११२४००)"; nxt2 = "S-14 (रु. ३८६००-१२२८००)"; nxt3 = "S-15 (रु. ४१८४००-१३२३००)"; }
 
 let crGrades = document.querySelectorAll('.cr-grade');
@@ -867,7 +873,7 @@ if (segmentEnd > targetEnd) segmentEnd = new Date(targetEnd.getTime());
 let segmentDays = Math.round((segmentEnd.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
 if(!leaveMap[monthKey]) {
-leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0, breakups: [] };
+leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजाве": 0, "विशेष रजा": 0, breakups: [] };
 }
 if(leaveMap[monthKey][item.q] !== undefined) {
 leaveMap[monthKey][item.q] += segmentDays;
@@ -985,6 +991,7 @@ let gtRow = chartBody.insertRow(); gtRow.className = "grand-total-row";
 gtRow.innerHTML = `<td>ग्रँड एकूण संख्या (Grand Total)</td><td>${grandF}</td><td>${grandE}</td><td>${grandG.toFixed(2)}</td><td>${grandH.toFixed(2)}</td><td>${grandR}</td>`;
 }
 generateLeaveAndLwpReports();
+calculateMacp();
 }
 
 function downloadExcel() {
