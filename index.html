@@ -210,7 +210,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <div class="setup-box">
 <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
 <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
-<div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोAutomatically येईल" oninput="calculateEncashment()"></div>
+<div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोआप येईल" oninput="calculateEncashment()"></div>
 </div>
 <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
 <div style="margin-top: 15px; text-align: right;">
@@ -239,7 +239,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 <div>
 <label>एकूण बिनपगारी रजा (LWP दिवस):</label>
-<input type="number" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
+<input type="number" id="macp_lwp" id="macp_lwp" placeholder="रजा पुस्तकातून आपोआप येईल" readonly>
 </div>
 <div>
 <label>निलंबन कालावधी (Suspension दिवस):</label>
@@ -248,37 +248,10 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <div>
 <label>७ व्या वेतन आयोगानुसार चालू पदनाम / वेतनश्रेणी श्रेणी:</label>
 <select id="macp_current_level" onchange="calculateMacp()">
-<option value="S-1">S-1 : 15000-47600</option>
-<option value="S-2">S-2 : 15300-48700</option>
-<option value="S-3">S-3 : 16600-52400</option>
-<option value="S-4">S-4 : 17100-54000</option>
-<option value="S-5">S-5 : 18000-56900</option>
-<option value="S-6">S-6 : 19900-63200</option>
-<option value="S-7">S-7 : 21700-69100</option>
-<option value="S-8">S-8 : 25500-81100</option>
-<option value="S-9">S-9 : 26400-83600</option>
-<option value="S-10">S-10 : 29200-92300</option>
-<option value="S-11">S-11 : 30100-95100</option>
-<option value="S-12">S-12 : 32000-101600</option>
-<option value="S-13">S-13 : 35400-112400</option>
-<option value="S-14">S-14 : 38600-122800</option>
-<option value="S-15">S-15 : 41800-132300</option>
-<option value="S-16">S-16 : 44900-142400</option>
-<option value="S-17">S-17 : 47600-151100</option>
-<option value="S-18">S-18 : 49100-155800</option>
-<option value="S-19">S-19 : 55100-175100</option>
-<option value="S-20">S-20 : 56100-177500</option>
-<option value="S-21">S-21 : 57100-180800</option>
-<option value="S-22">S-22 : 60000-190800</option>
-<option value="S-23">S-23 : 67700-208700</option>
-<option value="S-24">S-24 : 71100-211900</option>
-<option value="S-25">S-25 : 78800-209200</option>
-<option value="S-26">S-26 : 82200-211500</option>
-<option value="S-27">S-27 : 118500-214100</option>
-<option value="S-28">S-28 : 124800-212400</option>
-<option value="S-29">S-29 : 131100-216600</option>
-<option value="S-30">S-30 : 144200-218200</option>
-<option value="S-13">S-31 : 182200-220000</option>
+<option value="S-6">S-6 : लिपिक-टंकलेखक / कनिष्ठ लिपिक (१९९००-६३२००)</option>
+<option value="S-8" selected>S-8 : वरिष्ठ लिपिक (२५५००-८११००)</option>
+<option value="S-10">S-10 : मुख्य लिपिक (२९२००-९२३००)</option>
+<option value="S-13">S-13 : अधिक्षक (३५४००-११२४००)</option>
 </select>
 </div>
 </div>
@@ -286,14 +259,14 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <h4 style="color:#1a73e8; margin-top:20px;">📋 मागील ५ वर्षांचे गोपनीय अहवाल (CR Grading) नोंदवा:</h4>
 <div class="cr-grid">
 <div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-<div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+<div><label>वर्ष २ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ३ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ४ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ५ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 </div>
 
 <div id="macpResult" class="macp-result-box">
-माहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
+маहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
 </div>
 </div>
 
@@ -324,7 +297,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 
 <div class="footer-msg">
-सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
+सदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
 </div>
 </div>
 
@@ -716,21 +689,17 @@ joinDate: document.getElementById('info_join_date').value, retireDate: document.
 }));
 }
 
-// ** रजेचा कालावधी तपासणारे नवीन फंक्शन (O ते P कालावधी) **
 function checkActualDueDate(hypotheticalDate) {
     if (!hypotheticalDate) return "";
     let actualDate = new Date(hypotheticalDate.getTime());
     
-    // इतिहास तपासून रजेच्या कालावधीत तारीख येते का ते पाहणे
     for (let i = 0; i < history.length; i++) {
         let item = history[i];
         if (item.type !== "bonus" && item.o && item.p) {
             let leaveStart = parseDMY(item.o);
             let leaveEnd = parseDMY(item.p);
             
-            // जर काल्पनिक तारीख रजेच्या दरम्यान (O ते P) असेल तर
             if (actualDate >= leaveStart && actualDate <= leaveEnd) {
-                // रजा संपल्याच्या (P) पुढील दिवस पकडणे
                 actualDate = nextDay(leaveEnd);
             }
         }
@@ -738,10 +707,12 @@ function checkActualDueDate(hypotheticalDate) {
     return formatDMY(actualDate);
 }
 
-// ** अधिकृत परिपत्रकानुसार दुरुस्त केलेले MACPS मोजणी लॉजिक **
+// ** सुधारित MACPS मोजणी - LWP ऑटो-अपडेट फिक्स **
 function calculateMacp() {
 let joinStr = document.getElementById('macp_join_date').value;
-let lwpDays = parseInt(document.getElementById('macp_lwp').value) || 0;
+let lwpDays = grandTotalLwpGlobal; // जागतिक स्तरावर मोजलेली LWP थेट येथे पास केली
+document.getElementById('macp_lwp').value = lwpDays; // इनपुट बॉक्समध्ये डेटा सेट करणे
+
 let suspDays = parseInt(document.getElementById('macp_suspension').value) || 0;
 let currentLevel = document.getElementById('macp_current_level').value;
 let resultBox = document.getElementById('macpResult');
@@ -763,7 +734,6 @@ macp2.setDate(macp2.getDate() + totalPenaltyDays);
 macp3.setDate(macp3.getDate() + totalPenaltyDays);
 }
 
-// प्रत्यक्ष लाभ देय दिनांकाची गणना (रजा तपासून)
 let actualMacp1Str = checkActualDueDate(macp1);
 let actualMacp2Str = checkActualDueDate(macp2);
 let actualMacp3Str = checkActualDueDate(macp3);
@@ -843,6 +813,9 @@ lwpMap[monthKey].intervals.push(`${formatDMY(current)} ते ${formatDMY(segmen
 current = nextMonthFirstDay;
 }
 });
+} else if (item.e > 0) {
+    // जर जुन्या डेटा मध्ये intervals नसतील तर थेट मुख्य दिवसांची बेरीज करणे
+    grandLwpSum += parseFloat(item.e);
 }
 
 let dStart = parseDMY(item.o), dEnd = parseDMY(item.p);
@@ -874,7 +847,7 @@ let lwpTwp = document.querySelector("#lwpMonthlyTable tbody"); lwpTwp.innerHTML 
 let sortedLwpMonths = Object.keys(lwpMap).sort((mA, mB) => {
 return new Date(mA.split("/")[1], mA.split("/")[0]-1) - new Date(mB.split("/")[1], mB.split("/")[0]-1);
 });
-if(sortedLwpMonths.length === 0) {
+if(sortedLwpMonths.length === 0 && grandLwpSum === 0) {
 lwpTwp.innerHTML = `<tr><td colspan="3" style="color: #666;">अजून कोणतीही बिनपगारी नोंद नाही.</td></tr>`;
 } else {
 sortedLwpMonths.forEach(month => {
@@ -940,7 +913,7 @@ if(item.type === "bonus") {
 row.className = "bonus-row";
 row.innerHTML = `
 <td class="bonus-details-cell"><strong>${item.details}</strong><br>• निवडलेल्या अवधीचे एकूण दिवस: ${item.totalDays || 0} दिवस<br>• सर्व रजा दिवस: ${item.spentDays || 0} दिवस<br>• प्रत्यक्ष कामाचे दिवस (Duty Days): ${item.dutyDays || 0} दिवस</td>
-<td>---</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा मंजुरी</td><td>+${item.earnedBonus}</td>
+<td>---</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा मजुरी</td><td>+${item.earnedBonus}</td>
 <td class="highlight">${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>
 `;
 } else {
@@ -976,7 +949,6 @@ let gtRow = chartBody.insertRow(); gtRow.className = "grand-total-row";
 gtRow.innerHTML = `<td>ग्रँड एकूण संख्या (Grand Total)</td><td>${grandF}</td><td>${grandE}</td><td>${grandG.toFixed(2)}</td><td>${grandH.toFixed(2)}</td><td>${grandR}</td>`;
 }
 generateLeaveAndLwpReports();
-calculateMacp();
 }
 
 function downloadExcel() {
