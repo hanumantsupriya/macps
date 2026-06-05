@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -209,7 +210,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <div class="setup-box">
 <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
 <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
-<div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोआप येईल" oninput="calculateEncashment()"></div>
+<div><label>एकूण शिल्लक हक्काची रजा (Total EL):</label><input type="number" id="total_el_shilak" placeholder="नोंदींमधून आपोAutomatically येईल" oninput="calculateEncashment()"></div>
 </div>
 <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
 <div style="margin-top: 15px; text-align: right;">
@@ -282,95 +283,10 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 </div>
 
-   <!-- NEW PAGE 5: REVISED MACPS FIXATION & DIFFERENCE BILL -->
-    <div id="page5" class="tab-content">
-        <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
-        
-        <div class="fixation-box">
-            <div>
-                <label>वेतन आयोग प्रकार:</label>
-                <select id="fix_pay_comm" onchange="onPayCommChange()">
-                    <option value="7">७ वा वेतन आयोग (S-Levels)</option>
-                    <option value="6">६ वा वेतन आयोग (Grade Pay)</option>
-                </select>
-            </div>
-            <div>
-                <label>जुनी वेतन श्रेणी / लेव्हल:</label>
-                <select id="fix_old_level" onchange="onOldLevelChange()"></select>
-            </div>
-            <div>
-                <label>नवीन प्रस्तावित वरिष्ठ लेव्हल:</label>
-                <select id="fix_new_level"></select>
-            </div>
-            <div>
-                <label>अंमलबजावणी दिनांक (आदेश तारीख):</label>
-                <input type="text" id="fix_effective_date" placeholder="DD/MM/YYYY">
-            </div>
-            <div>
-                <label>त्या दिनांकाचे मूळ वेतन (Basic Pay):</label>
-                <input type="number" id="fix_old_basic" placeholder="उदा. 34900">
-            </div>
-            <div>
-                <label>विकल्प प्रकार (Option Choice):</label>
-                <select id="fix_option_choice">
-                    <option value="आदेश_दिनांकापासून">आदेश दिनांकापासून वेतननिश्चिती</option>
-                    <option value="पुढील_वेतनवाढ_दिनांक">पुढील वार्षिक वेतनवाढ दिनांकापासून विकल्प (१ जुलै)</option>
-                </select>
-            </div>
-            <div>
-                <label>फरक बिल कालावधी (महिने):</label>
-                <input type="number" id="fix_diff_months" value="12" min="1">
-            </div>
-            <div>
-                <label>घरभाडे भत्ता वर्गवारी (HRA %):</label>
-                <select id="fix_hra_percent">
-                    <option value="24">२४% (पुणे मनपा वर्ग-अ)</option>
-                    <option value="20">२०%</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <button class="btn-calc" onclick="calculateFixationAndDifference()">वेतननिश्चिती व फरक बिल तयार करा</button>
-            <button class="btn-excel" onclick="downloadDifferenceCSV()">CSV अहवाल डाउनलोड करा</button>
-        </div>
-
-        <!-- FIXATION SUMMARY CARD -->
-        <div id="fixationSummaryCard" style="display:none; background:#e8f5e9; border:2px solid #2e7d32; padding:15px; border-radius:8px; margin-bottom:20px; font-size:15px; line-height:1.6;"></div>
-
-        <!-- DUE VS DRAWN TABLE -->
-        <h3>मासिक देय वि. प्रत्यक्ष आहारीत फरक तक्ता (Due vs Drawn Statement)</h3>
-        <p style="color:#d32f2f; font-size:12px; font-weight:bold;">💡 टीप: जर एखाद्या महिन्याची थकबाकी/वेतनवाढ रोखली गेली असेल, तर तुम्ही थेट 'प्रत्यक्ष मूळ वेतन (Drawn)' च्या रकान्यात बदल करू शकता, फरक आपोआप मोजला जाईल.</p>
-        
-        <table class="statement-table" id="differenceTable">
-            <thead>
-                <tr>
-                    <th rowspan="2">महिना/वर्ष</th>
-                    <th colspan="4">नियम देय रक्कम (DUE SIDE)</th>
-                    <th colspan="4">प्रत्यक्षात घेतलेली रक्कम (DRAWN SIDE) - Editable</th>
-                    <th rowspan="2">एकूण दरमहा फरक (Net Diff)</th>
-                </tr>
-                <tr>
-                    <th>मूळ वेतन</th>
-                    <th>DA</th>
-                    <th>HRA</th>
-                    <th>एकूण देय</th>
-                    <th>मूळ वेतन</th>
-                    <th>DA</th>
-                    <th>HRA</th>
-                    <th>एकूण आहारीत</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td colspan="10" style="color:#666; padding:15px;">माहिती भरून बटन दाबा. तक्ता येथे तयार होईल.</td></tr>
-            </tbody>
-        </table>
-    </div>
-  
 <h4 style="color:#1a73e8; margin-top:20px;">📋 मागील ५ वर्षांचे गोपनीय अहवाल (CR Grading) नोंदवा:</h4>
 <div class="cr-grid">
 <div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
-<div><label>वर्ष २ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
+<div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ३ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ४ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
 <div><label>वर्ष ५ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
@@ -378,6 +294,32 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
 <div id="macpResult" class="macp-result-box">
 माहिती भरा, परिपत्रक मआ/मुने ३१९३ नुसार आश्वासित प्रगती योजनेची पात्रता आणि तारखा येथे दिसतील.
+</div>
+</div>
+
+<div id="page5" class="tab-content">
+<h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
+
+<div class="fixation-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #eee; padding: 15px; border-radius: 8px;">
+<div>
+<label>वेतन आयोग प्रकार:</label>
+<select id="fix_pay_comm">
+<option value="7">७ वा वेतन आयोग (S-Levels)</option>
+<option value="6">६ वा वेतन आयोग (Grade Pay)</option>
+</select>
+</div>
+<div>
+<label>अंमलबजावणी दिनांक (आदेश तारीख):</label>
+<input type="text" id="fix_effective_date" placeholder="DD/MM/YYYY">
+</div>
+<div>
+<label>त्या दिनांकाचे मूळ वेतन (Basic Pay):</label>
+<input type="number" id="fix_old_basic" placeholder="उदा. 34900">
+</div>
+<div>
+<label>फरक बिल कालावधी (महिने):</label>
+<input type="number" id="fix_diff_months" value="12" min="1">
+</div>
 </div>
 </div>
 
@@ -400,7 +342,6 @@ let tempDutyDays = 0;
 let grandTotalLwpGlobal = 0;
 
 const config = { dateFormat: "d/m/Y", allowInput: true };
-// **सर्व कॅलेंडर फंक्शन्स पुनरुज्जीवित आणि सुरक्षित लिंक केले आहेत**
 const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
 const bPick = flatpickr("#b_end", { ...config, onChange: updateLeaveStartDate });
 const pLeavePick = flatpickr("#p_leave_end", config);
@@ -409,6 +350,7 @@ flatpickr("#bonus_end_date", config);
 const joinPick = flatpickr("#info_join_date", { ...config, onChange: function() { saveEmployeeInfo(); syncJoinDateToMacp(); } });
 const retirePick = flatpickr("#info_retire_date", { ...config, onChange: saveEmployeeInfo });
 const macpJoinPick = flatpickr("#macp_join_date", { ...config, onChange: calculateMacp });
+flatpickr("#fix_effective_date", config);
 
 window.onload = function() {
 if(localStorage.getItem("pmc_leave_history")) {
@@ -497,7 +439,6 @@ document.getElementById('total_el_shilak').value = Math.floor(history[history.le
 calculateEncashment();
 }
 if(tabId === 'page4') {
-document.getElementById('macp_lwp').value = grandTotalLwpGlobal;
 calculateMacp();
 }
 }
@@ -607,6 +548,15 @@ msgBox.innerHTML = "✅ दिवस यशस्वीरित्या जु
 }
 }
 
+function applyLimits(val, maxVal) {
+    let base = Math.floor(val);
+    let dec = Math.round((val % 1) * 100);
+    if (base >= maxVal) {
+        return maxVal;
+    }
+    return base + (dec / 100);
+}
+
 function addEntry() {
 let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
 let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
@@ -687,7 +637,7 @@ let totalR = 0; let totalE = 0;
 
 history.forEach(item => {
 let itemO = parseDMY(item.o); let itemP = parseDMY(item.p);
-if(itemO >= dStart && itemP <= dEnd) {
+if(itemO && itemP && itemO >= dStart && itemP <= dEnd) {
 totalR += item.r_diff; totalE += item.e;
 }
 });
@@ -766,6 +716,28 @@ joinDate: document.getElementById('info_join_date').value, retireDate: document.
 }));
 }
 
+// ** रजेचा कालावधी तपासणारे नवीन फंक्शन (O ते P कालावधी) **
+function checkActualDueDate(hypotheticalDate) {
+    if (!hypotheticalDate) return "";
+    let actualDate = new Date(hypotheticalDate.getTime());
+    
+    // इतिहास तपासून रजेच्या कालावधीत तारीख येते का ते पाहणे
+    for (let i = 0; i < history.length; i++) {
+        let item = history[i];
+        if (item.type !== "bonus" && item.o && item.p) {
+            let leaveStart = parseDMY(item.o);
+            let leaveEnd = parseDMY(item.p);
+            
+            // जर काल्पनिक तारीख रजेच्या दरम्यान (O ते P) असेल तर
+            if (actualDate >= leaveStart && actualDate <= leaveEnd) {
+                // रजा संपल्याच्या (P) पुढील दिवस पकडणे
+                actualDate = nextDay(leaveEnd);
+            }
+        }
+    }
+    return formatDMY(actualDate);
+}
+
 // ** अधिकृत परिपत्रकानुसार दुरुस्त केलेले MACPS मोजणी लॉजिक **
 function calculateMacp() {
 let joinStr = document.getElementById('macp_join_date').value;
@@ -791,7 +763,11 @@ macp2.setDate(macp2.getDate() + totalPenaltyDays);
 macp3.setDate(macp3.getDate() + totalPenaltyDays);
 }
 
-// ** परिपत्रक क्र. मआ/मुने ३१९३ नुसार सुधारित वेतनश्रेणी स्तर **
+// प्रत्यक्ष लाभ देय दिनांकाची गणना (रजा तपासून)
+let actualMacp1Str = checkActualDueDate(macp1);
+let actualMacp2Str = checkActualDueDate(macp2);
+let actualMacp3Str = checkActualDueDate(macp3);
+
 let nxt1 = "S-7 (रु. २१७००-६९१००)", nxt2 = "S-9 (रु. २९२००-९२३००)", nxt3 = "S-11 (रु. ३५४००-११२४००)";
 if(currentLevel === "S-8") { nxt1 = "S-10 (रु. २९२००-९२३००)"; nxt2 = "S-13 (रु. ३५४००-११२४००)"; nxt3 = "S-14 (रु. ३८६००-१२२८००)"; }
 if(currentLevel === "S-10") { nxt1 = "S-13 (रु. ३५४००-११२४००)"; nxt2 = "S-14 (रु. ३८६००-१२२८००)"; nxt3 = "S-15 (रु. ४१८४००-१३२३००)"; }
@@ -810,10 +786,34 @@ resultBox.innerHTML = `
 • एकूण वजा होणारे अकृताकारी दिवस (LWP ${lwpDays} + निलंबन ${suspDays}): <strong>${totalPenaltyDays} दिवस लाभ पुढे जाणार</strong><br>
 • गोपनीय अहवाल पात्रता स्थिती (CR Status): ${statusText}<br><br>
 <table style='width:100%; font-size:13px;'>
-<tr style='background:#004d40; color:white;'><th>लाभ टप्पा</th><th>आवश्यक सेवा अवधी</th><th>काल्पनिक लाभ देय दिनांक</th><th>७ वा वेतन आयोग सुधारित वेतनश्रेणी स्तर</th></tr>
-<tr><td><strong>१ ला लाभ (१० वर्षे पूर्ण)</strong></td><td>१० वर्षे सेवा</td><td>${formatDMY(macp1)}</td><td><span style='color:blue;font-weight:bold;'>${nxt1}</span></td></tr>
-<tr><td><strong>२ रा लाभ (२० वर्षे पूर्ण)</strong></td><td>२० वर्षे सेवा</td><td>${formatDMY(macp2)}</td><td><span style='color:blue;font-weight:bold;'>${nxt2}</span></td></tr>
-<tr><td><strong>३ रा लाभ (३० वर्षे पूर्ण)</strong></td><td>३0 वर्षे सेवा</td><td>${formatDMY(macp3)}</td><td><span style='color:blue;font-weight:bold;'>${nxt3}</span></td></tr>
+<tr style='background:#004d40; color:white;'>
+    <th>लाभ टप्पा</th>
+    <th>आवश्यक सेवा अवधी</th>
+    <th>काल्पनिक लाभ देय दिनांक</th>
+    <th>प्रत्यक्ष लाभ देय दिनांक</th>
+    <th>७ वा वेतन आयोग सुधारित वेतनश्रेणी स्तर</th>
+</tr>
+<tr>
+    <td><strong>१ ला लाभ (१० वर्षे पूर्ण)</strong></td>
+    <td>१० वर्षे सेवा</td>
+    <td>${formatDMY(macp1)}</td>
+    <td><span style='color:green;font-weight:bold;'>${actualMacp1Str}</span></td>
+    <td><span style='color:blue;font-weight:bold;'>${nxt1}</span></td>
+</tr>
+<tr>
+    <td><strong>२ रा लाभ (२० वर्षे पूर्ण)</strong></td>
+    <td>२० वर्षे सेवा</td>
+    <td>${formatDMY(macp2)}</td>
+    <td><span style='color:green;font-weight:bold;'>${actualMacp2Str}</span></td>
+    <td><span style='color:blue;font-weight:bold;'>${nxt2}</span></td>
+</tr>
+<tr>
+    <td><strong>३ रा लाभ (३० वर्षे पूर्ण)</strong></td>
+    <td>३० वर्षे सेवा</td>
+    <td>${formatDMY(macp3)}</td>
+    <td><span style='color:green;font-weight:bold;'>${actualMacp3Str}</span></td>
+    <td><span style='color:blue;font-weight:bold;'>${nxt3}</span></td>
+</tr>
 </table>
 `;
 }
