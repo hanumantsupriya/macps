@@ -64,6 +64,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <button class="tab-btn" onclick="switchTab('page2')">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
 <button class="tab-btn" onclick="switchTab('page3')">३. कर्मचाऱ्यांची माहिती</button>
 <button class="tab-btn" onclick="switchTab('page4')">४. आश्वासित प्रगती योजना (MACPS)</button>
+<button class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
 </div>
 
 <div id="page1" class="tab-content active">
@@ -254,6 +255,91 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 </div>
 
+   <!-- NEW PAGE 5: REVISED MACPS FIXATION & DIFFERENCE BILL -->
+    <div id="page5" class="tab-content">
+        <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल (Due vs Drawn)</h3>
+        
+        <div class="fixation-box">
+            <div>
+                <label>वेतन आयोग प्रकार:</label>
+                <select id="fix_pay_comm" onchange="onPayCommChange()">
+                    <option value="7">७ वा वेतन आयोग (S-Levels)</option>
+                    <option value="6">६ वा वेतन आयोग (Grade Pay)</option>
+                </select>
+            </div>
+            <div>
+                <label>जुनी वेतन श्रेणी / लेव्हल:</label>
+                <select id="fix_old_level" onchange="onOldLevelChange()"></select>
+            </div>
+            <div>
+                <label>नवीन प्रस्तावित वरिष्ठ लेव्हल:</label>
+                <select id="fix_new_level"></select>
+            </div>
+            <div>
+                <label>अंमलबजावणी दिनांक (आदेश तारीख):</label>
+                <input type="text" id="fix_effective_date" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+                <label>त्या दिनांकाचे मूळ वेतन (Basic Pay):</label>
+                <input type="number" id="fix_old_basic" placeholder="उदा. 34900">
+            </div>
+            <div>
+                <label>विकल्प प्रकार (Option Choice):</label>
+                <select id="fix_option_choice">
+                    <option value="आदेश_दिनांकापासून">आदेश दिनांकापासून वेतननिश्चिती</option>
+                    <option value="पुढील_वेतनवाढ_दिनांक">पुढील वार्षिक वेतनवाढ दिनांकापासून विकल्प (१ जुलै)</option>
+                </select>
+            </div>
+            <div>
+                <label>फरक बिल कालावधी (महिने):</label>
+                <input type="number" id="fix_diff_months" value="12" min="1">
+            </div>
+            <div>
+                <label>घरभाडे भत्ता वर्गवारी (HRA %):</label>
+                <select id="fix_hra_percent">
+                    <option value="24">२४% (पुणे मनपा वर्ग-अ)</option>
+                    <option value="20">२०%</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button class="btn-calc" onclick="calculateFixationAndDifference()">वेतननिश्चिती व फरक बिल तयार करा</button>
+            <button class="btn-excel" onclick="downloadDifferenceCSV()">CSV अहवाल डाउनलोड करा</button>
+        </div>
+
+        <!-- FIXATION SUMMARY CARD -->
+        <div id="fixationSummaryCard" style="display:none; background:#e8f5e9; border:2px solid #2e7d32; padding:15px; border-radius:8px; margin-bottom:20px; font-size:15px; line-height:1.6;"></div>
+
+        <!-- DUE VS DRAWN TABLE -->
+        <h3>मासिक देय वि. प्रत्यक्ष आहारीत फरक तक्ता (Due vs Drawn Statement)</h3>
+        <p style="color:#d32f2f; font-size:12px; font-weight:bold;">💡 टीप: जर एखाद्या महिन्याची थकबाकी/वेतनवाढ रोखली गेली असेल, तर तुम्ही थेट 'प्रत्यक्ष मूळ वेतन (Drawn)' च्या रकान्यात बदल करू शकता, फरक आपोआप मोजला जाईल.</p>
+        
+        <table class="statement-table" id="differenceTable">
+            <thead>
+                <tr>
+                    <th rowspan="2">महिना/वर्ष</th>
+                    <th colspan="4">नियम देय रक्कम (DUE SIDE)</th>
+                    <th colspan="4">प्रत्यक्षात घेतलेली रक्कम (DRAWN SIDE) - Editable</th>
+                    <th rowspan="2">एकूण दरमहा फरक (Net Diff)</th>
+                </tr>
+                <tr>
+                    <th>मूळ वेतन</th>
+                    <th>DA</th>
+                    <th>HRA</th>
+                    <th>एकूण देय</th>
+                    <th>मूळ वेतन</th>
+                    <th>DA</th>
+                    <th>HRA</th>
+                    <th>एकूण आहारीत</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="10" style="color:#666; padding:15px;">माहिती भरून बटन दाबा. तक्ता येथे तयार होईल.</td></tr>
+            </tbody>
+        </table>
+    </div>
+  
 <h4 style="color:#1a73e8; margin-top:20px;">📋 मागील ५ वर्षांचे गोपनीय अहवाल (CR Grading) नोंदवा:</h4>
 <div class="cr-grid">
 <div><label>वर्ष १ ग्रेड:</label><select class="cr-grade" onchange="calculateMacp()"><option value="अती उत्कृष्ट">अती उत्कृष्ट</option><option value="उत्कृष्ट">उत्कृष्ट</option><option value="चांगले" selected>चांगले</option><option value="साधारण">साधारण</option></select></div>
