@@ -67,7 +67,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <div class="container">
 <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
 
-<!-- कर्मचारी डेटाबेस निवड रकाना (Database Selector) -->
 <div class="employee-select-box">
     <div style="flex: 1;">
         <label style="color:#2e7d32;">👤 कर्मचारी निवडा (सध्या सेव्ह असलेले सर्व कर्मचारी):</label>
@@ -78,7 +77,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
     <div style="font-weight: bold; color: #1b5e20; padding-bottom: 10px;" id="current_active_emp_label">🎯 सद्या ॲक्टिव्ह: नवीन नोंदणी पुस्तिका</div>
 </div>
 
-<!-- 👉 नवीन जोडणी: एक्सेल फाईल थेट अपलोड करण्याचे प्रगत बटण पैनल -->
 <div class="import-box">
     <div>
         <span style="font-weight:bold; color:#e65100;">📥 आधीच्या पीसीवरील अर्धवट कामाची एक्सेल (.csv) फाईल इथे अपलोड करा:</span>
@@ -334,7 +332,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 
 <div class="footer-msg">
-Sदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
+सदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
 </div>
 </div>
 
@@ -562,7 +560,6 @@ else if(currentTotal !== targetLwp) { saveBtn.disabled = true; saveBtn.style.opa
 else { saveBtn.disabled = false; saveBtn.style.opacity = "1"; msgBox.innerHTML = "✅ दिवस यशस्वीरित्या जुळले!"; msgBox.style.color = "#2e7d32"; }
 }
 
-// 👉 नवीन जोडणी: दुसऱ्या पीसीवर एक्सेल फाईल थेट अपलोड (Import CSV) करण्याचे मास्टर इंजिन
 function importExcelToSystem() {
     let fileInput = document.getElementById('excel_file_import');
     if (!fileInput.files.length) { alert("कृपया आधी लोड करण्यासाठी वैध .csv फाईल निवडा!"); return; }
@@ -582,13 +579,11 @@ function importExcelToSystem() {
             let line = lines[i].trim();
             if (!line) continue;
             
-            // CSV डेटा स्प्लिट (Comma separation handling)
             let cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
             if (cols.length < 12) continue;
             
-            let col0 = cols[0].replace(/"/g, "").trim(); // हजर दिनांक किंवा बोनस डिटेल्स अवधी
+            let col0 = cols[0].replace(/"/g, "").trim();
             
-            // जर हा बोनस प्रकारचा (अतिरिक्त रजा मोजा) डेटा असेल
             if (col0.includes("अत्यावश्यक सेवा अतिरिक्त रजा अवधी")) {
                 let parts = col0.split(" [एकूण दिवस: ");
                 let details = parts[0] || "अत्यावश्यक सेवा अतिरिक्त रजा अवधी";
@@ -600,7 +595,6 @@ function importExcelToSystem() {
                     totalDays: 0, spentDays: 0, dutyDays: 0
                 });
             }
-            // जर हा मॅन्युअल रजा प्रकारचा डेटा असेल
             else if (col0.includes("अतिरिक्त रजा (")) {
                 let bonusVal = parseInt(cols[9].replace("+", "").trim()) || 0;
                 newHistory.push({
@@ -609,7 +603,6 @@ function importExcelToSystem() {
                     q: "अन्तरिक्त सेवा रजा", r_diff: 0, earnedBonus: bonusVal, finalEL: 0, finalML: 0, lwpIntervals: []
                 });
             }
-            // नेहमीची रजा किंवा सुरेंडर नोंद असल्यास
             else {
                 let dates = col0.split(" - ");
                 let a_start = dates[0] || "";
@@ -622,7 +615,6 @@ function importExcelToSystem() {
                 let r_diff = parseInt(cols[9].trim()) || 0;
                 
                 if (tempIsFirst) {
-                    // पहिल्या ओळीवरून मागील शिल्लक व्हॅल्यू सेट करणे (रिव्हर्स कॅल्क्युलेटर)
                     let finalEL = parseFloat(cols[10]) || 0;
                     let finalML = parseFloat(cols[11]) || 0;
                     
@@ -647,7 +639,7 @@ function importExcelToSystem() {
             history = newHistory;
             localStorage.setItem("pmc_leave_history", JSON.stringify(history));
             recalculateAndRender();
-            alert("🎯 एक्सेल फाईलमधील जुना सर्व डेटा यशस्वीरित्या नव्या पीसीवर आयात (Import) झाला आहे! तुम्ही काम पुढे सुरू करू शकता.");
+            alert("🎯 एक्सेल फाईलमधील जुना सर्व डेटा यशस्वीरित्या नव्या पीसीवर आयात (Import) झाला आहे!");
         } else {
             alert("❌ फाईल फॉरमॅट चुकीचा आहे किंवा कोणताही रेकॉर्ड सापडला नाही.");
         }
@@ -1147,10 +1139,12 @@ function getBlockLwpDaysRange(startDateObj, endDateObj) {
     return blockLwpCount;
 }
 
+// 👉 मास्टर दुरुस्ती: बॅकटिक्स (\`) वापरून संपादन केलेले परिपूर्ण वर्किंग कोष्टक सूत्र
 function calculateMacp() {
 let joinStr = document.getElementById('macp_join_date').value;
 let currentLevel = document.getElementById('macp_current_level').value;
 let resultBox = document.getElementById('macpResult');
+
 if(!joinStr) { resultBox.innerHTML = "⚠️ कृपया प्रथम नियुक्ती दिनांक टाका."; return; }
 let joinDate = parseDMY(joinStr);
 
@@ -1158,7 +1152,8 @@ let t1Years = parseInt(document.getElementById('macp_term1').value) || 10;
 let block1End = new Date(joinDate.getFullYear() + t1Years, joinDate.getMonth(), joinDate.getDate());
 let lwp1 = getBlockLwpDaysRange(joinDate, block1End);
 document.getElementById('macp_lwp1').value = lwp1;
-let penalty1 = lwp1 + countDaysInCalendar('macp_susp_start1', 'macp_susp_end1');
+let susp1 = countDaysInCalendar('macp_susp_start1', 'macp_susp_end1');
+let penalty1 = lwp1 + susp1;
 let macp1_hypo = new Date(joinDate.getFullYear() + t1Years, joinDate.getMonth(), joinDate.getDate());
 if(penalty1 > 0) macp1_hypo.setDate(macp1_hypo.getDate() + penalty1);
 let macp1_actual = checkActualDueDate(macp1_hypo);
@@ -1200,38 +1195,40 @@ let statusText = isEligible ? "<span style='color:green; font-weight:bold;'>✅ 
 
 resultBox.innerHTML = `
 🎯 <strong>परिपत्रक ३१९३ व सुधारित 'स्वयंचलित टप्पा ब्लॉक रजा' नियमांनुसार MACPS अहवाल:</strong><br>
-<table style='width:100%; font-size:13px;'>
+• मूळ सेवा रुजू दिनांक: ${joinStr}<br>
+• गोपनीय अहवाल पात्रता स्थिती (CR Status): ${statusText}<br><br>
+<table style='width:100%; border-collapse:collapse; font-size:13px; margin-top:10px;'>
 <tr style='background:#1a73e8; color:white;'>
-    <th>लाभ टप्पा</th>
-    <th>लागू ब्लॉक सेवा अवधी</th>
-    <th>ब्लॉक मधील वजा दिवस (LWP + निलंबन)</th>
-    <th>काल्पनिक लाभ देय दिनांक</th>
-    <th>प्रत्यक्ष लाभ देय दिनांक</th>
-    <th>७ वा वेतन आयोग सुधारित वेतनश्रेणी स्तर</th>
+    <th style='border:1px solid #ddd; padding:6px;'>लाभ टप्पा</th>
+    <th style='border:1px solid #ddd; padding:6px;'>लागू ब्लॉक सेवा अवधी</th>
+    <th style='border:1px solid #ddd; padding:6px;'>ब्लॉक मधील वजा दिवस (LWP + निलंबन)</th>
+    <th style='border:1px solid #ddd; padding:6px;'>काल्पनिक लाभ देय दिनांक</th>
+    <th style='border:1px solid #ddd; padding:6px;'>प्रत्यक्ष लाभ देय दिनांक</th>
+    <th style='border:1px solid #ddd; padding:6px;'>७ वा वेतन आयोग सुधारित वेतनश्रेणी स्तर</th>
 </tr>
 <tr>
-    <td><strong>१ ला लाभ</strong></td>
-    <td>${t1Years} वर्षे सेवा</td>
-    <td>LWP: ${lwp1} | सस्पेंशन: ${susp1} (एकूण: ${penalty1} दिवस)</td>
-    <td>${macp1_hypo ? formatDMY(macp1_hypo) : "---"}</td>
-    <td><span style='color:green;font-weight:bold;'>${macp1_actual ? formatDMY(macp1_actual) : "---"}</span></td>
-    <td><span style='color:blue;font-weight:bold;'>${nxt1}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><strong>१ ला लाभ</strong></td>
+    <td style='border:1px solid #ddd; padding:6px;'>${t1Years} वर्षे सेवा</td>
+    <td style='border:1px solid #ddd; padding:6px;'>LWP: ${lwp1} | सस्पेंशन: ${susp1} (एकूण: ${penalty1} दिवस)</td>
+    <td style='border:1px solid #ddd; padding:6px;'>${macp1_hypo ? formatDMY(macp1_hypo) : "---"}</td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:green;font-weight:bold;'>${macp1_actual ? formatDMY(macp1_actual) : "---"}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:blue;font-weight:bold;'>${nxt1}</span></td>
 </tr>
 <tr>
-    <td><strong>२ रा लाभ</strong></td>
-    <td>+${t2Years} वर्षे सेवा</td>
-    <td>LWP: ${lwp2} | सस्पेंशन: ${susp2} (एकूण: ${penalty2} दिवस)</td>
-    <td>${macp2_hypo ? formatDMY(macp2_hypo) : "---"}</td>
-    <td><span style='color:green;font-weight:bold;'>${macp2_actual ? formatDMY(macp2_actual) : "---"}</span></td>
-    <td><span style='color:blue;font-weight:bold;'>${nxt2}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><strong>२ रा लाभ</strong></td>
+    <td style='border:1px solid #ddd; padding:6px;'>+${t2Years} वर्षे सेवा</td>
+    <td style='border:1px solid #ddd; padding:6px;'>LWP: ${lwp2} | सस्पेंशन: ${susp2} (एकूण: ${penalty2} दिवस)</td>
+    <td style='border:1px solid #ddd; padding:6px;'>${macp2_hypo ? formatDMY(macp2_hypo) : "---"}</td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:green;font-weight:bold;'>${macp2_actual ? formatDMY(macp2_actual) : "---"}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:blue;font-weight:bold;'>${nxt2}</span></td>
 </tr>
 <tr>
-    <td><strong>३ रा लाभ</strong></td>
-    <td>+${t3Years} वर्षे सेवा</td>
-    <td>LWP: ${lwp3} | सस्पेंशन: ${susp3} (एकूण: ${penalty3} दिवस)</td>
-    <td>${macp3_hypo ? formatDMY(macp3_hypo) : "---"}</td>
-    <td><span style='color:green;font-weight:bold;'>${macp3_actual ? formatDMY(macp3_actual) : "---"}</span></td>
-    <td><span style='color:blue;font-weight:bold;'>${nxt3}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><strong>३ रा लाभ</strong></td>
+    <td style='border:1px solid #ddd; padding:6px;'>+${t3Years} वर्षे सेवा</td>
+    <td style='border:1px solid #ddd; padding:6px;'>LWP: ${lwp3} | सस्पेंशन: ${susp3} (एकूण: ${penalty3} दिवस)</td>
+    <td style='border:1px solid #ddd; padding:6px;'>${macp3_hypo ? formatDMY(macp3_hypo) : "---"}</td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:green;font-weight:bold;'>${macp3_actual ? formatDMY(macp3_actual) : "---"}</span></td>
+    <td style='border:1px solid #ddd; padding:6px;'><span style='color:blue;font-weight:bold;'>${nxt3}</span></td>
 </tr>
 </table>
 `;
