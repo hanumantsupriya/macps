@@ -1,99 +1,333 @@
-Sub Generate_Due_Drawn_Statement()
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
-    ws.Name = "Due_Drawn_Statement"
-    
-    ' स्क्रीन रिफ्रेश बंद करणे
-    Application.ScreenUpdating = False
-    
-    ' ---- युझर इनपुट गोळा करणे (उदाहरणादाखल मॅन्युअली किंवा फॉर्मद्वारे) ----
-    Dim CurrentBasic As Double, EffectiveDate As Date, IncrementMonth As Integer
-    Dim CurrentLevel As String, ProposedLevel As String
-    
-    ' टेस्ट इनपुट (हे तुमच्या यूजर फॉर्मशी लिंक होईल)
-    CurrentBasic = 35400 ' मूळ पगार
-    CurrentLevel = "S-13"
-    ProposedLevel = "S-14"
-    EffectiveDate = #1/1/2026# ' अंमलबजावणी दिनांक
-    IncrementMonth = 7 ' ७ = १ जुलै, १ = १ जानेवारी (युझर ऑप्शननुसार)
-    
-    ' ---- तक्त्याचे हेडिंग्ज आणि डिझाईन ----
-    ws.Range("A1:M1").Merge
-    ws.Range("A1").Value = "वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता"
-    ws.Range("A1").Font.Bold = True
-    ws.Range("A1").Font.Size = 14
-    ws.Range("A1").HorizontalAlignment = xlCenter
-    
-    ' टेबल हेडर्स
-    Dim Headers As Variant
-    Headers = Array("महिना/वर्ष", "देय पे लेव्हल", "देय मूळ वेतन", "देय महागाई भत्ता", "देय एकूण (Due)", _
-                    "ओढलेले पे लेव्हल", "ओढलेले मूळ वेतन", "ओढलेले महागाई भत्ता", "ओढलेले एकूण (Drawn)", _
-                    "मासिक फरक (Basic)", "मासिक फरक (DA)", "एकूण मासिक फरक", "शेरा")
-    
-    Dim i As Integer
-    For i = 0 To UBound(Headers)
-        ws.Cells(3, i + 1).Value = Headers(i)
-        ws.Cells(3, i + 1).Font.Bold = True
-        ws.Cells(3, i + 1).Interior.Color = RGB(220, 230, 241)
-    Next i
-    
-    ' ---- २५ महिन्यांचे टप्पे आणि वार्षिक वेतनवाढ कॅल्क्युलेशन ----
-    Dim RowIndex As Integer: RowIndex = 4
-    Dim MonthCounter As Integer
-    Dim RunningDate As Date: RunningDate = EffectiveDate
-    Dim DueBasic As Double: DueBasic = CurrentBasic
-    Dim DrawnBasic As Double: DrawnBasic = CurrentBasic ' जर जुन्याच दराने ओढला असेल तर
-    
-    ' सुचवलेल्या पे लेव्हलमध्ये पुढील टप्पा (वेतन निश्चिती नियमानुसार ३% वाढ)
-    ' (टीप: प्रत्यक्ष रचनेसाठी 'PAY SCALE.xlsx' मधील मॅट्रिक्सचा वापर करावा)
-    DueBasic = Application.WorksheetFunction.RoundUp(DueBasic * 1.03, -2) 
+# Let's create a complete python file that the user can run as an interactive tool or integrate into their Excel workflow,
+# and also provide the standard Excel output, perfectly matching GitHub submission standards.
 
-    For MonthCounter = 1 To 24 ' पुढील २४-२५ महिन्यांचे टप्पे जनरेट करणे
-        
-        ' ** युझरने निवडलेल्या वार्षिक वेतनवाढ तारखेनुसार बेसिक वाढवणे **
-        If Month(RunningDate) = IncrementMonth And MonthCounter > 1 Then
-            ' देय आणि ओढलेल्या वेतनात ३% वार्षिक वेतनवाढ (राउंडेड टू नेक्स्ट १००)
-            DueBasic = Application.WorksheetFunction.RoundUp(DueBasic * 1.03, -2)
-            DrawnBasic = Application.WorksheetFunction.RoundUp(DrawnBasic * 1.03, -2)
-        End If
-        
-        ' डेटा भरणे
-        ws.Cells(RowIndex, 1).Value = Format(RunningDate, "mmmm-yyyy")
-        ws.Cells(RowIndex, 2).Value = ProposedLevel
-        ws.Cells(RowIndex, 3).Value = DueBasic
-        ws.Cells(RowIndex, 4).Formula = "=C" & RowIndex & "*0.50" ' महागाई भत्ता उदा. ५०% (बदली नियमानुसार राहील)
-        ws.Cells(RowIndex, 5).Formula = "=C" & RowIndex & "+D" & RowIndex
-        
-        ws.Cells(RowIndex, 6).Value = CurrentLevel
-        ws.Cells(RowIndex, 7).Value = DrawnBasic
-        ws.Cells(RowIndex, 8).Formula = "=G" & RowIndex & "*0.50"
-        ws.Cells(RowIndex, 9).Formula = "=G" & RowIndex & "+H" & RowIndex
-        
-        ' फरक कॅल्क्युलेशन फॉर्म्युला
-        ws.Cells(RowIndex, 10).Formula = "=C" & RowIndex & "-G" & RowIndex
-        ws.Cells(RowIndex, 11).Formula = "=D" & RowIndex & "-H" & RowIndex
-        ws.Cells(RowIndex, 12).Formula = "=E" & RowIndex & "-I" & RowIndex
-        
-        If Month(RunningDate) = IncrementMonth Then
-            ws.Cells(RowIndex, 13).Value = "वार्षिक वेतनवाढ"
-            ws.Cells(RowIndex, 13).Font.Color = RGB(0, 128, 0)
-        End If
-        
-        ' पुढील महिन्याकडे जाणे
-        RunningDate = DateAdd("m", 1, RunningDate)
-        RowIndex = RowIndex + 1
-    Next MonthCounter
+python_script_content = """# -*- coding: utf-8 -*-
+\"\"\"
+पुणे महानगरपालिका - वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता (GitHub Version)
+Developed via Gemini
+
+हा प्रोग्राम ७ व्या वेतन आयोगाच्या नियमांनुसार आणि युझरने निवडलेल्या 'वार्षिक वेतनवाढ तारखेनुसार' (१ जानेवारी / १ जुलै)
+पुढील वेतनवाढीचे टप्पे आपोआप कॅल्क्युलेट करतो.
+\"\"\"
+
+import os
+import datetime
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+
+def generate_due_drawn_excel(employee_name, current_level, proposed_level, current_basic, proposed_basic, effective_date_str, increment_month, da_rate=0.52, months_to_generate=24):
+    \"\"\"
+    मासिक फरक तक्ता तयार करणारा मुख्य फंक्शन.
+    \"\"\"
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Due_Drawn_Statement"
     
-    ' एकूण (Total) रो जोडणे
-    ws.Cells(RowIndex, 1).Value = "एकूण फरक (Total)"
-    ws.Cells(RowIndex, 1).Font.Bold = True
-    ws.Range(ws.Cells(RowIndex, 10), ws.Cells(RowIndex, 12)).Formula = "=SUM(J4:J" & RowIndex - 1 & ")"
-    ws.Range(ws.Cells(RowIndex, 10), ws.Cells(RowIndex, 12)).Font.Bold = True
+    # ग्रीड लाईन्स चालू ठेवणे
+    ws.views.sheetView[0].showGridLines = True
     
-    ' फॉर्मेटिंग आणि बॉर्डर
-    ws.Range("A3:M" & RowIndex).Borders.LineStyle = xlContinuous
-    ws.Columns("A:M").AutoFit
+    # टायटल रो
+    ws.merge_cells("A1:M1")
+    ws['A1'] = "वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता"
+    ws['A1'].font = Font(name="Calibri", size=16, bold=True, color="FFFFFF")
+    ws['A1'].fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    ws['A1'].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 40
     
-    Application.ScreenUpdating = True
-    MsgBox "ड्यू-ड्रॉन मासिक फरक तक्ता यशस्वीरित्या तयार झाला आहे!", vbInformation
-End Sub
+    # प्रभावी तारीख कन्व्हर्ट करणे
+    try:
+        effective_date = datetime.datetime.strptime(effective_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        effective_date = datetime.date(2026, 1, 1)
+        
+    # माहिती विभाग
+    inc_date_text = "१ जुलै" if increment_month == 7 else "१ जानेवारी"
+    metadata = [
+        ("कर्मचाऱ्याचे नाव:", employee_name, "अंमलबजावणी दिनांक:", effective_date.strftime("%d-%m-%Y")),
+        ("विद्यमान पे लेव्हल (Drawn):", current_level, "सुचवलेली पे लेव्हल (Due):", proposed_level),
+        ("वार्षिक वेतनवाढ तारीख:", inc_date_text, "मूळ महागाई भत्ता दर:", f"{int(da_rate*100)}%")
+    ]
+    
+    for idx, row_data in enumerate(metadata, start=3):
+        ws.cell(row=idx, column=1, value=row_data[0]).font = Font(name="Calibri", size=11, bold=True)
+        ws.cell(row=idx, column=2, value=row_data[1]).font = Font(name="Calibri", size=11)
+        ws.cell(row=idx, column=4, value=row_data[2]).font = Font(name="Calibri", size=11, bold=True)
+        ws.cell(row=idx, column=5, value=row_data[3]).font = Font(name="Calibri", size=11)
+        ws.row_dimensions[idx].height = 20
+        
+    # टेबल हेडर्स
+    headers = [
+        "महिना / वर्ष", "देय पे लेव्हल", "देय मूळ वेतन\\n(Due Basic)", "देय महागाई भत्ता\\n(Due DA)", "देय एकूण\\n(Total Due)",
+        "ओढलेले पे लेव्हल", "ओढलेले मूळ वेतन\\n(Drawn Basic)", "ओढलेले महागाई भत्ता\\n(Drawn DA)", "ओढलेले एकूण\\n(Total Drawn)",
+        "मासिक फरक\\n(Basic Diff)", "मासिक फरक\\n(DA Diff)", "एकूण मासिक फरक\\n(Total Diff)", "शेरा"
+    ]
+    
+    header_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+    header_font = Font(name="Calibri", size=10, bold=True, color="000000")
+    header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin_border = Border(
+        left=Side(style='thin', color='BFBFBF'), right=Side(style='thin', color='BFBFBF'),
+        top=Side(style='thin', color='BFBFBF'), bottom=Side(style='thin', color='BFBFBF')
+    )
+    
+    ws.row_dimensions[7].height = 35
+    for col_idx, text in enumerate(headers, start=1):
+        cell = ws.cell(row=7, column=col_idx, value=text)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+        cell.border = thin_border
+        
+    # महिने आणि वेतन वाढ कॅल्क्युलेशन
+    current_date = effective_date
+    row_start = 8
+    due_basic_run = proposed_basic
+    drawn_basic_run = current_basic
+    
+    for m in range(months_to_generate):
+        row_idx = row_start + m
+        ws.row_dimensions[row_idx].height = 22
+        
+        remark = ""
+        # युझरने निवडलेल्या महिन्यानुसार वार्षिक वेतनवाढ (Increment) लागू करणे
+        if m > 0 and current_date.month == increment_month:
+            # ७ व्या वेतन आयोगानुसार ३% वाढ आणि पुढील १०० च्या पटीत राउंड अप
+            due_basic_run = int(((due_basic_run * 1.03) + 99) // 100) * 100
+            drawn_basic_run = int(((drawn_basic_run * 1.03) + 99) // 100) * 100
+            remark = "वार्षिक वेतनवाढ"
+            
+        # डेटा सेट करणे
+        ws.cell(row=row_idx, column=1, value=current_date.strftime("%B %Y")).alignment = Alignment(horizontal="center")
+        ws.cell(row=row_idx, column=2, value=proposed_level).alignment = Alignment(horizontal="center")
+        
+        c3 = ws.cell(row=row_idx, column=3, value=due_basic_run)
+        c4 = ws.cell(row=row_idx, column=4, value=f"=C{row_idx}*{da_rate}")
+        c5 = ws.cell(row=row_idx, column=5, value=f"=C{row_idx}+D{row_idx}")
+        
+        ws.cell(row=row_idx, column=6, value=current_level).alignment = Alignment(horizontal="center")
+        c7 = ws.cell(row=row_idx, column=7, value=drawn_basic_run)
+        c8 = ws.cell(row=row_idx, column=8, value=f"=G{row_idx}*{da_rate}")
+        c9 = ws.cell(row=row_idx, column=9, value=f"=G{row_idx}+H{row_idx}")
+        
+        # फरकाचे फॉर्म्युले
+        c10 = ws.cell(row=row_idx, column=10, value=f"=C{row_idx}-G{row_idx}")
+        c11 = ws.cell(row=row_idx, column=11, value=f"=D{row_idx}-H{row_idx}")
+        c12 = ws.cell(row=row_idx, column=12, value=f"=E{row_idx}-I{row_idx}")
+        
+        # रिमार्क
+        rc = ws.cell(row=row_idx, column=13, value=remark)
+        if remark:
+            rc.font = Font(name="Calibri", size=10, bold=True, color="008000")
+            rc.alignment = Alignment(horizontal="center")
+            
+        # अल्टरनेट रो रंगवणे (Zebra striping)
+        if m % 2 == 1:
+            for c in range(1, 14):
+                ws.cell(row=row_idx, column=c).fill = PatternFill(start_color="F9FBFD", end_color="F9FBFD", fill_type="solid")
+                
+        # बॉर्डर्स आणि अलाइनमेंट लागू करणे
+        for c in range(1, 14):
+            ws.cell(row=row_idx, column=c).border = thin_border
+            if c in [3, 4, 5, 7, 8, 9, 10, 11, 12]:
+                ws.cell(row=row_idx, column=c).number_format = '#,##0'
+                ws.cell(row=row_idx, column=c).alignment = Alignment(horizontal="right", vertical="center")
+                
+        # पुढील महिन्यावर जाणे
+        if current_date.month == 12:
+            current_date = datetime.date(current_date.year + 1, 1, 1)
+        else:
+            current_date = datetime.date(current_date.year, current_date.month + 1, 1)
+            
+    # एकूण रो (Total Row)
+    total_row = row_start + months_to_generate
+    ws.row_dimensions[total_row].height = 25
+    ws.cell(row=total_row, column=1, value="एकूण फरक (Total)").font = Font(name="Calibri", size=11, bold=True)
+    ws.merge_cells(start_row=total_row, start_column=1, end_row=total_row, end_column=9)
+    ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="right", vertical="center")
+    
+    total_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+    double_bottom = Border(
+        top=Side(style='thin', color='000000'), bottom=Side(style='double', color='000000'),
+        left=Side(style='thin', color='BFBFBF'), right=Side(style='thin', color='BFBFBF')
+    )
+    
+    for col in [10, 11, 12]:
+        col_letter = get_column_letter(col)
+        cell = ws.cell(row=total_row, column=col, value=f"=SUM({col_letter}8:{col_letter}{total_row-1})")
+        cell.font = Font(name="Calibri", size=11, bold=True)
+        cell.alignment = Alignment(horizontal="right", vertical="center")
+        
+    for c in range(1, 14):
+        ws.cell(row=total_row, column=c).fill = total_fill
+        ws.cell(row=total_row, column=c).border = double_bottom
+        if c in [10, 11, 12]:
+            ws.cell(row=total_row, column=c).number_format = '#,##0'
+            
+    # कॉलम विड्थ सुसंगत करणे
+    ws.column_dimensions['A'].width = 18
+    for col in range(2, 13):
+        ws.column_dimensions[get_column_letter(col)].width = 14
+    ws.column_dimensions['M'].width = 16
+    
+    filename = "Due_Drawn_Statement_Output.xlsx"
+    wb.save(filename)
+    print(f"Excel file generated successfully: {filename}")
+    return filename
+
+if __name__ == "__main__":
+    print("--- ड्यू-ड्रॉन फरक तक्ता जनरेटर (GitHub Ready) ---")
+    # नमुना इनपुट डेटा
+    generate_due_drawn_excel(
+        employee_name="राजेश कुलकर्णी",
+        current_level="S-13",
+        proposed_level="S-14",
+        current_basic=46200,
+        proposed_basic=47600,
+        effective_date_str="2026-01-01",
+        increment_month=7, # ७ म्हणजे जुलै
+        da_rate=0.52, # ५२% महागाई भत्ता
+        months_to_generate=24
+    )
+"""
+
+# Save the python program file
+py_filename = "due_drawn_calculator.py"
+with open(py_filename, "w", encoding="utf-8") as f:
+    f.write(python_script_content)
+
+# Also generate the spreadsheet directly for the user's convenience right now
+import datetime
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+
+wb = openpyxl.Workbook()
+ws = wb.active
+ws.title = "Due_Drawn_Statement"
+ws.views.sheetView[0].showGridLines = True
+
+ws.merge_cells("A1:M1")
+ws['A1'] = "वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता"
+ws['A1'].font = Font(name="Calibri", size=16, bold=True, color="FFFFFF")
+ws['A1'].fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+ws['A1'].alignment = Alignment(horizontal="center", vertical="center")
+ws.row_dimensions[1].height = 40
+
+metadata = [
+    ("कर्मचाऱ्याचे नाव:", "राजेश कुलकर्णी", "अंमलबजावणी दिनांक:", "01-01-2026"),
+    ("विद्यमान पे लेव्हल (Drawn):", "S-13", "सुचवलेली पे लेव्हल (Due):", "S-14"),
+    ("वार्षिक वेतनवाढ तारीख:", "1 जुलै", "मूळ महागाई भत्ता दर:", "52%")
+]
+
+for idx, row_data in enumerate(metadata, start=3):
+    ws.cell(row=idx, column=1, value=row_data[0]).font = Font(name="Calibri", size=11, bold=True)
+    ws.cell(row=idx, column=2, value=row_data[1]).font = Font(name="Calibri", size=11)
+    ws.cell(row=idx, column=4, value=row_data[2]).font = Font(name="Calibri", size=11, bold=True)
+    ws.cell(row=idx, column=5, value=row_data[3]).font = Font(name="Calibri", size=11)
+    ws.row_dimensions[idx].height = 20
+
+headers = [
+    "महिना / वर्ष", "देय पे लेव्हल", "देय मूळ वेतन\n(Due Basic)", "देय महागाई भत्ता\n(Due DA)", "देय एकूण\n(Total Due)",
+    "ओढलेले पे लेव्हल", "ओढलेले मूळ वेतन\n(Drawn Basic)", "ओढलेले महागाई भत्ता\n(Drawn DA)", "ओढलेले एकूण\n(Total Drawn)",
+    "मासिक फरक\n(Basic Diff)", "मासिक फरक\n(DA Diff)", "एकूण मासिक फरक\n(Total Diff)", "शेरा"
+]
+
+header_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+header_font = Font(name="Calibri", size=10, bold=True, color="000000")
+header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin', color='BFBFBF'), right=Side(style='thin', color='BFBFBF'),
+    top=Side(style='thin', color='BFBFBF'), bottom=Side(style='thin', color='BFBFBF')
+)
+
+ws.row_dimensions[7].height = 35
+for col_idx, text in enumerate(headers, start=1):
+    cell = ws.cell(row=7, column=col_idx, value=text)
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = header_alignment
+    cell.border = thin_border
+
+start_date = datetime.date(2026, 1, 1)
+due_basic = 47600
+drawn_basic = 46200
+da_rate = 0.52
+current_date = start_date
+row_start = 8
+
+for m in range(24):
+    row_idx = row_start + m
+    ws.row_dimensions[row_idx].height = 22
+    remark = ""
+    if m > 0 and current_date.month == 7:
+        due_basic = int(((due_basic * 1.03) + 99) // 100) * 100
+        drawn_basic = int(((drawn_basic * 1.03) + 99) // 100) * 100
+        remark = "वार्षिक वेतनवाढ"
+        
+    ws.cell(row=row_idx, column=1, value=current_date.strftime("%B %Y")).alignment = Alignment(horizontal="center")
+    ws.cell(row=row_idx, column=2, value="S-14").alignment = Alignment(horizontal="center")
+    ws.cell(row=row_idx, column=3, value=due_basic)
+    ws.cell(row=row_idx, column=4, value=f"=C{row_idx}*{da_rate}")
+    ws.cell(row=row_idx, column=5, value=f"=C{row_idx}+D{row_idx}")
+    
+    ws.cell(row=row_idx, column=6, value="S-13").alignment = Alignment(horizontal="center")
+    ws.cell(row=row_idx, column=7, value=drawn_basic)
+    ws.cell(row=row_idx, column=8, value=f"=G{row_idx}*{da_rate}")
+    ws.cell(row=row_idx, column=9, value=f"=G{row_idx}+H{row_idx}")
+    
+    ws.cell(row=row_idx, column=10, value=f"=C{row_idx}-G{row_idx}")
+    ws.cell(row=row_idx, column=11, value=f"=D{row_idx}-H{row_idx}")
+    ws.cell(row=row_idx, column=12, value=f"=E{row_idx}-I{row_idx}")
+    
+    rc = ws.cell(row=row_idx, column=13, value=remark)
+    if remark:
+        rc.font = Font(name="Calibri", size=10, bold=True, color="008000")
+        rc.alignment = Alignment(horizontal="center")
+        
+    if m % 2 == 1:
+        for c in range(1, 14):
+            ws.cell(row=row_idx, column=c).fill = PatternFill(start_color="F9FBFD", end_color="F9FBFD", fill_type="solid")
+            
+    for c in range(1, 14):
+        ws.cell(row=row_idx, column=c).border = thin_border
+        if c in [3, 4, 5, 7, 8, 9, 10, 11, 12]:
+            ws.cell(row=row_idx, column=c).number_format = '#,##0'
+            ws.cell(row=row_idx, column=c).alignment = Alignment(horizontal="right")
+
+    if current_date.month == 12:
+        current_date = datetime.date(current_date.year + 1, 1, 1)
+    else:
+        current_date = datetime.date(current_date.year, current_date.month + 1, 1)
+
+total_row = row_start + 24
+ws.row_dimensions[total_row].height = 25
+ws.cell(row=total_row, column=1, value="एकूण फरक (Total)").font = Font(name="Calibri", size=11, bold=True)
+ws.merge_cells(start_row=total_row, start_column=1, end_row=total_row, end_column=9)
+ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="right", vertical="center")
+
+total_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+double_bottom = Border(
+    top=Side(style='thin', color='000000'), bottom=Side(style='double', color='000000'),
+    left=Side(style='thin', color='BFBFBF'), right=Side(style='thin', color='BFBFBF')
+)
+
+for col in [10, 11, 12]:
+    col_letter = get_column_letter(col)
+    cell = ws.cell(row=total_row, column=col, value=f"=SUM({col_letter}8:{col_letter}{total_row-1})")
+    cell.font = Font(name="Calibri", size=11, bold=True)
+    cell.alignment = Alignment(horizontal="right", vertical="center")
+
+for c in range(1, 14):
+    ws.cell(row=total_row, column=c).fill = total_fill
+    ws.cell(row=total_row, column=c).border = double_bottom
+
+ws.column_dimensions['A'].width = 18
+for col in range(2, 13):
+    ws.column_dimensions[get_column_letter(col)].width = 14
+ws.column_dimensions['M'].width = 16
+
+excel_filename = "Due_Drawn_Statement_Final.xlsx"
+wb.save(excel_filename)
+
+print("Both files ready.")
