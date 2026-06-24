@@ -3,110 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ड्यू-ड्रॉन मासिक फरक तक्ता प्रणाली</title>
+    <title>वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता</title>
     <style>
+        /* तुमच्या मूळ प्रोग्रामची अधिकृत स्टाईल आणि रंगसंगती */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
             margin: 0;
             padding: 20px;
+            color: #333;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1250px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
         h2 {
             color: #1f4e78;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             border-bottom: 3px solid #1f4e78;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
+            font-weight: 700;
+        }
+        .form-section {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
         }
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
         }
         .form-group {
             display: flex;
             flex-direction: column;
         }
         label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
             font-size: 14px;
         }
         input, select {
-            padding: 10px;
+            padding: 10px 14px;
             border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
+            background-color: #fff;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #1f4e78;
+            outline: none;
+        }
+        .btn-container {
+            margin-top: 25px;
+            text-align: center;
         }
         .btn-calculate {
-            grid-column: 1 / -1;
             background-color: #1f4e78;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 12px 40px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
-            text-align: center;
+            transition: background 0.2s, transform 0.1s;
         }
         .btn-calculate:hover {
             background-color: #153552;
         }
+        .btn-calculate:active {
+            transform: scale(0.98);
+        }
         .table-responsive {
             overflow-x: auto;
-            margin-top: 20px;
+            margin-top: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border-radius: 8px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
             font-size: 13px;
+            background: #fff;
         }
         th, td {
             border: 1px solid #cbd5e1;
-            padding: 10px;
+            padding: 12px 10px;
             text-align: center;
         }
         th {
             background-color: #d9e1f2;
-            color: #000;
-            font-weight: bold;
+            color: #1f4e78;
+            font-weight: 700;
             vertical-align: middle;
         }
         .text-right {
             text-align: right;
+            font-variant-numeric: tabular-nums;
         }
         .increment-row {
             background-color: #e2efda !important;
-            font-weight: bold;
+            font-weight: 600;
         }
         .total-row {
             background-color: #fff2cc;
             font-weight: bold;
             font-size: 14px;
+            color: #000;
         }
         .zebra:nth-child(even) {
-            background-color: #f9fbfd;
+            background-color: #f8fafc;
         }
         .badge-inc {
-            color: #2e7d32;
+            color: #1e7e34;
             font-weight: bold;
+            background-color: #d4edda;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -115,44 +139,48 @@
 <div class="container">
     <h2>वरिष्ठ श्रेणी वेतननिश्चिती व ड्यू-ड्रॉन मासिक फरक तक्ता</h2>
     
-    <div class="form-grid">
-        <div class="form-group">
-            <label>कर्मचाऱ्याचे नाव:</label>
-            <input type="text" id="emp_name" value="राजेश कुलकर्णी">
-        </div>
-        <div class="form-group">
-            <label>अंमलबजावणी दिनांक (Effective Date):</label>
-            <input type="date" id="effective_date" value="2026-01-01">
-        </div>
-        <div class="form-group">
-            <label>वार्षिक वेतनवाढ तारीख (Option):</label>
-            <select id="inc_month">
-                <option value="7">१ जुलै</option>
-                <option value="1">१ जानेवारी</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>ओढलेले पे लेव्हल (Drawn Level):</label>
-            <input type="text" id="drawn_level" value="S-13">
-        </div>
-        <div class="form-group">
-            <label>ओढलेले मूळ वेतन (Drawn Basic):</label>
-            <input type="number" id="drawn_basic" value="46200">
-        </div>
-        <div class="form-group">
-            <label>देय पे लेव्हल (Due Level):</label>
-            <input type="text" id="due_level" value="S-14">
-        </div>
-        <div class="form-group">
-            <label>देय मूळ वेतन (Due Basic):</label>
-            <input type="number" id="due_basic" value="47600">
-        </div>
-        <div class="form-group">
-            <label>महागाई भत्ता दर (DA %):</label>
-            <input type="number" id="da_rate" value="52" placeholder="उदा. 52">
+    <div class="form-section">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>कर्मचाऱ्याचे नाव:</label>
+                <input type="text" id="emp_name" value="राजेश कुलकर्णी">
+            </div>
+            <div class="form-group">
+                <label>अंमलबजावणी दिनांक (Effective Date):</label>
+                <input type="date" id="effective_date" value="2026-01-01">
+            </div>
+            <div class="form-group">
+                <label>वार्षिक वेतनवाढ तारीख (User Option):</label>
+                <select id="inc_month">
+                    <option value="7">१ जुलै</option>
+                    <option value="1">१ जानेवारी</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>ओढलेले पे लेव्हल (Drawn Level):</label>
+                <input type="text" id="drawn_level" value="S-13">
+            </div>
+            <div class="form-group">
+                <label>ओढलेले मूळ वेतन (Drawn Basic):</label>
+                <input type="number" id="drawn_basic" value="46200">
+            </div>
+            <div class="form-group">
+                <label>देय पे लेव्हल (Due Level):</label>
+                <input type="text" id="due_level" value="S-14">
+            </div>
+            <div class="form-group">
+                <label>देय मूळ वेतन (Due Basic):</label>
+                <input type="number" id="due_basic" value="47600">
+            </div>
+            <div class="form-group">
+                <label>महागाई भत्ता दर (DA %):</label>
+                <input type="number" id="da_rate" value="52">
+            </div>
         </div>
         
-        <button class="btn-calculate" onclick="generateDueDrawnTable()">मासिक फरक तक्ता तयार करा</button>
+        <div class="btn-container">
+            <button class="btn-calculate" onclick="generateDueDrawnTable()">मासिक फरक तक्ता तयार करा</button>
+        </div>
     </div>
 
     <div class="table-responsive" id="table_container" style="display:none;">
@@ -187,7 +215,7 @@
 
 <script>
     function generateDueDrawnTable() {
-        // इनपुट व्हॅल्यूज मिळवणे
+        // फॉर्म डेटा गोळा करणे
         const empName = document.getElementById('emp_name').value;
         const effDateVal = document.getElementById('effective_date').value;
         const incMonth = parseInt(document.getElementById('inc_month').value);
@@ -197,25 +225,25 @@
         let dueBasic = parseFloat(document.getElementById('due_basic').value);
         const daPercent = parseFloat(document.getElementById('da_rate').value) / 100;
 
-        if (!effDateVal || isNaN(drawnBasic) || isNaN(dueBasic)) {
+        if (!effDateVal || isNaN(drawnBasic) || isNaN(dueBasic) || isNaN(daPercent)) {
             alert("कृपया सर्व माहिती अचूक भरा!");
             return;
         }
 
         const tableBody = document.getElementById('table_body');
-        tableBody.innerHTML = ""; // जुना डेटा क्लिअर करणे
+        tableBody.innerHTML = ""; // जुना तक्ता साफ करणे
         
         let currentDate = new Date(effDateVal);
         let totalBasicDiff = 0, totalDaDiff = 0, totalNetDiff = 0;
         
-        // पुढील २४ महिन्यांचे टप्पे तयार करणे
+        // पुढील २४ महिन्यांचे वेतनवाढीचे टप्पे कॅल्क्युलेट करणे
         for (let i = 0; i < 24; i++) {
-            let currentMonth = currentDate.getMonth() + 1; // JS मध्ये महिने 0-11 असतात
+            let currentMonth = currentDate.getMonth() + 1; 
             let isIncrementMonth = (currentMonth === incMonth && i > 0);
             let remark = "";
             let rowClass = "zebra";
 
-            // निवडलेल्या वेतनवाढ तारखेनुसार ३% टप्पा वाढवणे (राउंड अप नियम)
+            // वार्षिक वेतनवाढ तारखेनुसार ३% वाढ आणि पुढील १०० च्या पटीत राउंड-अप (7th Pay Rules)
             if (isIncrementMonth) {
                 dueBasic = Math.ceil((dueBasic * 1.03) / 100) * 100;
                 drawnBasic = Math.ceil((drawnBasic * 1.03) / 100) * 100;
@@ -223,7 +251,7 @@
                 rowClass = "increment-row";
             }
 
-            // गणिते (Calculations)
+            // कॅल्क्युलेशन्स
             let dueDa = Math.round(dueBasic * daPercent);
             let totalDue = dueBasic + dueDa;
             
@@ -234,42 +262,42 @@
             let diffDa = dueDa - drawnDa;
             let diffTotal = totalDue - totalDrawn;
 
-            // बेरीज (Totals)
+            // एकूण बेरजा
             totalBasicDiff += diffBasic;
             totalDaDiff += diffDa;
             totalNetDiff += diffTotal;
 
-            // रो (Row) तयार करणे
+            // मराठी महिना नाव फॉरमॅट
             let monthYearStr = currentDate.toLocaleString('mr-IN', { month: 'long', year: 'numeric' });
             
             let rowHtml = `<tr class="${rowClass}">
-                <td>${monthYearStr}</td>
+                <td><strong>${monthYearStr}</strong></td>
                 <td>${dueLevel}</td>
-                <td class="text-right">${dueBasic}</td>
-                <td class="text-right">${dueDa}</td>
-                <td class="text-right">${totalDue}</td>
+                <td class="text-right">${dueBasic.toLocaleString('en-IN')}</td>
+                <td class="text-right">${dueDa.toLocaleString('en-IN')}</td>
+                <td class="text-right">${totalDue.toLocaleString('en-IN')}</td>
                 <td>${drawnLevel}</td>
-                <td class="text-right">${drawnBasic}</td>
-                <td class="text-right">${drawnDa}</td>
-                <td class="text-right">${totalDrawn}</td>
-                <td class="text-right">${diffBasic}</td>
-                <td class="text-right">${diffDa}</td>
-                <td class="text-right"><strong>${diffTotal}</strong></td>
+                <td class="text-right">${drawnBasic.toLocaleString('en-IN')}</td>
+                <td class="text-right">${drawnDa.toLocaleString('en-IN')}</td>
+                <td class="text-right">${totalDrawn.toLocaleString('en-IN')}</td>
+                <td class="text-right">${diffBasic.toLocaleString('en-IN')}</td>
+                <td class="text-right">${diffDa.toLocaleString('en-IN')}</td>
+                <td class="text-right" style="color: #1f4e78;"><strong>${diffTotal.toLocaleString('en-IN')}</strong></td>
                 <td>${remark}</td>
             </tr>`;
             
             tableBody.innerHTML += rowHtml;
 
-            // पुढील महिन्याकडे जाणे
+            // पुढील महिन्यावर जाणे
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
 
-        // एकूण फरकाची अंतिम ओळ (Total Row)
+        // अंतिम बेरीज ओळ (Total Row)
         let totalHtml = `<tr class="total-row">
             <td colspan="9" class="text-right">एकूण फरक (Total):</td>
-            <td class="text-right">${totalBasicDiff}</td>
-            <td class="text-right">${totalDaDiff}</td>
-            <td class="text-right" style="border: 2px solid #000;">${totalNetDiff}</td>
+            <td class="text-right">${totalBasicDiff.toLocaleString('en-IN')}</td>
+            <td class="text-right">${totalDaDiff.toLocaleString('en-IN')}</td>
+            <td class="text-right" style="border: 2px solid #1f4e78; background-color: #d9e1f2;">${totalNetDiff.toLocaleString('en-IN')}</td>
             <td>---</td>
         </tr>`;
         
