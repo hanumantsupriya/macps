@@ -21,13 +21,6 @@ h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; paddi
 label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
 input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
 input:disabled, input[readonly] { background-color: #eee; color: #555; }
-.lwp-panel { background: #efebe9; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; margin-bottom: 20px; display: none; }
-.lwp-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-.lwp-row div { flex: 1; }
-.btn-add-row { background: #795548; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.btn-remove-row { background: #d32f2f; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
-.lwp-status { font-weight: bold; margin-top: 5px; font-size: 13px; }
-
 .essential-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 1px solid #4db6ac; margin-bottom: 20px; }
 .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
 .btn-add { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
@@ -39,7 +32,6 @@ th { background-color: #1a73e8; color: white; }
 tr:nth-child(even) { background-color: #f9f9f9; }
 .summary-header { background-color: #2e7d32; color: white; }
 .grand-total-row { background-color: #c8e6c9 !important; font-weight: bold; font-size: 13px; color: #1b5e20; }
-.lwp-report-header { background-color: #795548; color: white; }
 .all-leave-report-header { background-color: #00796b; color: white; }
 .highlight { font-weight: bold; color: #1a73e8; background: #e8f0fe; }
 .accumulated { color: #2e7d32; font-weight: bold; background: #f1f8e9; }
@@ -54,7 +46,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
 
 <div class="tab-bar">
-<button class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
+<button class="tab-btn" onclick="switchTab('page5')">वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
 </div>
 <div id="page5" class="tab-content">
 <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल (Due vs Drawn Breakdown Statement)</h3>
@@ -72,28 +64,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </div>
 
 <div class="result-card" id="fixationRuleMsg" style="color: #4a148c; border-color: #9c27b0; display: none; text-align: left; font-size: 14px; line-height: 1.5;"></div>
-
-<h3>📋 महिनावार सविस्तर फरक तक्ता (LWP वजावटीसह Due vs Drawn Breakdown)</h3>
-<div style="overflow-x: auto;">
-<table id="fixationStatementTable" style="font-size: 10px; width: 100%;">
-<thead>
-<tr class="sub-table-header">
-<th rowspan="2">Month</th><th rowspan="2">Actual Days</th><th rowspan="2">Present Days</th><th rowspan="2">D. A. %</th>
-<th colspan="6">DUE</th><th colspan="6">DRAWN</th>
-<th colspan="5">DIFFERENCE</th>
-</tr>
-<tr class="sub-table-header">
-<th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
-<th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
-<th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS (-)</th><th>CHS (-)</th><th>Total Difference</th>
-</tr>
-</thead>
-<tbody>
-<tr><td colspan="22" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही. माहिती भरून बटणावर क्लिक करा.</td></tr>
-</tbody>
-</table>
-</div>
-</div>
 
 <div class="footer-msg">
 Sदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
@@ -195,34 +165,12 @@ function updateLeaveStartDate() {
     }
 }
 
-function switchTab(tabId) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active'); }
-function toggleLwpPanel() { let lwpCount = parseInt(document.getElementById('e_lwp').value) || 0; let panel = document.getElementById('lwpPanel'); if(lwpCount > 0) { panel.style.display = "block"; if(document.getElementById('lwpContainer').children.length === 0) addLwpRow(); } else { panel.style.display = "none"; document.getElementById('lwpContainer').innerHTML = ""; } checkLwpValidation(); }
-
-function addLwpRow() {
-    let container = document.getElementById('lwpContainer'); let index = container.children.length; let row = document.createElement('div'); row.className = 'lwp-row'; row.id = 'lwp_row_' + index;
-    row.innerHTML = `<div><label>LWP पासून:</label><input type="text" class="lwp-start-pick" placeholder="DD/MM/YYYY" onchange="checkLwpValidation()"></div><div><label>LWP पर्यंत:</label><input type="text" class="lwp-end-pick" placeholder="DD/MM/YYYY" onchange="checkLwpValidation()"></div><button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>`;
-    container.appendChild(row); flatpickr(row.querySelector('.lwp-start-pick'), config); flatpickr(row.querySelector('.lwp-end-pick'), config); checkLwpValidation();
-}
-function removeLwpRow(index) { let row = document.getElementById('lwp_row_' + index); if(row) row.remove(); checkLwpValidation(); }
-
-function checkLwpValidation() {
-    let targetLwp = parseInt(document.getElementById('e_lwp').value) || 0; let saveBtn = document.getElementById('saveEntryBtn'); let msgBox = document.getElementById('lwpStatusMsg');
-    if(targetLwp === 0) { saveBtn.disabled = false; msgBox.innerText = ""; return; }
-    let startInputs = document.querySelectorAll('.lwp-start-pick'); let endInputs = document.querySelectorAll('.lwp-end-pick'); let currentTotal = 0;
-    startInputs.forEach((input, i) => { if(input.value && endInputs[i].value) { currentTotal += Math.round((parseDMY(endInputs[i].value).getTime() - parseDMY(input.value).getTime()) / (1000 * 60 * 60 * 24)) + 1; } });
-    if(currentTotal !== targetLwp) { saveBtn.disabled = true; msgBox.innerHTML = `⏳ दिवस जुळत नाहीत! मुख्य संख्या: ${targetLwp} | एकूण: ${currentTotal}`; }
-    else { saveBtn.disabled = false; msgBox.innerHTML = "✅ दिवस जुळले!"; msgBox.style.color = "green"; }
-}
-
 function addEntry() {
     let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value; let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value; let q = document.getElementById('q_type').value; let e = parseFloat(document.getElementById('e_lwp').value) || 0;
     if (!a || !b || !p) { alert("कृपया आवश्यक तारखा भरा!"); return; }
     if (isFirstEntry) { initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value }; localStorage.setItem("pmc_initial_values", JSON.stringify(initialValues)); isFirstEntry = false; }
     
-    let lwpIntervals = [];
-    if(e > 0) {
-        document.querySelectorAll('.lwp-start-pick').forEach((input, i) => {
-            if(input.value) lwpIntervals.push({ start: input.value, end: document.querySelectorAll('.lwp-end-pick')[i].value });
+    let
         });
     }
     
@@ -236,117 +184,10 @@ function addEntry() {
     let finalEL = (q === "हक्काची रजा") ? (k_val - r_diff) : k_val;
     let finalML = (q === "वैद्यकीय रजा") ? (l_val - r_diff) : l_val;
 
-    history.push({ type: "regular", a, b, e, f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML, lwpIntervals });
-    localStorage.setItem("pmc_leave_history", JSON.stringify(history));
-    renderTable();
-    
-    let nextA = formatDMY(nextDay(parseDMY(p)));
-    document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA;
-    document.getElementById('e_lwp').value = "0"; bPick.clear(); pLeavePick.clear(); toggleLwpPanel();
-}
+   
 
-function renderTable() {
-    let tbody = document.querySelector("#recordTable tbody"); let chartBody = document.querySelector("#summaryChartTable tbody"); tbody.innerHTML = ""; chartBody.innerHTML = "";
-    let pageNum = 1; let pgF = 0, pgE = 0, pgG = 0, pgH = 0, pgR = 0;
-    history.forEach((item, index) => {
-        let row = tbody.insertRow();
-        let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
-        row.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${lwpValue}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td><td>${item.k_val.toFixed(2)}</td><td>${item.l_val.toFixed(2)}</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td><td>${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>`;
-        pgF += item.f; pgE += lwpValue; pgG += item.g; pgH += item.h; pgR += item.r_diff;
-        if (index === history.length - 1) {
-            let chartRow = chartBody.insertRow(); chartRow.innerHTML = `<td>पान नंबर ${pageNum}</td><td>${pgF}</td><td>${pgE}</td><td>${pgG.toFixed(2)}</td><td>${pgH.toFixed(2)}</td><td>${pgR}</td>`;
-        }
-    });
-    generateLwpAndLeavesReport();
-}
 
-function generateLwpAndLeavesReport() {
-    let lwpMap = {}; let leaveMap = {};
-    history.forEach(item => {
-        if(item.type !== "bonus" && item.lwpIntervals && item.lwpIntervals.length > 0) {
-            item.lwpIntervals.forEach(interval => {
-                let s = parseDMY(interval.start); let e = parseDMY(interval.end);
-                if(s && e) {
-                    let cur = new Date(s.getTime());
-                    while(cur <= e) {
-                        let mKey = cur.toLocaleString('mr', { month: 'long', year: 'numeric' });
-                        if(!lwpMap[mKey]) lwpMap[mKey] = 0;
-                        lwpMap[mKey]++; cur.setDate(cur.getDate() + 1);
-                    }
-                }
-            });
-        } else if (item.type !== "bonus" && item.e > 0) {
-            let s = parseDMY(item.a);
-            if(s) {
-                let mKey = s.toLocaleString('mr', { month: 'long', year: 'numeric' });
-                if(!lwpMap[mKey]) lwpMap[mKey] = 0;
-                lwpMap[mKey] += parseFloat(item.e);
-            }
-        }
-        if(item.type !== "bonus" && item.o && item.p) {
-            let s = parseDMY(item.o); let e = parseDMY(item.p);
-            if(s && e) {
-                let cur = new Date(s.getTime());
-                while(cur <= e) {
-                    let mKey = cur.toLocaleString('mr', { month: 'long', year: 'numeric' });
-                    if(!leaveMap[mKey]) leaveMap[mKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0 };
-                    if(leaveMap[mKey][item.q] !== undefined) leaveMap[mKey][item.q]++;
-                    cur.setDate(cur.getDate() + 1);
-                }
-            }
-        }
-    });
 
-    let lwpTwp = document.querySelector("#lwpMonthlyTable tbody"); lwpTwp.innerHTML = "";
-    let lwpKeys = Object.keys(lwpMap);
-    if(lwpKeys.length === 0) { lwpTwp.innerHTML = `<tr><td colspan="3" style="color: #666;">अजून कोणतीही बिनपगारी नोंद नाही.</td></tr>`; } 
-    else {
-        let grandLwp = 0;
-        lwpKeys.forEach(month => {
-            let row = lwpTwp.insertRow(); row.innerHTML = `<td><strong>${month}</strong></td><td style="color:red; font-weight:bold;">${lwpMap[month]} दिवस</td><td>रजा नोंद पुस्तिका प्रमाणे वैध कालावधी</td>`;
-            grandLwp += lwpMap[month];
-        });
-        let totalRow = lwpTwp.insertRow(); totalRow.className = "grand-total-row";
-        totalRow.innerHTML = `<td><strong>ग्रँड एकूण संख्या (Grand Total LWP)</strong></td><td style="color:green; font-weight:bold;">${grandLwp} दिवस</td><td>---</td>`;
-    }
-
-    let leaveTbody = document.querySelector("#allLeavesMonthlyTable tbody"); leaveTbody.innerHTML = "";
-    let allMonths = Array.from(new Set([...Object.keys(leaveMap), ...Object.keys(lwpMap)]));
-    if(allMonths.length === 0) {
-        leaveTbody.innerHTML = `<tr><td colspan="6" style="color: #666; text-align:center;">अजून कोणतीही रजा नोंद नाही.</td></tr>`;
-    } else {
-        let totalEl=0, totalMl=0, totalSpl=0, totalLwp=0;
-        allMonths.forEach(month => {
-            let el = (leaveMap[month] && leaveMap[month]["हक्काची रजा"]) ? leaveMap[month]["हक्काची रजा"] : 0;
-            let ml = (leaveMap[month] && leaveMap[month]["वैद्यकीय रजा"]) ? leaveMap[month]["वैद्यकीय rजा"] : 0;
-            let spl = (leaveMap[month] && leaveMap[month]["विशेष रजा"]) ? leaveMap[month]["विशेष रजा"] : 0;
-            let lwp = lwpMap[month] ? lwpMap[month] : 0;
-            let row = leaveTbody.insertRow();
-            row.innerHTML = `<td><strong>${month}</strong></td><td>${el} दिवस</td><td>${ml} दिवस</td><td>${spl} दिवस</td><td style="color:red; font-weight:bold;">${lwp} दिवस</td><td>माहिती संकलित</td>`;
-            totalEl+=el; totalMl+=ml; totalSpl+=spl; totalLwp+=lwp;
-        });
-        let gRow = leaveTbody.insertRow(); gRow.className = "grand-total-row";
-        gRow.innerHTML = `<td><strong>Grand Total</strong></td><td><strong>${totalEl} दिवस</strong></td><td><strong>${totalMl} दिवस</strong></td><td><strong>${totalSpl} दिवस</strong></td><td style="color:green;"><strong>${totalLwp} दिवस</strong></td><td>---</td>`;
-    }
-}
-
-function getLwpDaysForMonth(year, month) {
-    let lwpCount = 0;
-    history.forEach(item => {
-        if(item.lwpIntervals) {
-            item.lwpIntervals.forEach(interval => {
-                let s = parseDMY(interval.start); let e = parseDMY(interval.end);
-                if(s && e) {
-                    let cur = new Date(s.getTime());
-                    while(cur <= e) {
-                        if(cur.getFullYear() === year && (cur.getMonth() + 1) === month) lwpCount++;
-                        cur.setDate(cur.getDate() + 1);
-                    }
-                }
-            });
-        }
-    });
-    return lwpCount;
 }
 
 function getHistoricalDARate(dateObj) {
