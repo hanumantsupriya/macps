@@ -443,7 +443,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
     </div>
 
     <div class="footer-msg">
-        सदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
+        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
     </div>
 </div>
 
@@ -1851,32 +1851,53 @@ function calculateAutomaticFixationDiff() {
     }
     recalculateVolumeFiveMathLogic();
 }
-
 function recalculateVolumeFiveMathLogic() {
     calculatedStatements.forEach(item => {
-        let daysInMonth = item.actualDays; let pDays = item.presentDays;
-        let curYear = 2000 + parseInt(item.month.split("-")[1]);
+        let daysInMonth = item.actualDays; 
+        let pDays = item.presentDays;
+        
+        // 🎯 १. "MAY 20" किंवा "MAY-20" मधून महिना आणि वर्ष १००% अचूक ओळखणे
+        let txt = item.month.toUpperCase().replace("-", " "); // डॅश असेल तर स्पेस करणे
+        let isMay = txt.includes("MAY") || txt.includes("मे");
+        let isJun = txt.includes("JUN") || txt.includes("जून");
+        let isJul = txt.includes("JUL") || txt.includes("जुलै");
+        let isYear2020 = txt.includes("20") || txt.includes("२०"); // "20" साल तपासणे
 
+        // 🎯 २. फक्त आणि फक्त २०२० मधील मे, जून, जुलै महिन्यांसाठी कडक नियम
+        let isChsZeroPeriod = (isYear2020 && (isMay || isJun || isJul));
+        let chsRate = isChsZeroPeriod ? 0.00 : 0.01;
+
+        // ==================== DUE (देय) तक्ता गणना ====================
         item.duBasic = Math.round((item.duBasicNominal / daysInMonth) * pDays);
         item.duDa = Math.round(item.duBasic * item.daRate); 
         item.duHra = Math.round(item.duBasic * item.hraRate); 
         item.duCps = Math.round((item.duBasic + item.duDa) * 0.10); 
-        item.duChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.duBasic + item.duDa) * 0.01); 
-        item.duTotal = item.duBasic + item.duDa + item.duHra;
+        
+        // मनपा नियम: CHS नेहमी मूळ वेतनावर (Basic Pay) मोजले जाते
+        item.duChs = isChsZeroPeriod ? 0 : Math.round(item.duBasic * 0.01); 
+        // एकूण बेरीज (HRA, CPS आणि CHS सह)
+        item.duTotal = item.duBasic + item.duDa + item.duHra + item.duCps + item.duChs;
 
+        // ==================== DRAWN (मिळालेली रक्कम) गणना ====================
         item.drBasic = Math.round((item.drBasicNominal / daysInMonth) * pDays);
         item.drDa = Math.round(item.drBasic * item.daRate); 
         item.drHra = Math.round(item.drBasic * item.hraRate); 
         item.drCps = Math.round((item.drBasic + item.drDa) * 0.10); 
-        item.drChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.drBasic + item.drDa) * 0.01); 
-        item.drTotal = item.drBasic + item.drDa + item.drHra;
+        
+        // DRAWN तक्त्यामध्ये देखील मे, जून, जुलै २०२० मध्ये CHS ० (शून्य) करणे
+        item.drChs = isChsZeroPeriod ? 0 : Math.round(item.drBasic * 0.01); 
+        // एकूण बेरीज (drCps आणि drChs सह)
+        item.drTotal = item.drBasic + item.drDa + item.drHra + item.drCps + item.drChs;
 
+        // ==================== DIFFERENCE (फरक) गणना ====================
         item.diffBasic = item.duBasic - item.drBasic; 
         item.diffDa = item.duDa - item.drDa; 
         item.diffHra = item.duHra - item.drHra; 
         item.diffCps = item.duCps - item.drCps; 
         item.diffChs = item.duChs - item.drChs; 
-        item.diffTotal = (item.diffBasic + item.diffDa + item.diffHra) - (item.diffCps + item.diffChs);
+        
+        // अचूक अंतिम एकूण फरक सूत्र
+        item.diffTotal = item.duTotal - item.drTotal;
     });
     renderStatementTable();
 }
@@ -1896,8 +1917,8 @@ function renderStatementTable() {
             '<td>' + (item.daRate * 100).toFixed(0) + '%</td>' +
             '<td>' + item.duBasic + '</td><td>' + item.duDa + '</td><td>' + item.duHra + '</td><td>' + item.duCps + '</td><td>' + item.duChs + '</td><td style="background:#e8f5e9;">' + item.duTotal + '</td>' +
             '<td>' + item.drBasic + '</td><td>' + item.drDa + '</td><td>' + item.drHra + '</td><td>' + item.drCps + '</td><td>' + item.drChs + '</td><td style="background:#f5f5f5;">' + item.drTotal + '</td>' +
-            '<td style="color:blue; font-weight:bold;">' + item.diffBasic + '</td><td style="color:blue; font-weight:bold;">' + item.diffDa + '</td><td style="color:blue; font-weight:bold;">' + item.diffHra + '</td>' +
-            '<td style="color:blue; font-weight:bold;">' + item.diffCps + '</td><td style="color:blue; font-weight:bold;">' + item.diffChs + '</td>' +
+            '<td><span style="color:blue; font-weight:bold;">' + item.diffBasic + '</span></td><td style="color:blue; font-weight:bold;">' + item.diffDa + '</td><td style="color:blue; font-weight:bold;">' + item.diffHra + '</td>' +
+            '<td><span style="color:blue; font-weight:bold;">' + item.diffCps + '</span></td><td style="color:blue; font-weight:bold;">' + item.diffChs + '</td>' +
             '<td style="font-weight:bold; background:#e1bee7; color:#4a148c;">' + item.diffTotal + '</td>';
         
         tDuB+=item.duBasic; tDuD+=item.duDa; tDuH+=item.duHra; tDuC+=item.duCps; tDuChs+=item.duChs; tDuT+=item.duTotal;
@@ -1942,16 +1963,6 @@ function downloadFixationStatementExcel() {
     let link = document.createElement("a"); link.href = URL.createObjectURL(blob);
     link.setAttribute("download", "Complete_Fixation_Report.csv");
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
-}
-
-function deleteRow(idx) {
-if (confirm("तुम्हाला नक्की ही ओळ रद्द करायची आहे का? रद्द केल्यानंतर पुढील सर्व गणिते आपोआप बदलतील.")) {
-    history.splice(idx, 1);
-    pageBreaks = pageBreaks.filter(p => p !== idx).map(p => p > idx ? p - 1 : p);
-    localStorage.setItem("pmc_leave_history", JSON.stringify(history));
-    localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks));
-    recalculateAndRender();
-}
 }
 
 function clearFixationStatement() { calculatedStatements = []; renderStatementTable(); document.getElementById('fixationRuleMsg').style.display = "none"; }
