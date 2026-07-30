@@ -1873,8 +1873,8 @@ function recalculateVolumeFiveMathLogic() {
         item.duHra = Math.round(item.duBasic * item.hraRate); 
         item.duCps = Math.round((item.duBasic + item.duDa) * 0.10); 
         
-        // मनपा नियम: CHS नेहमी मूळ वेतनावर (Basic Pay) मोजले जाते
-        item.duChs = isChsZeroPeriod ? 0 : Math.round(item.duBasic * 0.01); 
+        // मनपा नियम: CHS हे (Basic + DA) च्या १% वर मोजले जाते
+        item.duChs = isChsZeroPeriod ? 0 : Math.round((item.duBasic + item.duDa) * 0.01); 
         // एकूण बेरीज (HRA, CPS आणि CHS सह)
         item.duTotal = item.duBasic + item.duDa + item.duHra + item.duCps + item.duChs;
 
@@ -1884,8 +1884,8 @@ function recalculateVolumeFiveMathLogic() {
         item.drHra = Math.round(item.drBasic * item.hraRate); 
         item.drCps = Math.round((item.drBasic + item.drDa) * 0.10); 
         
-        // DRAWN तक्त्यामध्ये देखील मे, जून, जुलै २०२० मध्ये CHS ० (शून्य) करणे
-        item.drChs = isChsZeroPeriod ? 0 : Math.round(item.drBasic * 0.01); 
+        // DRAWN तक्त्यामध्ये देखील (Basic + DA) च्या १% वर CHS मोजणे (मे, जून, जुलै २०२० मध्ये ०)
+        item.drChs = isChsZeroPeriod ? 0 : Math.round((item.drBasic + item.drDa) * 0.01); 
         // एकूण बेरीज (drCps आणि drChs सह)
         item.drTotal = item.drBasic + item.drDa + item.drHra + item.drCps + item.drChs;
 
