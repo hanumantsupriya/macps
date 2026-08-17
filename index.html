@@ -119,8 +119,13 @@ tr:nth-child(even) { background-color: #f9f9f9; }
        <button id="tab_btn_page5" class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
         
         <!-- लॉगआउट बटण -->
-        <button onclick="logoutUser()" class="tab-btn" style="background-color: #d32f2f; color: white; margin-left: auto;">🔴 लॉगआउट (Logout)</button>
-    </div>
+       <!-- युजरचा ईमेल आणि लॉगआउट बटण एकत्र -->
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <span style="font-size: 14px; font-weight: bold; color: #004d40; background: #e0f2f1; padding: 8px 12px; border-radius: 5px; border: 1px solid #4db6ac;">
+                👤 युजर: <span id="logged_in_user_email">Load...</span>
+            </span>
+            <button onclick="logoutUser()" class="tab-btn" style="background-color: #d32f2f; color: white; margin: 0;">🔴 लॉगआउट (Logout)</button>
+        </div>
 
     <!-- PAGE 1 -->
     <div id="page1" class="tab-content active">
@@ -2057,6 +2062,8 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
           // जर युजर लॉगिन असेल तर थेट मुख्य प्रोग्राम दाखवा
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('mainApp').style.display = 'block';
+          // चालू युजरचा ईमेल वरती स्क्रीनवर दाखवणे
+          document.getElementById('logged_in_user_email').innerText = user.email;
 
           // ☁️ Firebase मधून सर्व कर्मचाऱ्यांचा डेटा परत डाऊनलोड (Fetch) करणे
           db.collection("employees").get().then((querySnapshot) => {
