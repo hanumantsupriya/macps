@@ -89,7 +89,17 @@ tr:nth-child(even) { background-color: #f9f9f9; }
     </div>
 </div>
 <div class="container" id="mainApp" style="display: none;">
-    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+    <!-- मुख्य शीर्षक आणि लॉगआउट बटण एकत्र -->
+    <div style="position: relative; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px;">
+        <h2 style="border: none; margin: 0; padding: 0; text-align: center;">पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
+        
+        <div style="position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 13px; font-weight: bold; color: #004d40; background: #e0f2f1; padding: 6px 10px; border-radius: 5px; border: 1px solid #4db6ac;">
+                👤 <span id="logged_in_user_email">Load...</span>
+            </span>
+            <button onclick="logoutUser()" style="background-color: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px;">🔴 लॉगआउट</button>
+        </div>
+    </div>
 
     <!-- कर्मचारी डेटाबेस निवड -->
     <div class="employee-select-box">
@@ -118,16 +128,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         <button id="tab_btn_page4" class="tab-btn" onclick="switchTab('page4')">४. आश्वासित प्रगती योजना (MACPS)</button>
        <button id="tab_btn_page5" class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
         
-        <!-- लॉगआउट बटण -->
-       <!-- युजरचा ईमेल आणि लॉगआउट बटण एकत्र -->
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
-            <span style="font-size: 14px; font-weight: bold; color: #004d40; background: #e0f2f1; padding: 8px 12px; border-radius: 5px; border: 1px solid #4db6ac;">
-                👤 युजर: <span id="logged_in_user_email">Load...</span>
-            </span>
-            <button onclick="logoutUser()" class="tab-btn" style="background-color: #d32f2f; color: white; margin: 0;">🔴 लॉगआउट (Logout)</button>
-        </div>
-
-    <!-- PAGE 1 -->
+         <!-- PAGE 1 -->
     <div id="page1" class="tab-content active">
         <div class="setup-box" id="initialSetup">
             <div>
