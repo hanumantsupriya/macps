@@ -1379,8 +1379,8 @@ function saveCurrentEmployeeToDatabase() {
     let name = document.getElementById('info_name').value.trim();
     if(!pf || !name) { alert("डेटाबेस सेव्ह करण्यासाठी 'कर्मचाऱ्यांचे नाव' आणि 'PF नंबर' असणे आवश्यक आहे!"); return; }
     
-    let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
-    db[pf] = {
+    // सेव्ह करायचा संपूर्ण डेटा गोळा करणे
+    let empData = {
         empInfo: JSON.parse(localStorage.getItem("pmc_emp_info")),
         initialValues: JSON.parse(localStorage.getItem("pmc_initial_values")),
         history: JSON.parse(localStorage.getItem("pmc_leave_history")),
@@ -1388,11 +1388,23 @@ function saveCurrentEmployeeToDatabase() {
         calcPay: JSON.parse(localStorage.getItem("pmc_calc_pay"))
     };
     
-    localStorage.setItem("pmc_employee_db", JSON.stringify(db));
-    alert('कर्मचारी ' + name + ' (PF: ' + pf + ') चा संपूर्ण डेटा बेस सुरक्षित जतन झाला आहे!');
-    updateEmployeeDropdown();
-    document.getElementById('global_employee_select').value = pf;
-    document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + name + ' (' + pf + ')';
+    // Firebase च्या ऑनलाईन डेटाबेसमध्ये (Firestore) डेटा सेव्ह करणे
+    db.collection("employees").doc(pf).set(empData)
+    .then(() => {
+        alert('कर्मचारी ' + name + ' (PF: ' + pf + ') चा संपूर्ण डेटा ऑनलाईन Firebase वर सुरक्षित जतन झाला आहे! ☁️');
+        
+        // सुरक्षिततेसाठी स्थानिक मेमरीमध्ये (Local Storage) बॅकअप ठेवणे
+        let localDb = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+        localDb[pf] = empData;
+        localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
+        
+        updateEmployeeDropdown();
+        document.getElementById('global_employee_select').value = pf;
+        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + name + ' (' + pf + ')';
+    })
+    .catch((error) => {
+        alert("डेटा ऑनलाईन सेव्ह करताना तांत्रिक चूक झाली: " + error.message);
+    });
 }
 
 function updateEmployeeDropdown() {
