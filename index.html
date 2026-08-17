@@ -2007,8 +2007,8 @@ function loginUser() {
         document.getElementById('loginScreen').style.display = 'none'; // लॉगिन स्क्रीन लपवा
         document.getElementById('mainApp').style.display = 'block';    // मूळ प्रोग्राम दाखवा
     })
-    .catch((error) => {
-        alert("चूक: ई-मेल किंवा पासवर्ड चुकीचा आहे!");
+   .catch((error) => {
+        alert("Firebase Error: " + error.message);
     });
 }
 </script>
