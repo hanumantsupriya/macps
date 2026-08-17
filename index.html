@@ -1967,5 +1967,28 @@ function downloadFixationStatementExcel() {
 
 function clearFixationStatement() { calculatedStatements = []; renderStatementTable(); document.getElementById('fixationRuleMsg').style.display = "none"; }
 </script>
+    <!-- === Firebase चा नवीन कोड इथून सुरु === -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // तुमचा Firebase Config कोड (तुमच्या प्रोजेक्टचा खरा डेटा)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPY4YwQpRWaA0OPGmyS2V5InQe9vFf2uQ",
+    authDomain: "leaverecord-8c5f7.firebaseapp.com",
+    projectId: "leaverecord-8c5f7",
+    storageBucket: "leaverecord-8c5f7.firebasestorage.app",
+    messagingSenderId: "851286275493",
+    appId: "1:851286275493:web:a0600a6654d81c9d90244c",
+    measurementId: "G-JGG6BDR38P"
+  };
+
+  // Firebase सुरु करा
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+<!-- === Firebase चा नवीन कोड इथे संपला === -->
 </body>
 </html>
