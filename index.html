@@ -1470,10 +1470,6 @@ function updateEmployeeDropdown() {
 function loadSelectedEmployeeData() {
     let pf = document.getElementById('global_employee_select').value;
     
-    // १. नवीन कर्मचारी निवडल्याचा PF सेव्ह करणे
-    localStorage.setItem("pmc_active_emp_pf", pf); 
-    
-    // २. जर 'नवीन' कर्मचारी निवडला असेल तर जुना डेटा पुसून टाकणे
     if(!pf) {
         if(confirm("तुम्ही नवीन नोंद तयार करू इच्छिता का?")) {
             localStorage.removeItem("pmc_leave_history");
@@ -1481,31 +1477,47 @@ function loadSelectedEmployeeData() {
             localStorage.removeItem("pmc_initial_values");
             localStorage.removeItem("pmc_page_breaks");
             localStorage.removeItem("pmc_calc_pay");
-            location.reload();
+            localStorage.removeItem("pmc_active_emp_pf");
+            location.reload(); // नवीन नोंदणीसाठी फक्त रिफ्रेश ठीक आहे
         }
         return;
     }
     
-    // ३. Firebase मधून पूर्ण डेटाबेस लोड झालेला आहे का ते पाहणे
+    // १. डेटाबेस लोड करणे
     let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
     let empData = db[pf];
     
     if(empData) {
-        // ४. त्या कर्मचाऱ्याचा डेटा LocalStorage मध्ये सेट करणे
+        // २. डेटा LocalStorage मध्ये अपडेट करणे
+        localStorage.setItem("pmc_active_emp_pf", pf);
         localStorage.setItem("pmc_emp_info", JSON.stringify(empData.empInfo || {}));
         localStorage.setItem("pmc_initial_values", JSON.stringify(empData.initialValues || {}));
         localStorage.setItem("pmc_leave_history", JSON.stringify(empData.history || []));
         localStorage.setItem("pmc_page_breaks", JSON.stringify(empData.pageBreaks || []));
         localStorage.setItem("pmc_calc_pay", JSON.stringify(empData.calcPay || {}));
         
-        // ५. डेटा लोड झाल्याची नोंद करणे आणि रिफ्रेश करणे
-        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (empData.empInfo.name || "") + ' (' + pf + ')';
-        isFirstEntry = false;
+        // ३. व्हेरिएबल्स अपडेट करणे
+        history = empData.history || [];
+        initialValues = empData.initialValues || {};
+        pageBreaks = empData.pageBreaks || [];
+        isFirstEntry = (history.length === 0);
         
-        // पेज रिफ्रेश केल्यावर हा डेटा आता योग्यरित्या दिसेल
-        location.reload();
+        // ४. फॉर्ममधील व्हॅल्यूज अपडेट करणे
+        document.getElementById('p3_date').value = initialValues.p3 || "";
+        document.getElementById('z3_bal').value = initialValues.el || 0;
+        document.getElementById('aa3_bal').value = initialValues.ml || 0;
+        
+        // ५. UI अपडेट करणे
+        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (empData.empInfo.name || "") + ' (' + pf + ')';
+        
+        // ६. सर्वात महत्त्वाचे: रेंडर आणि कॅल्क्युलेशन फंक्शन कॉल करणे
+        recalculateAndRender();
+        calculateEncashment();
+        calculateMacp();
+        
+        alert("डेटा यशस्वीरित्या लोड झाला आहे!");
     } else {
-        alert("या कर्मचाऱ्याचा डेटाबेस उपलब्ध नाही. कृपया इंटरनेट तपासा.");
+        alert("या कर्मचाऱ्याचा डेटाबेस उपलब्ध नाही.");
     }
 }
 
