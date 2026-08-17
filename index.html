@@ -1058,13 +1058,17 @@ document.getElementById('livePreviewPanel').innerHTML = "<span>👀 पुढी
 }
 
 function recalculateAndRender() {
-if (history.length === 0) {
+    // 🎯 बदल: तक्ते भरणे आधी त्यांना पूर्णपणे कोरे करणे (Clear)
     document.querySelector("#recordTable tbody").innerHTML = "";
     document.querySelector("#summaryChartTable tbody").innerHTML = "";
-    document.getElementById('deleteBtn').style.display = "none";
-    setFirstStartDate();
-    return;
-}
+    document.querySelector("#lwpMonthlyTable tbody").innerHTML = "";
+    document.querySelector("#allLeavesMonthlyTable tbody").innerHTML = "";
+
+    if (history.length === 0) {
+        document.getElementById('deleteBtn').style.display = "none";
+        setFirstStartDate();
+        return;
+    }
 
 let curEL = initialValues.el || 0;
 let curML = initialValues.ml || 0;
