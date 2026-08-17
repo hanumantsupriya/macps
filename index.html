@@ -80,7 +80,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </head>
 <body>
 <!-- Login Screen -->
-<div id="loginScreen" style="text-align:center; margin-top:100px;">
+<div id="loginScreen" style="display: none; text-align:center; margin-top:100px;">
     <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: inline-block; width: 350px;">
         <h2 style="color: #1a73e8;">PMC रजा प्रणाली लॉगिन</h2>
         <input type="email" id="userEmail" placeholder="तुमचा ई-मेल टाका" style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
@@ -551,6 +551,9 @@ window.onload = function() {
         document.getElementById('info_pf').value = emp.pf || "";
         if(emp.joinDate) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
         if(emp.retireDate) retirePick.setDate(emp.retireDate);
+        // निवडलेल्या कर्मचाऱ्याचे नाव ड्रॉपडाऊनमध्ये सेट करणे
+        document.getElementById('global_employee_select').value = emp.pf || "";
+        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (emp.name || "") + ' (' + (emp.pf || "") + ')';
     }
     if(localStorage.getItem("pmc_calc_pay")) {
         let calc = JSON.parse(localStorage.getItem("pmc_calc_pay"));
