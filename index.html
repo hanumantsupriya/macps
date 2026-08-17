@@ -2051,12 +2051,33 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-    // युजर आधीच लॉगिन आहे का हे तपासण्यासाठी (पेज रिफ्रेश झाल्यावरही लॉगिन टिकून राहील)
+   // युजर आधीच लॉगिन आहे का हे तपासण्यासाठी आणि ऑनलाईन डेटा सिंक करण्यासाठी
   auth.onAuthStateChanged((user) => {
       if (user) {
           // जर युजर लॉगिन असेल तर थेट मुख्य प्रोग्राम दाखवा
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('mainApp').style.display = 'block';
+
+          // ☁️ Firebase मधून सर्व कर्मचाऱ्यांचा डेटा परत डाऊनलोड (Fetch) करणे
+          db.collection("employees").get().then((querySnapshot) => {
+              let localDb = {};
+              querySnapshot.forEach((doc) => {
+                  localDb[doc.id] = doc.data(); // ऑनलाईन डेटा गोळा करणे
+              });
+              
+              // हा डेटा पुन्हा ब्राउझरच्या मेमरीमध्ये (Local Storage) सेव्ह करणे
+              localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
+              updateEmployeeDropdown(); // ड्रॉपडाऊन अपडेट करणे
+              
+              // ड्रॉपडाऊनमध्ये आधीचाच कर्मचारी सिलेक्टेड ठेवणे
+              let activePf = localStorage.getItem("pmc_active_emp_pf");
+              if(activePf) {
+                  document.getElementById('global_employee_select').value = activePf;
+              }
+          }).catch((error) => {
+              console.log("ऑनलाईन डेटा आणताना चूक झाली: ", error);
+          });
+          
       } else {
           // जर युजर लॉगिन नसेल तर लॉगिन स्क्रीन दाखवा
           document.getElementById('loginScreen').style.display = 'block';
