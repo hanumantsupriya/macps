@@ -2008,6 +2008,18 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+    // युजर आधीच लॉगिन आहे का हे तपासण्यासाठी (पेज रिफ्रेश झाल्यावरही लॉगिन टिकून राहील)
+  auth.onAuthStateChanged((user) => {
+      if (user) {
+          // जर युजर लॉगिन असेल तर थेट मुख्य प्रोग्राम दाखवा
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+      } else {
+          // जर युजर लॉगिन नसेल तर लॉगिन स्क्रीन दाखवा
+          document.getElementById('loginScreen').style.display = 'block';
+          document.getElementById('mainApp').style.display = 'none';
+      }
+  });
     // युजर लॉगिन फंक्शन
 function loginUser() {
     let email = document.getElementById('userEmail').value;
