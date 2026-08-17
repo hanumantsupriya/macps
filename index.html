@@ -116,7 +116,10 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         <button id="tab_btn_page2" class="tab-btn" onclick="switchTab('page2')">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
         <button id="tab_btn_page3" class="tab-btn" onclick="switchTab('page3')">३. कर्मचाऱ्यांची माहिती</button>
         <button id="tab_btn_page4" class="tab-btn" onclick="switchTab('page4')">४. आश्वासित प्रगती योजना (MACPS)</button>
-        <button id="tab_btn_page5" class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
+       <button id="tab_btn_page5" class="tab-btn" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
+        
+        <!-- लॉगआउट बटण -->
+        <button onclick="logoutUser()" class="tab-btn" style="background-color: #d32f2f; color: white; margin-left: auto;">🔴 लॉगआउट (Logout)</button>
     </div>
 
     <!-- PAGE 1 -->
@@ -2074,6 +2077,17 @@ function loginUser() {
    .catch((error) => {
         alert("Firebase Error: " + error.message);
     });
+}
+    // युजर लॉगआउट फंक्शन
+function logoutUser() {
+    if(confirm("तुम्हाला नक्की लॉगआउट करायचे आहे का?")) {
+        auth.signOut().then(() => {
+            // लॉगआउट यशस्वी झाल्यावर पेज रिफ्रेश करा (जेणेकरून जुना डेटा स्क्रीनवरून निघून जाईल)
+            location.reload(); 
+        }).catch((error) => {
+            alert("लॉगआउट करताना तांत्रिक अडचण: " + error.message);
+        });
+    }
 }
 </script>
 <!-- === Firebase चा नवीन कोड इथे संपला === -->
