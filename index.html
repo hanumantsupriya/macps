@@ -79,8 +79,16 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 </style>
 </head>
 <body>
-
-<div class="container">
+<!-- Login Screen -->
+<div id="loginScreen" style="text-align:center; margin-top:100px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: inline-block; width: 350px;">
+        <h2 style="color: #1a73e8;">PMC रजा प्रणाली लॉगिन</h2>
+        <input type="email" id="userEmail" placeholder="तुमचा ई-मेल टाका" style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <input type="password" id="userPassword" placeholder="पासवर्ड टाका" style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <button onclick="loginUser()" style="background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%; font-size: 16px; font-weight: bold;">लॉगिन करा</button>
+    </div>
+</div>
+<div class="container" id="mainApp" style="display: none;">
     <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
 
     <!-- कर्मचारी डेटाबेस निवड -->
@@ -1988,6 +1996,21 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+    // युजर लॉगिन फंक्शन
+function loginUser() {
+    let email = document.getElementById('userEmail').value;
+    let pass = document.getElementById('userPassword').value;
+    
+    auth.signInWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+        alert("लॉगिन यशस्वी झाले!");
+        document.getElementById('loginScreen').style.display = 'none'; // लॉगिन स्क्रीन लपवा
+        document.getElementById('mainApp').style.display = 'block';    // मूळ प्रोग्राम दाखवा
+    })
+    .catch((error) => {
+        alert("चूक: ई-मेल किंवा पासवर्ड चुकीचा आहे!");
+    });
+}
 </script>
 <!-- === Firebase चा नवीन कोड इथे संपला === -->
 </body>
