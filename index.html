@@ -529,50 +529,72 @@ for(let i=1; i<=31; i++) {
 let calculatedStatements = [];
 
 window.onload = function() {
-    updateEmployeeDropdown();
-    
-    // निवडलेला कर्मचारी ड्रॉपडाऊनमध्ये सेट करण्याचा अचूक कोड
-    let activePf = localStorage.getItem("pmc_active_emp_pf");
-    if(activePf) {
-        document.getElementById('global_employee_select').value = activePf;
-        let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
-        if(db[activePf]) {
-            document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + db[activePf].empInfo.name + ' (' + activePf + ')';
+    try {
+        updateEmployeeDropdown();
+        
+        // निवडलेला कर्मचारी ड्रॉपडाऊनमध्ये सेट करणे
+        let activePf = localStorage.getItem("pmc_active_emp_pf");
+        if(activePf) {
+            document.getElementById('global_employee_select').value = activePf;
+            let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+            if(db[activePf] && db[activePf].empInfo) {
+                document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (db[activePf].empInfo.name || "") + ' (' + activePf + ')';
+            }
+        } else {
+            document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: नवीन नोंदणी पुस्तिका';
         }
-    } else {
-        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: नवीन नोंदणी पुस्तिका';
-    }
 
-    if(localStorage.getItem("pmc_leave_history")) {
-        history = JSON.parse(localStorage.getItem("pmc_leave_history"));
-        isFirstEntry = false;
-        initialValues = JSON.parse(localStorage.getItem("pmc_initial_values"));
-        if(localStorage.getItem("pmc_page_breaks")) { pageBreaks = JSON.parse(localStorage.getItem("pmc_page_breaks")); }
-        document.getElementById('p3_date').value = initialValues.p3;
-        document.getElementById('p3_date').disabled = true;
-        document.getElementById('z3_bal').value = initialValues.el;
-        document.getElementById('z3_bal').disabled = true;
-        document.getElementById('aa3_bal').value = initialValues.ml;
-        document.getElementById('aa3_bal').disabled = true;
-        recalculateAndRender();
+        // जुन्या नोंदी तपासणे
+        if(localStorage.getItem("pmc_leave_history")) {
+            history = JSON.parse(localStorage.getItem("pmc_leave_history")) || [];
+            if(history.length > 0) isFirstEntry = false;
+            
+            let storedInitial = JSON.parse(localStorage.getItem("pmc_initial_values"));
+            if(storedInitial) {
+                initialValues = storedInitial;
+                document.getElementById('p3_date').value = initialValues.p3 || "";
+                document.getElementById('p3_date').disabled = true;
+                document.getElementById('z3_bal').value = initialValues.el || 0;
+                document.getElementById('z3_bal').disabled = true;
+                document.getElementById('aa3_bal').value = initialValues.ml || 0;
+                document.getElementById('aa3_bal').disabled = true;
+            }
+
+            if(localStorage.getItem("pmc_page_breaks")) { 
+                pageBreaks = JSON.parse(localStorage.getItem("pmc_page_breaks")) || []; 
+            }
+            recalculateAndRender();
+        }
+
+        // कर्मचाऱ्याची माहिती तपासणे
+        if(localStorage.getItem("pmc_emp_info")) {
+            let emp = JSON.parse(localStorage.getItem("pmc_emp_info"));
+            if(emp) {
+                document.getElementById('info_name').value = emp.name || "";
+                document.getElementById('info_desig').value = emp.desig || "";
+                document.getElementById('info_dept').value = emp.dept || "";
+                document.getElementById('info_pf').value = emp.pf || "";
+                if(emp.joinDate) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
+                if(emp.retireDate) retirePick.setDate(emp.retireDate);
+            }
+        }
+
+        // वेतन तपासणे
+        if(localStorage.getItem("pmc_calc_pay")) {
+            let calc = JSON.parse(localStorage.getItem("pmc_calc_pay"));
+            if(calc) {
+                document.getElementById('basic_pay').value = calc.basic || "";
+                document.getElementById('da_amount').value = calc.da || "";
+                calculateEncashment();
+            }
+        }
+    } catch (error) {
+        console.log("Data load warning: ", error);
+    } finally {
+        // 'finally' मुळे वरती कोणतीही चूक झाली तरी खालची अत्यंत महत्त्वाची फंक्शन्स रन होतीलच!
+        calculateMacp();
+        initializeFixationDropdowns();
     }
-    if(localStorage.getItem("pmc_emp_info")) {
-        let emp = JSON.parse(localStorage.getItem("pmc_emp_info"));
-        document.getElementById('info_name').value = emp.name || "";
-        document.getElementById('info_desig').value = emp.desig || "";
-        document.getElementById('info_dept').value = emp.dept || "";
-        document.getElementById('info_pf').value = emp.pf || "";
-        if(emp.joinDate) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
-        if(emp.retireDate) retirePick.setDate(emp.retireDate);
-    }
-    if(localStorage.getItem("pmc_calc_pay")) {
-        let calc = JSON.parse(localStorage.getItem("pmc_calc_pay"));
-        document.getElementById('basic_pay').value = calc.basic || "";
-        document.getElementById('da_amount').value = calc.da || "";
-        calculateEncashment();
-    }
-    calculateMacp();
-    initializeFixationDropdowns();
 };
 
 function parseDMY(str) {
