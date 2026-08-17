@@ -2082,7 +2082,15 @@ function loginUser() {
 function logoutUser() {
     if(confirm("तुम्हाला नक्की लॉगआउट करायचे आहे का?")) {
         auth.signOut().then(() => {
-            // लॉगआउट यशस्वी झाल्यावर पेज रिफ्रेश करा (जेणेकरून जुना डेटा स्क्रीनवरून निघून जाईल)
+            // दुसऱ्या युजरला जुना डेटा दिसू नये म्हणून स्क्रीनवरील डेटा पुसून टाकणे
+            localStorage.removeItem("pmc_leave_history");
+            localStorage.removeItem("pmc_emp_info");
+            localStorage.removeItem("pmc_initial_values");
+            localStorage.removeItem("pmc_page_breaks");
+            localStorage.removeItem("pmc_calc_pay");
+            localStorage.removeItem("pmc_active_emp_pf");
+            
+            // पेज रिफ्रेश करणे
             location.reload(); 
         }).catch((error) => {
             alert("लॉगआउट करताना तांत्रिक अडचण: " + error.message);
