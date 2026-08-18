@@ -986,6 +986,13 @@ function applyLimits(val, maxVal) {
 }
 
 function addEntry() {
+// 🛑 खालील ४ ओळी नवीन जोडल्या आहेत:
+    let activePf = localStorage.getItem("pmc_active_emp_pf");
+    let selectPf = document.getElementById('global_employee_select').value;
+    if(!activePf || !selectPf) {
+        alert("⚠️ कृपया आधी वरून 'कर्मचारी निवडा' किंवा 'कर्मचाऱ्यांची माहिती' (Page 3) भरून डेटाबेस जतन करा!");
+        return;
+    }
 let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
 let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
 let q = document.getElementById('q_type').value;
@@ -1008,6 +1015,7 @@ if(e > 0) {
     let startInputs = document.querySelectorAll('.lwp-start-pick');
     let endInputs = document.querySelectorAll('.lwp-end-pick');
     startInputs.forEach((input, i) => { lwpIntervals.push({ start: input.value, end: endInputs[i].value }); });
+    if(typeof autoSyncEmployeeToFirebase === "function") autoSyncEmployeeToFirebase();
 }
 
 let r_diff_val = 0;
@@ -1408,6 +1416,7 @@ if (confirm("शेवटची नोंद हटवायची का?")) {
     localStorage.setItem("pmc_leave_history", JSON.stringify(history));
     recalculateAndRender();
     autoSyncEmployeeToFirebase(); // Firebase वर आपोआप अपडेट करणे
+    if(typeof autoSyncEmployeeToFirebase === "function") autoSyncEmployeeToFirebase();
 }
 }
 
@@ -1502,50 +1511,65 @@ function updateEmployeeDropdown() {
 
 function loadSelectedEmployeeData() {
     let pf = document.getElementById('global_employee_select').value;
-    
-    // कर्मचारी बदलताना पुष्टी (Alert) विचारणे
-    let activePf = localStorage.getItem("pmc_active_emp_pf");
-    if(activePf && activePf !== pf) {
-        if(!confirm("तुम्ही कर्मचारी बदलत आहात. चालू बदल जतन झाले आहेत. पुढे जायचे का?")) {
-            document.getElementById('global_employee_select').value = activePf;
-            return;
+    if(document.getElementById('saveEntryBtn')) {
+            document.getElementById('saveEntryBtn').disabled = true;
         }
-    }
+    
+    // १. स्क्रीनवरील जुना डेटा पूर्णपणे पुसून टाकणे (Full Screen Reset)
+    history = [];
+    initialValues = {};
+    pageBreaks = [];
+    isFirstEntry = true;
+    
+    // फॉर्ममधील इनपुट्स कोरे करणे
+    document.getElementById('info_name').value = "";
+    document.getElementById('info_desig').value = "";
+    document.getElementById('info_dept').value = "";
+    document.getElementById('info_pf').value = "";
+    document.getElementById('p3_date').value = "";
+    document.getElementById('z3_bal').value = "";
+    document.getElementById('aa3_bal').value = "";
+    document.getElementById('basic_pay').value = "";
+    document.getElementById('da_amount').value = "";
+    
+    if(window.joinPick) joinPick.clear();
+    if(window.retirePick) retirePick.clear();
+    if(window.macpJoinPick) macpJoinPick.clear();
 
+    // सर्व तक्त्यांचा HTML रिकामा करणे
+    document.querySelector("#recordTable tbody").innerHTML = "";
+    document.querySelector("#summaryChartTable tbody").innerHTML = "";
+    document.querySelector("#lwpMonthlyTable tbody").innerHTML = "";
+    document.querySelector("#allLeavesMonthlyTable tbody").innerHTML = "";
+
+    // २. जर 'कोणीही निवडलेला नाही' असेल तर:
     if(!pf) {
-        // जर कर्मचारी निवडलेला नसेल तर सर्व डेटा साफ करणे व एन्ट्री बंद करणे
+        localStorage.removeItem("pmc_active_emp_pf");
         localStorage.removeItem("pmc_leave_history");
         localStorage.removeItem("pmc_emp_info");
         localStorage.removeItem("pmc_initial_values");
         localStorage.removeItem("pmc_page_breaks");
         localStorage.removeItem("pmc_calc_pay");
-        localStorage.removeItem("pmc_active_emp_pf");
-        
-        history = [];
-        initialValues = {};
-        pageBreaks = [];
-        isFirstEntry = true;
         
         document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: कोणतीही नोंद निवडलेली नाही';
-        document.getElementById('p3_date').value = "";
-        document.getElementById('p3_date').disabled = true;
-        document.getElementById('z3_bal').value = "";
-        document.getElementById('z3_bal').disabled = true;
-        document.getElementById('aa3_bal').value = "";
-        document.getElementById('aa3_bal').disabled = true;
         
-        // एन्ट्री बटणे बंद करणे
-        document.getElementById('saveBtn').disabled = true;
+        // इनपुट्स आणि बटणे बंद (Disable) करणे
+        document.getElementById('p3_date').disabled = true;
+        document.getElementById('z3_bal').disabled = true;
+        document.getElementById('aa3_bal').disabled = true;
         
         recalculateAndRender();
         return;
     }
     
-    // Firebase मधून डाऊनलोड झालेला स्थानिक डेटाबेस तपासणे
+    // ३. जर कर्मचारी निवडला असेल तर त्याचा डेटाबेस शोधणे
     let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
     let empData = db[pf];
     
     if(empData) {
+        if(document.getElementById('saveEntryBtn')) {
+            document.getElementById('saveEntryBtn').disabled = false;
+        }
         localStorage.setItem("pmc_active_emp_pf", pf);
         localStorage.setItem("pmc_emp_info", JSON.stringify(empData.empInfo || {}));
         localStorage.setItem("pmc_initial_values", JSON.stringify(empData.initialValues || {}));
@@ -1557,17 +1581,28 @@ function loadSelectedEmployeeData() {
         initialValues = empData.initialValues || {};
         pageBreaks = empData.pageBreaks || [];
         
-        // कर्मचारी निवडल्यामुळे एन्ट्री बटण चालू करणे
-        document.getElementById('saveBtn').disabled = false;
-        
+        // कर्मचारी माहिती भरणे
+        let emp = empData.empInfo || {};
+        document.getElementById('info_name').value = emp.name || "";
+        document.getElementById('info_desig').value = emp.desig || "";
+        document.getElementById('info_dept').value = emp.dept || "";
+        document.getElementById('info_pf').value = emp.pf || pf;
+        if(emp.joinDate && window.joinPick) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
+        if(emp.retireDate && window.retirePick) retirePick.setDate(emp.retireDate);
+
+        if(empData.calcPay) {
+            document.getElementById('basic_pay').value = empData.calcPay.basic || "";
+            document.getElementById('da_amount').value = empData.calcPay.da || "";
+        }
+
         // पहिली नोंद आहे की नाही त्यानुसार P3, Z3, AA3 लॉक/अनलॉक करणे
         if(history.length === 0) {
             isFirstEntry = true;
             document.getElementById('p3_date').value = initialValues.p3 || "";
             document.getElementById('p3_date').disabled = false;
-            document.getElementById('z3_bal').value = initialValues.el || "";
+            document.getElementById('z3_bal').value = initialValues.el !== undefined ? initialValues.el : "";
             document.getElementById('z3_bal').disabled = false;
-            document.getElementById('aa3_bal').value = initialValues.ml || "";
+            document.getElementById('aa3_bal').value = initialValues.ml !== undefined ? initialValues.ml : "";
             document.getElementById('aa3_bal').disabled = false;
         } else {
             isFirstEntry = false;
@@ -1579,23 +1614,9 @@ function loadSelectedEmployeeData() {
             document.getElementById('aa3_bal').disabled = true;
         }
         
-        // फॉर्ममधील इतर माहिती भरणे
-        let emp = empData.empInfo || {};
-        document.getElementById('info_name').value = emp.name || "";
-        document.getElementById('info_desig').value = emp.desig || "";
-        document.getElementById('info_dept').value = emp.dept || "";
-        document.getElementById('info_pf').value = emp.pf || "";
-        if(emp.joinDate && window.joinPick) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
-        if(emp.retireDate && window.retirePick) retirePick.setDate(emp.retireDate);
-
-        if(empData.calcPay) {
-            document.getElementById('basic_pay').value = empData.calcPay.basic || "";
-            document.getElementById('da_amount').value = empData.calcPay.da || "";
-        }
-        
         document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (emp.name || "") + ' (' + pf + ')';
         
-        // सर्व तक्ते नव्याने लोड करणे
+        // सर्व तक्ते नव्याने तयार करणे
         recalculateAndRender();
         if(typeof generateLeaveAndLwpReports === "function") generateLeaveAndLwpReports();
         calculateEncashment();
