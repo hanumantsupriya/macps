@@ -221,7 +221,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             <div id="bonusResultMsg" style="margin-top: 10px; font-weight: bold; color: #00796b;"></div>
         </div>
 
-        <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
+       <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
         <table id="recordTable">
             <thead>
                 <tr>
@@ -237,6 +237,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <th>रजा दिवस (R)</th>
                     <th>अंतिम शिल्लक EL (Z)</th>
                     <th>अंतिम शिल्लक ML (AA)</th>
+                    <th style="background-color: #d32f2f;">रजेतील LWP</th>
                     <th>कारवाई</th>
                 </tr>
             </thead>
@@ -283,10 +284,11 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <th>हक्काची रजा (EL)</th>
                     <th>वैद्यकीय रजा (ML)</th>
                     <th>विशेष रजा</th>
+                    <th style="background-color: #795548;">बिनपगारी रजा (LWP)</th>
                     <th>कारवाई</th>
                 </tr>
             </thead>
-            <tbody><tr><td colspan="5" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr></tbody>
+            <tbody><tr><td colspan="6" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr></tbody>
         </table>
     </div>
 
@@ -1210,10 +1212,10 @@ function renderTable() {
 
     let pageNum = 1;
     let pgF = 0, pgE = 0, pgG = 0, pgH = 0;
-    let pgEL_spent = 0, pgML_spent = 0, pgSpl_spent = 0;
+    let pgEL_spent = 0, pgML_spent = 0, pgSpl_spent = 0, pgAutoLwp = 0;
 
     let grandF = 0, grandE = 0, grandG = 0, grandH = 0;
-    let grandEL_spent = 0, grandML_spent = 0, grandSpl_spent = 0;
+    let grandEL_spent = 0, grandML_spent = 0, grandSpl_spent = 0, grandAutoLwp = 0;
 
     let pageStartDate = "";
 
@@ -1226,19 +1228,20 @@ function renderTable() {
         let currentEL_spent = 0;
         let currentML_spent = 0;
         let currentSpl_spent = 0;
+        let currentAutoLwp = item.autoLwpDays || 0;
 
         if(item.type === "bonus") {
             row.className = "bonus-row";
             row.innerHTML = '<td class="bonus-details-cell"><strong>' + item.details + '</strong><br>• एकूण दिवस: ' + (item.totalDays || 0) + ' | कामाचे दिवस: ' + (item.dutyDays || 0) + '</td>' +
             '<td>---</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा मजुरी</td><td>+' + item.earnedBonus + '</td>' +
             '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td>' + item.finalML.toFixed(2) + '</td>' +
-            '<td>' + actionButtons + '</td>';
+            '<td>0</td><td>' + actionButtons + '</td>';
         } 
         else if (item.type === "annual_extra") {
             row.style.backgroundColor = "#efebe9";
             row.innerHTML = '<td><strong>' + item.a + '</strong></td><td>0</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>वार्षिक जमा</td><td>' + item.q + '</td><td>+' + item.earnedBonus + ' दिवस</td>' +
             '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td>' + item.finalML.toFixed(2) + '</td>' +
-            '<td>' + actionButtons + '</td>';
+            '<td>0</td><td>' + actionButtons + '</td>';
         }
         else {
             let lwpValue = item.e || 0;
@@ -1248,27 +1251,23 @@ function renderTable() {
             '<td class="accumulated">' + item.k_val.toFixed(2) + '</td><td class="accumulated">' + item.l_val.toFixed(2) + '</td>' +
             '<td>' + item.o + ' - ' + item.p + '</td><td>' + item.q + '</td><td>' + item.r_diff + '</td>' +
             '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td class="highlight">' + item.finalML.toFixed(2) + '</td>' +
+            '<td style="color:#d32f2f; font-weight:bold;">' + (currentAutoLwp > 0 ? currentAutoLwp + ' दिवस' : '0') + '</td>' +
             '<td>' + actionButtons + '</td>';
 
             if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
-                currentEL_spent = item.r_diff;
+                currentEL_spent = item.spentEL !== undefined ? item.spentEL : Math.min(item.r_diff, Math.floor(item.k_val || 0));
             } else if (item.q === "वैद्यकीय रजा") {
-                let baseLval = Math.floor(item.l_val || 0);
-                if (item.r_diff <= baseLval) {
-                    currentML_spent = item.r_diff;
-                } else {
-                    currentML_spent = baseLval;
-                    currentEL_spent = item.r_diff - baseLval;
-                }
+                currentML_spent = item.spentML !== undefined ? item.spentML : Math.min(item.r_diff, Math.floor(item.l_val || 0));
+                currentEL_spent = item.spentEL !== undefined ? item.spentEL : 0;
             } else if (item.q === "विशेष रजा") {
                 currentSpl_spent = item.r_diff;
             }
 
             pgF += item.f; pgE += lwpValue; pgG += item.g; pgH += item.h;
-            pgEL_spent += currentEL_spent; pgML_spent += currentML_spent; pgSpl_spent += currentSpl_spent;
+            pgEL_spent += currentEL_spent; pgML_spent += currentML_spent; pgSpl_spent += currentSpl_spent; pgAutoLwp += currentAutoLwp;
 
             grandF += item.f; grandE += lwpValue; grandG += item.g; grandH += item.h;
-            grandEL_spent += currentEL_spent; grandML_spent += currentML_spent; grandSpl_spent += currentSpl_spent;
+            grandEL_spent += currentEL_spent; grandML_spent += currentML_spent; grandSpl_spent += currentSpl_spent; grandAutoLwp += currentAutoLwp;
         }
 
         if (pageBreaks.includes(index) || index === history.length - 1) {
@@ -1278,12 +1277,14 @@ function renderTable() {
             let convertedPgG = convertLeavePointsToDays(pgG, "EL");
             let convertedPgH = convertLeavePointsToDays(pgH, "ML");
 
+            let totalPageLwp = pgE + pgAutoLwp;
+
             let brkRow = tbody.insertRow(); brkRow.className = "page-break-row";
-            brkRow.innerHTML = '<td>[मॅन्युअल पान ' + pageNum + ' एकूण (' + pagePeriodText + ')]</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + pgE + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td colspan="4">--- CF ---</td><td>' + (pgEL_spent+pgML_spent+pgSpl_spent) + '</td><td colspan="3">---</td>';
+            brkRow.innerHTML = '<td>[मॅन्युअल पान ' + pageNum + ' एकूण (' + pagePeriodText + ')]</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + pgE + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td colspan="4">--- CF ---</td><td>' + (pgEL_spent+pgML_spent+pgSpl_spent+pgAutoLwp) + '</td><td>---</td><td>---</td><td>' + pgAutoLwp + '</td><td>---</td>';
 
             let chartRow = chartBody.insertRow();
-            chartRow.innerHTML = '<td>पान नंबर ' + pageNum + ' (' + pagePeriodText + ')</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td>' + pgEL_spent + '</td><td>' + pgML_spent + '</td><td>' + pgSpl_spent + '</td><td>' + pgE + '</td>';
-            pageNum++; pgF = 0; pgE = 0; pgG = 0; pgH = 0; pgEL_spent = 0; pgML_spent = 0; pgSpl_spent = 0; pageStartDate = "";
+            chartRow.innerHTML = '<td>पान नंबर ' + pageNum + ' (' + pagePeriodText + ')</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td>' + pgEL_spent + '</td><td>' + pgML_spent + '</td><td>' + pgSpl_spent + '</td><td style="color:#d32f2f; font-weight:bold;">' + totalPageLwp + '</td>';
+            pageNum++; pgF = 0; pgE = 0; pgG = 0; pgH = 0; pgEL_spent = 0; pgML_spent = 0; pgSpl_spent = 0; pgAutoLwp = 0; pageStartDate = "";
         }
     });
 
@@ -1292,12 +1293,12 @@ function renderTable() {
 
         let finalGrandG = convertLeavePointsToDays(grandG, "EL");
         let finalGrandH = convertLeavePointsToDays(grandH, "ML");
+        let totalGrandLwp = grandE + grandAutoLwp;
 
-        gtRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + grandF + '</td><td>' + finalGrandG.toFixed(2) + '</td><td>' + finalGrandH.toFixed(2) + '</td><td>' + grandEL_spent + '</td><td>' + grandML_spent + '</td><td>' + grandSpl_spent + '</td><td>' + grandE + '</td>';
+        gtRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + grandF + '</td><td>' + finalGrandG.toFixed(2) + '</td><td>' + finalGrandH.toFixed(2) + '</td><td>' + grandEL_spent + '</td><td>' + grandML_spent + '</td><td>' + grandSpl_spent + '</td><td style="color:#b71c1c; font-weight:bold;">' + totalGrandLwp + '</td>';
     }
     generateLeaveAndLwpReports();
 }
-
 function editRow(idx) {
     let item = history[idx];
     if(item.type !== "regular") { alert("केवळ नेहमीची रजा नोंदच एडिट करता येईल!"); return; }
@@ -1881,20 +1882,23 @@ function generateLeaveAndLwpReports() {
         if (item.type === "bonus" || item.type === "annual_extra") return;
         if (item.a && (item.a.includes("पान") || item.a.includes("एकूण") || item.a.includes("["))) return;
 
+        // १. हजर अवधीतील LWP व रजेतील स्वयंचलित LWP मोजणे
         if(item.lwpIntervals && item.lwpIntervals.length > 0) {
             item.lwpIntervals.forEach(interval => {
                 let dStart = parseDMY(interval.start), dEnd = parseDMY(interval.end);
                 if(!dStart || !dEnd) return;
                 let current = new Date(dStart.getFullYear(), dStart.getMonth(), dStart.getDate());
-                while (current <= dEnd) {
+                let targetEnd = new Date(dEnd.getFullYear(), dEnd.getMonth(), dEnd.getDate());
+                while (current <= targetEnd) {
                     let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
-                    if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0, intervals: [] };
+                    if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
                     lwpMap[monthKey].days += 1;
                     current.setDate(current.getDate() + 1);
                 }
             });
-        } else if (item.e > 0) { grandLwpSum += parseFloat(item.e) || 0; }
+        }
 
+        // २. उपभोगलेली रजा (फक्त प्रत्यक्ष खर्ची पडलेलीच रजा मोजणे, LWP वगळून)
         if (item.o && item.p && item.o !== "---" && item.o !== "रोखीकरण" && item.p !== "---" && !item.p.includes("दिवस")) {
             let dStart = parseDMY(item.o); let dEnd = parseDMY(item.p);
             
@@ -1902,26 +1906,34 @@ function generateLeaveAndLwpReports() {
                 let current = new Date(dStart.getFullYear(), dStart.getMonth(), dStart.getDate());
                 let targetEnd = new Date(dEnd.getFullYear(), dEnd.getMonth(), dEnd.getDate());
 
-                let l_base = Math.floor(item.l_val || 0);
-                let r_total = item.r_diff || 0;
-
-                let actualSpentEL = 0, actualSpentML = 0;
-                if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") { actualSpentEL = r_total; } 
-                else if (item.q === "वैद्यकीय रजा") {
-                    if (r_total <= l_base) { actualSpentML = r_total; } 
-                    else { actualSpentML = l_base; actualSpentEL = r_total - l_base; }
-                }
+                let actualSpentML = item.spentML !== undefined ? item.spentML : (item.q === "वैद्यकीय रजा" ? Math.min(item.r_diff, Math.floor(item.l_val || 0)) : 0);
+                let actualSpentEL = item.spentEL !== undefined ? item.spentEL : (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा" ? item.r_diff : 0);
+                let actualSpentSpl = item.q === "विशेष रजा" ? item.r_diff : 0;
+                let autoLwp = item.autoLwpDays || 0;
 
                 let dayCounter = 1;
                 while (current <= targetEnd) {
                     let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
-                    if (!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0 }; }
+                    if (!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0, "LWP": 0 }; }
                     
-                    if (item.q === "विशेष रजा") { leaveMap[monthKey]["विशेष रजा"] += 1; } 
-                    else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") { leaveMap[monthKey]["हक्काची रजा"] += 1; } 
+                    if (item.q === "विशेष रजा") { 
+                        leaveMap[monthKey]["विशेष रजा"] += 1; 
+                    } 
+                    else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") { 
+                        if (dayCounter <= actualSpentEL) {
+                            leaveMap[monthKey]["हक्काची रजा"] += 1;
+                        } else {
+                            leaveMap[monthKey]["LWP"] += 1;
+                        }
+                    } 
                     else if (item.q === "वैद्यकीय रजा") {
-                        if (dayCounter <= actualSpentML) { leaveMap[monthKey]["वैद्यकीय रजा"] += 1; } 
-                        else { leaveMap[monthKey]["हक्काची रजा"] += 1; }
+                        if (dayCounter <= actualSpentML) { 
+                            leaveMap[monthKey]["वैद्यकीय रजा"] += 1; 
+                        } else if (dayCounter <= (actualSpentML + actualSpentEL)) { 
+                            leaveMap[monthKey]["हक्काची रजा"] += 1; 
+                        } else {
+                            leaveMap[monthKey]["LWP"] += 1;
+                        }
                     }
                     dayCounter++; current.setDate(current.getDate() + 1);
                 }
@@ -1929,6 +1941,7 @@ function generateLeaveAndLwpReports() {
         }
     });
 
+    // तक्ता ६ भरणे (महिनावार इतर सर्व रजा अहवाल)
     let leaveTbody = document.querySelector("#allLeavesMonthlyTable tbody"); 
     if (leaveTbody) {
         leaveTbody.innerHTML = "";
@@ -1937,9 +1950,9 @@ function generateLeaveAndLwpReports() {
         });
 
         if (sortedLeaveMonths.length === 0) {
-            leaveTbody.innerHTML = `<tr><td colspan="5" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr>`;
+            leaveTbody.innerHTML = `<tr><td colspan="6" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr>`;
         } else {
-            let totalElSum = 0, totalMlSum = 0, totalSplSum = 0;
+            let totalElSum = 0, totalMlSum = 0, totalSplSum = 0, totalLwpInLeave = 0;
             sortedLeaveMonths.forEach(month => {
                 let mName = new Date(month.split("/")[1], month.split("/")[0]-1).toLocaleString('mr', { month: 'long', year: 'numeric' });
                 let row = leaveTbody.insertRow();
@@ -1947,20 +1960,25 @@ function generateLeaveAndLwpReports() {
                     '<td style="color:#1a73e8; font-weight:bold;">' + leaveMap[month]["हक्काची रजा"] + ' दिवस</td>' +
                     '<td style="color:#e65100; font-weight:bold;">' + leaveMap[month]["वैद्यकीय रजा"] + ' दिवस</td>' +
                     '<td style="color:#00796b; font-weight:bold;">' + leaveMap[month]["विशेष रजा"] + ' दिवस</td>' +
+                    '<td style="color:#d32f2f; font-weight:bold;">' + (leaveMap[month]["LWP"] || 0) + ' दिवस</td>' +
                     '<td style="text-align:left; padding-left:15px; color:#2e7d32; font-weight:bold;">अद्ययावत (Updated)</td>';
-                totalElSum += leaveMap[month]["हक्काची रजा"]; totalMlSum += leaveMap[month]["वैद्यकीय रजा"]; totalSplSum += leaveMap[month]["विशेष रजा"];
+                totalElSum += leaveMap[month]["हक्काची रजा"]; 
+                totalMlSum += leaveMap[month]["वैद्यकीय रजा"]; 
+                totalSplSum += leaveMap[month]["विशेष रजा"];
+                totalLwpInLeave += (leaveMap[month]["LWP"] || 0);
             });
             let leaveTotalRow = leaveTbody.insertRow();
             leaveTotalRow.className = "grand-total-row";
-            leaveTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + totalElSum + ' दिवस</td><td>' + totalMlSum + ' दिवस</td><td>' + totalSplSum + ' दिवस</td><td>---</td>';
+            leaveTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + totalElSum + ' दिवस</td><td>' + totalMlSum + ' दिवस</td><td>' + totalSplSum + ' दिवस</td><td style="color:#d32f2f;">' + totalLwpInLeave + ' दिवस</td><td>---</td>';
         }
     }
 
+    // तक्ता ५ भरणे (महिनावार बिनपगारी अहवाल)
     let lwpTwp = document.querySelector("#lwpMonthlyTable tbody"); 
     if (lwpTwp) {
         lwpTwp.innerHTML = "";
         let sortedLwpMonths = Object.keys(lwpMap).sort((mA, mB) => { return new Date(mA.split("/")[1], mA.split("/")[0]-1) - new Date(mB.split("/")[1], mB.split("/")[0]-1); });
-        if (sortedLwpMonths.length === 0 && grandLwpSum === 0) { 
+        if (sortedLwpMonths.length === 0) { 
             lwpTwp.innerHTML = `<tr><td colspan="3" style="color: #666;">अजून कोणतीही बिनपगारी नोंद नाही.</td></tr>`; 
         } else {
             sortedLwpMonths.forEach(month => {
@@ -1975,7 +1993,6 @@ function generateLeaveAndLwpReports() {
     }
     grandTotalLwpGlobal = grandLwpSum;
 }
-
 function downloadExcel() {
     if (history.length === 0) { alert("नोंद उपलब्ध नाही!"); return; }
     let csvContent = "\uFEFF";
