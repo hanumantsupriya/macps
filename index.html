@@ -1407,6 +1407,7 @@ if (confirm("शेवटची नोंद हटवायची का?")) {
     localStorage.setItem("pmc_page_breaks", JSON.stringify(pageBreaks));
     localStorage.setItem("pmc_leave_history", JSON.stringify(history));
     recalculateAndRender();
+    autoSyncEmployeeToFirebase(); // Firebase वर आपोआप अपडेट करणे
 }
 }
 
@@ -1458,6 +1459,34 @@ function saveCurrentEmployeeToDatabase() {
         alert("डेटा ऑनलाईन सेव्ह करताना तांत्रिक चूक झाली: " + error.message);
     });
 }
+    // प्रत्येक ॲक्शननंतर Firebase वर आपोआप सेव्ह करण्याचे फंक्शन
+function autoSyncEmployeeToFirebase() {
+    let pf = localStorage.getItem("pmc_active_emp_pf");
+    let currentUser = firebase.auth().currentUser;
+    if (!pf || !currentUser) return;
+    
+    let empData = {
+        empInfo: JSON.parse(localStorage.getItem("pmc_emp_info")) || {},
+        initialValues: JSON.parse(localStorage.getItem("pmc_initial_values")) || {},
+        history: history,
+        pageBreaks: pageBreaks,
+        calcPay: JSON.parse(localStorage.getItem("pmc_calc_pay")) || {}
+    };
+    
+    // स्थानिक डेटाबेस अपडेट करणे
+    let localDb = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+    localDb[pf] = empData;
+    localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
+    
+    // Firebase ऑनलाईन डेटाबेसमध्ये थेट अपडेट
+    db.collection("users").doc(currentUser.email).collection("employees").doc(pf).set(empData)
+    .then(() => {
+        console.log("डेटा आपोआप Firebase वर सिंक झाला.");
+    })
+    .catch((err) => {
+        console.error("Firebase सिंक करताना त्रुटी: ", err);
+    });
+}
 
 function updateEmployeeDropdown() {
     let select = document.getElementById('global_employee_select');
@@ -1474,25 +1503,49 @@ function updateEmployeeDropdown() {
 function loadSelectedEmployeeData() {
     let pf = document.getElementById('global_employee_select').value;
     
-    if(!pf) {
-        if(confirm("तुम्ही नवीन नोंद तयार करू इच्छिता का?")) {
-            localStorage.removeItem("pmc_leave_history");
-            localStorage.removeItem("pmc_emp_info");
-            localStorage.removeItem("pmc_initial_values");
-            localStorage.removeItem("pmc_page_breaks");
-            localStorage.removeItem("pmc_calc_pay");
-            localStorage.removeItem("pmc_active_emp_pf");
-            location.reload(); // नवीन नोंदणीसाठी फक्त रिफ्रेश ठीक आहे
+    // कर्मचारी बदलताना पुष्टी (Alert) विचारणे
+    let activePf = localStorage.getItem("pmc_active_emp_pf");
+    if(activePf && activePf !== pf) {
+        if(!confirm("तुम्ही कर्मचारी बदलत आहात. चालू बदल जतन झाले आहेत. पुढे जायचे का?")) {
+            document.getElementById('global_employee_select').value = activePf;
+            return;
         }
+    }
+
+    if(!pf) {
+        // जर कर्मचारी निवडलेला नसेल तर सर्व डेटा साफ करणे व एन्ट्री बंद करणे
+        localStorage.removeItem("pmc_leave_history");
+        localStorage.removeItem("pmc_emp_info");
+        localStorage.removeItem("pmc_initial_values");
+        localStorage.removeItem("pmc_page_breaks");
+        localStorage.removeItem("pmc_calc_pay");
+        localStorage.removeItem("pmc_active_emp_pf");
+        
+        history = [];
+        initialValues = {};
+        pageBreaks = [];
+        isFirstEntry = true;
+        
+        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: कोणतीही नोंद निवडलेली नाही';
+        document.getElementById('p3_date').value = "";
+        document.getElementById('p3_date').disabled = true;
+        document.getElementById('z3_bal').value = "";
+        document.getElementById('z3_bal').disabled = true;
+        document.getElementById('aa3_bal').value = "";
+        document.getElementById('aa3_bal').disabled = true;
+        
+        // एन्ट्री बटणे बंद करणे
+        document.getElementById('saveBtn').disabled = true;
+        
+        recalculateAndRender();
         return;
     }
     
-    // १. डेटाबेस लोड करणे
+    // Firebase मधून डाऊनलोड झालेला स्थानिक डेटाबेस तपासणे
     let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
     let empData = db[pf];
     
     if(empData) {
-        // २. डेटा LocalStorage मध्ये अपडेट करणे
         localStorage.setItem("pmc_active_emp_pf", pf);
         localStorage.setItem("pmc_emp_info", JSON.stringify(empData.empInfo || {}));
         localStorage.setItem("pmc_initial_values", JSON.stringify(empData.initialValues || {}));
@@ -1500,28 +1553,53 @@ function loadSelectedEmployeeData() {
         localStorage.setItem("pmc_page_breaks", JSON.stringify(empData.pageBreaks || []));
         localStorage.setItem("pmc_calc_pay", JSON.stringify(empData.calcPay || {}));
         
-        // ३. व्हेरिएबल्स अपडेट करणे
         history = empData.history || [];
         initialValues = empData.initialValues || {};
         pageBreaks = empData.pageBreaks || [];
-        isFirstEntry = (history.length === 0);
         
-        // ४. फॉर्ममधील व्हॅल्यूज अपडेट करणे
-        document.getElementById('p3_date').value = initialValues.p3 || "";
-        document.getElementById('z3_bal').value = initialValues.el || 0;
-        document.getElementById('aa3_bal').value = initialValues.ml || 0;
+        // कर्मचारी निवडल्यामुळे एन्ट्री बटण चालू करणे
+        document.getElementById('saveBtn').disabled = false;
         
-        // ५. UI अपडेट करणे
-        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (empData.empInfo.name || "") + ' (' + pf + ')';
+        // पहिली नोंद आहे की नाही त्यानुसार P3, Z3, AA3 लॉक/अनलॉक करणे
+        if(history.length === 0) {
+            isFirstEntry = true;
+            document.getElementById('p3_date').value = initialValues.p3 || "";
+            document.getElementById('p3_date').disabled = false;
+            document.getElementById('z3_bal').value = initialValues.el || "";
+            document.getElementById('z3_bal').disabled = false;
+            document.getElementById('aa3_bal').value = initialValues.ml || "";
+            document.getElementById('aa3_bal').disabled = false;
+        } else {
+            isFirstEntry = false;
+            document.getElementById('p3_date').value = initialValues.p3 || "";
+            document.getElementById('p3_date').disabled = true;
+            document.getElementById('z3_bal').value = initialValues.el || 0;
+            document.getElementById('z3_bal').disabled = true;
+            document.getElementById('aa3_bal').value = initialValues.ml || 0;
+            document.getElementById('aa3_bal').disabled = true;
+        }
         
-        // ६. सर्वात महत्त्वाचे: रेंडर आणि कॅल्क्युलेशन फंक्शन कॉल करणे
+        // फॉर्ममधील इतर माहिती भरणे
+        let emp = empData.empInfo || {};
+        document.getElementById('info_name').value = emp.name || "";
+        document.getElementById('info_desig').value = emp.desig || "";
+        document.getElementById('info_dept').value = emp.dept || "";
+        document.getElementById('info_pf').value = emp.pf || "";
+        if(emp.joinDate && window.joinPick) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
+        if(emp.retireDate && window.retirePick) retirePick.setDate(emp.retireDate);
+
+        if(empData.calcPay) {
+            document.getElementById('basic_pay').value = empData.calcPay.basic || "";
+            document.getElementById('da_amount').value = empData.calcPay.da || "";
+        }
+        
+        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (emp.name || "") + ' (' + pf + ')';
+        
+        // सर्व तक्ते नव्याने लोड करणे
         recalculateAndRender();
+        if(typeof generateLeaveAndLwpReports === "function") generateLeaveAndLwpReports();
         calculateEncashment();
         calculateMacp();
-        
-        alert("डेटा यशस्वीरित्या लोड झाला आहे!");
-    } else {
-        alert("या कर्मचाऱ्याचा डेटाबेस उपलब्ध नाही.");
     }
 }
 
