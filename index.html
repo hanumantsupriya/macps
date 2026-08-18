@@ -174,11 +174,11 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <option value="हक्काची रजा">हक्काची रजा</option>
                     <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
                     <option value="विशेष रजा">विशेष रजा</option>
-                    <option value="सुरेंडर रजा">सुरेंडर रजा (Surrender Leave)</option>
+                    <option value="सरेंडर रजा">सरेंडर रजा (Surrender Leave)</option>
                 </select>
             </div>
             <div id="surrender_days_div" style="display: none; min-width: 130px; flex: 1;">
-                <label style="color: #d32f2f;">💥 सुरेंडर रजा दिवस:</label>
+                <label style="color: #d32f2f;">💥 सरेंडर रजा दिवस:</label>
                 <input type="number" id="surrender_days_input" placeholder="उदा. 15 किंवा 30" min="1" oninput="generateLivePreview()">
             </div>
             <div class="btn-group">
@@ -689,7 +689,7 @@ function handleClosureOption() {
             <option value="हक्काची रजा">हक्काची रजा</option>
             <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
             <option value="विशेष रजा">विशेष रजा</option>
-            <option value="सुरेंडर रजा">सुरेंडर रजा (Surrender Leave)</option>`;
+            <option value="सरेंडर रजा">सरेंडर रजा (Surrender Leave)</option>`;
         updateLeaveStartDate();
     }
 }
@@ -734,7 +734,7 @@ function handleSurrenderLeaveType() {
     let bEndInput = document.getElementById('b_end');
     let surrenderDiv = document.getElementById('surrender_days_div');
 
-    if (qType === "सुरेंडर रजा") {
+    if (qType === "सरेंडर रजा") {
         bEndInput.value = document.getElementById('a_start').value;
         updateLeaveStartDate();
         pLeaveInput.value = bEndInput.value;
@@ -857,7 +857,7 @@ function generateLivePreview() {
         return;
     }
 
-    if(q === "सुरेंडर रजा") {
+    if(q === "सरेंडर रजा") {
         r_leave = parseInt(document.getElementById('surrender_days_input').value) || 0;
         f_days = 1;
     } else {
@@ -986,20 +986,23 @@ function applyLimits(val, maxVal) {
 }
 
 function addEntry() {
-// 🛑 खालील ४ ओळी नवीन जोडल्या आहेत:
-    let activePf = localStorage.getItem("pmc_active_emp_pf");
-    let selectPf = document.getElementById('global_employee_select').value;
-    if(!activePf || !selectPf) {
+    let selectElem = document.getElementById('global_employee_select');
+    let selectPf = selectElem ? selectElem.value.trim() : "";
+    let activePf = (localStorage.getItem("pmc_active_emp_pf") || "").trim();
+
+    // 🛑 कडक तपासणी: कर्मचारी निवडलेला नसेल तर लगेच थांबवणे
+    if (!selectPf || selectPf === "" || !activePf || activePf === "") {
         alert("⚠️ कृपया आधी वरून 'कर्मचारी निवडा' किंवा 'कर्मचाऱ्यांची माहिती' (Page 3) भरून डेटाबेस जतन करा!");
         return;
     }
-let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
-let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
-let q = document.getElementById('q_type').value;
-let e = parseFloat(document.getElementById('e_lwp').value) || 0;
-let isClosure = document.getElementById('is_closure').checked;
 
-if (!a || !b || (!p && !isClosure)) { alert("कृपया सर्व आवश्यक तारखा भरा!"); return; }
+    let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
+    let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
+    let q = document.getElementById('q_type').value;
+    let e = parseFloat(document.getElementById('e_lwp').value) || 0;
+    let isClosure = document.getElementById('is_closure').checked;
+
+    if ((!a || !b || (!p && !isClosure))) { alert("कृपया सर्व आवश्यक तारखा भरा!"); return; }
 
 if (isFirstEntry) {
 initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
@@ -1022,9 +1025,9 @@ let r_diff_val = 0;
 if(isClosure) {
     q = "सेवा समाप्ती (हिशोब बंद)";
     o = "---"; p = "---"; r_diff_val = 0;
-} else if(q === "सुरेंडर रजा") {
+} else if(q === "सरेंडर रजा") {
     let surrenderDays = parseInt(document.getElementById('surrender_days_input').value, 10);
-    if (isNaN(surrenderDays) || surrenderDays <= 0) { alert("कृपया सुरेंडर रजा दिवस टाका!"); return; }
+    if (isNaN(surrenderDays) || surrenderDays <= 0) { alert("कृपया सरेंडर रजा दिवस टाका!"); return; }
     r_diff_val = surrenderDays;
 } else {
     let do1 = parseDMY(o); let dp1 = parseDMY(p);
@@ -1032,8 +1035,8 @@ if(isClosure) {
 }
 
 let entryObject = {
-    type: "regular", a: a, b: (q === "सुरेंडर रजा" ? "सुरेंडर रजा" : b), e: e, f: 0, g: 0, h: 0, k_val: 0, l_val: 0,
-    o: (q === "सुरेंडर रजा" ? "रोखीकरण" : o), p: (q === "सुरेंडर रजा" ? r_diff_val + " दिवस" : p), q: q, r_diff: r_diff_val,
+    type: "regular", a: a, b: (q === "सरेंडर रजा" ? "सरेंडर रजा" : b), e: e, f: 0, g: 0, h: 0, k_val: 0, l_val: 0,
+    o: (q === "सरेंडर रजा" ? "रोखीकरण" : o), p: (q === "सरेंडर रजा" ? r_diff_val + " दिवस" : p), q: q, r_diff: r_diff_val,
     finalEL: 0, finalML: 0, lwpIntervals: lwpIntervals, isClosure: isClosure
 };
 
@@ -1097,7 +1100,7 @@ history.forEach((item) => {
         curEL = item.finalEL; curML = item.finalML;
     }
     else {
-        if (item.q !== "सुरेंडर रजा" && !item.isClosure) {
+        if (item.q !== "सरेंडर रजा" && !item.isClosure) {
             let do1 = parseDMY(item.o); let dp1 = parseDMY(item.p);
             if (do1 && dp1) { 
                 item.r_diff = Math.round((dp1.getTime() - do1.getTime()) / (1000 * 60 * 60 * 24)) + 1; 
@@ -1105,8 +1108,8 @@ history.forEach((item) => {
             }
         }
 
-        if (item.q === "सुरेंडर रजा" || item.b === "---" || item.b === "सुरेंडर रजा" || item.b.trim() === "") {
-            item.f = (item.q === "सुरेंडर रजा") ? 1 : 0;
+        if (item.q === "सरेंडर रजा" || item.b === "---" || item.b === "सरेंडर रजा" || item.b.trim() === "") {
+            item.f = (item.q === "सरेंडर रजा") ? 1 : 0;
             item.g = 0; item.h = 0;
         } else {
             let d1 = parseDMY(item.a); let d2 = parseDMY(item.b);
@@ -1133,7 +1136,7 @@ history.forEach((item) => {
         if (item.isClosure) {
             item.finalEL = item.k_val;
             item.finalML = item.l_val;
-        } else if (item.q === "हक्काची रजा" || item.q === "सुरेंडर रजा") {
+        } else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
             item.finalEL = (item.r_diff >= k_base) ? k_dec : (k_base - item.r_diff + k_dec);
             item.finalML = item.l_val;
         } else if (item.q === "वैद्यकीय रजा") {
@@ -1161,7 +1164,7 @@ if (last.isClosure) {
 }
 if (last.type === "bonus") { nextA = last.nextA; } 
 else if (last.type === "annual_extra") { nextA = document.getElementById('a_start').value; }
-else { nextA = (last.q === "सुरेंडर रजा") ? last.a : formatDMY(nextDay(parseDMY(last.p))); }
+else { nextA = (last.q === "सरेंडर रजा") ? last.a : formatDMY(nextDay(parseDMY(last.p))); }
 
 document.getElementById('a_start').value = nextA;
 document.getElementById('o_leave_start').value = nextA;
@@ -1209,13 +1212,13 @@ else {
 let lwpValue = item.e || 0;
 let lwpCellText = lwpValue > 0 && item.lwpIntervals ? '<strong>' + lwpValue + '</strong><br><small>(' + item.lwpIntervals.map(i=>i.start+"-"+i.end).join(", ") + ')</small>' : lwpValue;
 
-row.innerHTML = '<td>' + ((item.b === "---" || item.b === "सुरेंडर रजा") ? "---" : item.a + " - " + item.b) + '</td><td>' + item.f + '</td><td>' + lwpCellText + '</td><td>' + item.g.toFixed(2) + '</td><td>' + item.h.toFixed(2) + '</td>' +
+row.innerHTML = '<td>' + ((item.b === "---" || item.b === "सरेंडर रजा") ? "---" : item.a + " - " + item.b) + '</td><td>' + item.f + '</td><td>' + lwpCellText + '</td><td>' + item.g.toFixed(2) + '</td><td>' + item.h.toFixed(2) + '</td>' +
 '<td class="accumulated">' + item.k_val.toFixed(2) + '</td><td class="accumulated">' + item.l_val.toFixed(2) + '</td>' +
 '<td>' + item.o + ' - ' + item.p + '</td><td>' + item.q + '</td><td>' + item.r_diff + '</td>' +
 '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td class="highlight">' + item.finalML.toFixed(2) + '</td>' +
 '<td>' + actionButtons + '</td>';
 
-if (item.q === "हक्काची रजा" || item.q === "सुरेंडर रजा") {
+if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
     currentEL_spent = item.r_diff;
 } else if (item.q === "वैद्यकीय रजा") {
     let baseLval = Math.floor(item.l_val || 0);
@@ -1269,7 +1272,7 @@ function editRow(idx) {
     
     editIndex = idx;
     document.getElementById('a_start').value = item.a;
-    document.getElementById('b_end').value = (item.b === "सुरेंडर रजा") ? "---" : item.b;
+    document.getElementById('b_end').value = (item.b === "सरेंडर रजा") ? "---" : item.b;
     document.getElementById('e_lwp').value = item.e;
     
     if (item.isClosure) {
@@ -1279,14 +1282,14 @@ function editRow(idx) {
         document.getElementById('is_closure').checked = false;
         handleClosureOption();
         document.getElementById('o_leave_start').value = item.o;
-        document.getElementById('p_leave_end').value = (item.b === "सुरेंडर रजा") ? item.a : item.p;
+        document.getElementById('p_leave_end').value = (item.b === "सरेंडर रजा") ? item.a : item.p;
         document.getElementById('q_type').value = item.q;
     }
     
     if(item.b === "---") { document.getElementById('is_continuous').checked = true; }
     else { document.getElementById('is_continuous').checked = false; }
     
-    if(item.q === "सुरेंडर रजा") {
+    if(item.q === "सरेंडर रजा") {
         document.getElementById('surrender_days_div').style.display = "block";
         document.getElementById('surrender_days_input').value = item.r_diff;
     } else { document.getElementById('surrender_days_div').style.display = "none"; }
@@ -1348,7 +1351,7 @@ let totalCalendarDays = Math.round((dEnd.getTime() - dStart.getTime()) / (1000 *
 let totalR = 0; let totalE = 0;
 
 history.forEach((item, index) => {
-    if (item.type === "bonus" || item.q === "सुरेंडर रजा" || item.type === "annual_extra") return; 
+    if (item.type === "bonus" || item.q === "सरेंडर रजा" || item.type === "annual_extra") return; 
     if (item.a && (item.a.includes("पान") || item.a.includes("एकूण") || item.a.includes("["))) return;
 
     if (item.o && item.p && item.o !== "---" && item.o !== "रोखीकरण" && item.p !== "---") {
@@ -1439,12 +1442,16 @@ function saveCurrentEmployeeToDatabase() {
     
     // सेव्ह करायचा संपूर्ण डेटा गोळा करणे
     let empData = {
-        empInfo: JSON.parse(localStorage.getItem("pmc_emp_info")),
-        initialValues: JSON.parse(localStorage.getItem("pmc_initial_values")),
-        history: JSON.parse(localStorage.getItem("pmc_leave_history")),
-        pageBreaks: JSON.parse(localStorage.getItem("pmc_page_breaks")),
-        calcPay: JSON.parse(localStorage.getItem("pmc_calc_pay"))
+        empInfo: empInfo,
+        initialValues: JSON.parse(localStorage.getItem("pmc_initial_values")) || initialValues || {},
+        history: history || JSON.parse(localStorage.getItem("pmc_leave_history")) || [],
+        pageBreaks: pageBreaks || JSON.parse(localStorage.getItem("pmc_page_breaks")) || [],
+        calcPay: JSON.parse(localStorage.getItem("pmc_calc_pay")) || {}
     };
+
+    let localDb = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+    localDb[pf] = empData;
+    localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
     
     // Firebase च्या ऑनलाईन डेटाबेसमध्ये (Firestore) डेटा सेव्ह करणे
     let currentUser = firebase.auth().currentUser;
@@ -1510,40 +1517,11 @@ function updateEmployeeDropdown() {
 }
 
 function loadSelectedEmployeeData() {
-    let pf = document.getElementById('global_employee_select').value;
-    if(document.getElementById('saveEntryBtn')) {
-            document.getElementById('saveEntryBtn').disabled = true;
-        }
+    let selectElem = document.getElementById('global_employee_select');
+    let pf = selectElem ? selectElem.value.trim() : "";
     
-    // १. स्क्रीनवरील जुना डेटा पूर्णपणे पुसून टाकणे (Full Screen Reset)
-    history = [];
-    initialValues = {};
-    pageBreaks = [];
-    isFirstEntry = true;
-    
-    // फॉर्ममधील इनपुट्स कोरे करणे
-    document.getElementById('info_name').value = "";
-    document.getElementById('info_desig').value = "";
-    document.getElementById('info_dept').value = "";
-    document.getElementById('info_pf').value = "";
-    document.getElementById('p3_date').value = "";
-    document.getElementById('z3_bal').value = "";
-    document.getElementById('aa3_bal').value = "";
-    document.getElementById('basic_pay').value = "";
-    document.getElementById('da_amount').value = "";
-    
-    if(window.joinPick) joinPick.clear();
-    if(window.retirePick) retirePick.clear();
-    if(window.macpJoinPick) macpJoinPick.clear();
-
-    // सर्व तक्त्यांचा HTML रिकामा करणे
-    document.querySelector("#recordTable tbody").innerHTML = "";
-    document.querySelector("#summaryChartTable tbody").innerHTML = "";
-    document.querySelector("#lwpMonthlyTable tbody").innerHTML = "";
-    document.querySelector("#allLeavesMonthlyTable tbody").innerHTML = "";
-
-    // २. जर 'कोणीही निवडलेला नाही' असेल तर:
-    if(!pf) {
+    // १. जर 'कोणीही निवडलेला नाही' असेल तर सर्व कोरे करा
+    if (!pf || pf === "") {
         localStorage.removeItem("pmc_active_emp_pf");
         localStorage.removeItem("pmc_leave_history");
         localStorage.removeItem("pmc_emp_info");
@@ -1551,9 +1529,21 @@ function loadSelectedEmployeeData() {
         localStorage.removeItem("pmc_page_breaks");
         localStorage.removeItem("pmc_calc_pay");
         
+        history = [];
+        initialValues = {};
+        pageBreaks = [];
+        isFirstEntry = true;
+        
         document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: कोणतीही नोंद निवडलेली नाही';
         
-        // इनपुट्स आणि बटणे बंद (Disable) करणे
+        // फॉर्म कोरा करणे
+        document.getElementById('info_name').value = "";
+        document.getElementById('info_desig').value = "";
+        document.getElementById('info_dept').value = "";
+        document.getElementById('info_pf').value = "";
+        document.getElementById('p3_date').value = "";
+        document.getElementById('z3_bal').value = "";
+        document.getElementById('aa3_bal').value = "";
         document.getElementById('p3_date').disabled = true;
         document.getElementById('z3_bal').disabled = true;
         document.getElementById('aa3_bal').disabled = true;
@@ -1561,67 +1551,68 @@ function loadSelectedEmployeeData() {
         recalculateAndRender();
         return;
     }
-    
-    // ३. जर कर्मचारी निवडला असेल तर त्याचा डेटाबेस शोधणे
+
+    // २. डेटाबेसमधून कर्मचाऱ्याचा डेटा शोधणे
     let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
     let empData = db[pf];
-    
-    if(empData) {
-        if(document.getElementById('saveEntryBtn')) {
-            document.getElementById('saveEntryBtn').disabled = false;
-        }
-        localStorage.setItem("pmc_active_emp_pf", pf);
-        localStorage.setItem("pmc_emp_info", JSON.stringify(empData.empInfo || {}));
-        localStorage.setItem("pmc_initial_values", JSON.stringify(empData.initialValues || {}));
-        localStorage.setItem("pmc_leave_history", JSON.stringify(empData.history || []));
-        localStorage.setItem("pmc_page_breaks", JSON.stringify(empData.pageBreaks || []));
-        localStorage.setItem("pmc_calc_pay", JSON.stringify(empData.calcPay || {}));
-        
-        history = empData.history || [];
-        initialValues = empData.initialValues || {};
-        pageBreaks = empData.pageBreaks || [];
-        
-        // कर्मचारी माहिती भरणे
-        let emp = empData.empInfo || {};
-        document.getElementById('info_name').value = emp.name || "";
-        document.getElementById('info_desig').value = emp.desig || "";
-        document.getElementById('info_dept').value = emp.dept || "";
-        document.getElementById('info_pf').value = emp.pf || pf;
-        if(emp.joinDate && window.joinPick) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
-        if(emp.retireDate && window.retirePick) retirePick.setDate(emp.retireDate);
 
-        if(empData.calcPay) {
-            document.getElementById('basic_pay').value = empData.calcPay.basic || "";
-            document.getElementById('da_amount').value = empData.calcPay.da || "";
-        }
-
-        // पहिली नोंद आहे की नाही त्यानुसार P3, Z3, AA3 लॉक/अनलॉक करणे
-        if(history.length === 0) {
-            isFirstEntry = true;
-            document.getElementById('p3_date').value = initialValues.p3 || "";
-            document.getElementById('p3_date').disabled = false;
-            document.getElementById('z3_bal').value = initialValues.el !== undefined ? initialValues.el : "";
-            document.getElementById('z3_bal').disabled = false;
-            document.getElementById('aa3_bal').value = initialValues.ml !== undefined ? initialValues.ml : "";
-            document.getElementById('aa3_bal').disabled = false;
-        } else {
-            isFirstEntry = false;
-            document.getElementById('p3_date').value = initialValues.p3 || "";
-            document.getElementById('p3_date').disabled = true;
-            document.getElementById('z3_bal').value = initialValues.el || 0;
-            document.getElementById('z3_bal').disabled = true;
-            document.getElementById('aa3_bal').value = initialValues.ml || 0;
-            document.getElementById('aa3_bal').disabled = true;
-        }
-        
-        document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (emp.name || "") + ' (' + pf + ')';
-        
-        // सर्व तक्ते नव्याने तयार करणे
-        recalculateAndRender();
-        if(typeof generateLeaveAndLwpReports === "function") generateLeaveAndLwpReports();
-        calculateEncashment();
-        calculateMacp();
+    if (!empData) {
+        alert("⚠️ या कर्मचाऱ्याचा डेटा डेटाबेसमध्ये सापडला नाही! कृपया Page 3 वर जाऊन डेटाबेस जतन करा.");
+        return;
     }
+
+    // ३. डेटा लोड करणे
+    localStorage.setItem("pmc_active_emp_pf", pf);
+    localStorage.setItem("pmc_emp_info", JSON.stringify(empData.empInfo || {}));
+    localStorage.setItem("pmc_initial_values", JSON.stringify(empData.initialValues || {}));
+    localStorage.setItem("pmc_leave_history", JSON.stringify(empData.history || []));
+    localStorage.setItem("pmc_page_breaks", JSON.stringify(empData.pageBreaks || []));
+    localStorage.setItem("pmc_calc_pay", JSON.stringify(empData.calcPay || {}));
+
+    history = Array.isArray(empData.history) ? empData.history : [];
+    initialValues = empData.initialValues || {};
+    pageBreaks = Array.isArray(empData.pageBreaks) ? empData.pageBreaks : [];
+
+    // ४. कर्मचाऱ्याची वैयक्तिक माहिती फॉर्ममध्ये भरणे
+    let emp = empData.empInfo || {};
+    document.getElementById('info_name').value = emp.name || "";
+    document.getElementById('info_desig').value = emp.desig || "";
+    document.getElementById('info_dept').value = emp.dept || "";
+    document.getElementById('info_pf').value = emp.pf || pf;
+    if (emp.joinDate && window.joinPick) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
+    if (emp.retireDate && window.retirePick) retirePick.setDate(emp.retireDate);
+
+    if (empData.calcPay) {
+        document.getElementById('basic_pay').value = empData.calcPay.basic || "";
+        document.getElementById('da_amount').value = empData.calcPay.da || "";
+    }
+
+    // ५. शिल्लक रजा व सुरुवातीची तारीख (P3, Z3, AA3) लॉक/अनलॉक करणे
+    if (history.length === 0) {
+        isFirstEntry = true;
+        document.getElementById('p3_date').value = initialValues.p3 || "";
+        document.getElementById('p3_date').disabled = false;
+        document.getElementById('z3_bal').value = (initialValues.el !== undefined && initialValues.el !== null) ? initialValues.el : "";
+        document.getElementById('z3_bal').disabled = false;
+        document.getElementById('aa3_bal').value = (initialValues.ml !== undefined && initialValues.ml !== null) ? initialValues.ml : "";
+        document.getElementById('aa3_bal').disabled = false;
+    } else {
+        isFirstEntry = false;
+        document.getElementById('p3_date').value = initialValues.p3 || "";
+        document.getElementById('p3_date').disabled = true;
+        document.getElementById('z3_bal').value = initialValues.el || 0;
+        document.getElementById('z3_bal').disabled = true;
+        document.getElementById('aa3_bal').value = initialValues.ml || 0;
+        document.getElementById('aa3_bal').disabled = true;
+    }
+
+    document.getElementById('current_active_emp_label').innerText = '🎯 सद्या ॲक्टिव्ह: ' + (emp.name || "") + ' (' + pf + ')';
+
+    // ६. सर्व तक्ते नव्याने तयार करणे
+    recalculateAndRender();
+    if (typeof generateLeaveAndLwpReports === "function") generateLeaveAndLwpReports();
+    if (typeof calculateEncashment === "function") calculateEncashment();
+    if (typeof calculateMacp === "function") calculateMacp();
 }
 
 function calculateEncashment() {
@@ -1643,7 +1634,7 @@ function calculateEncashment() {
             totalElEarned += parseFloat(item.g) || 0;
             totalMlEarned += parseFloat(item.h) || 0;
             
-            if (item.q === "हक्काची रजा" || item.q === "सुरेंडर रजा") {
+            if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
                 totalElSpent += parseFloat(item.r_diff) || 0;
             } else if (item.q === "वैद्यकीय रजा") {
                 let r_total = item.r_diff || 0;
@@ -1838,7 +1829,7 @@ history.forEach((item, index) => {
             let r_total = item.r_diff || 0;
 
             let actualSpentEL = 0, actualSpentML = 0;
-            if (item.q === "हक्काची रजा" || item.q === "सुरेंडर रजा") { actualSpentEL = r_total; } 
+            if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") { actualSpentEL = r_total; } 
             else if (item.q === "वैद्यकीय रजा") {
                 if (r_total <= l_base) { actualSpentML = r_total; } 
                 else { actualSpentML = l_base; actualSpentEL = r_total - l_base; }
@@ -1850,7 +1841,7 @@ history.forEach((item, index) => {
                 if (!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0 }; }
                 
                 if (item.q === "विशेष रजा") { leaveMap[monthKey]["विशेष रजा"] += 1; } 
-                else if (item.q === "हक्काची रजा" || item.q === "सुरेंडर रजा") { leaveMap[monthKey]["हक्काची रजा"] += 1; } 
+                else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") { leaveMap[monthKey]["हक्काची रजा"] += 1; } 
                 else if (item.q === "वैद्यकीय रजा") {
                     if (dayCounter <= actualSpentML) { leaveMap[monthKey]["वैद्यकीय रजा"] += 1; } 
                     else { leaveMap[monthKey]["हक्काची रजा"] += 1; }
