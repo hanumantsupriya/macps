@@ -939,7 +939,6 @@ function addEntry() {
     let selectPf = selectElem ? selectElem.value.trim() : "";
     let activePf = (localStorage.getItem("pmc_active_emp_pf") || "").trim();
 
-    // 🛑 कडक तपासणी: कर्मचारी निवडलेला नसेल तर थेट थांबवणे
     if (!selectPf || selectPf === "" || !activePf || activePf === "") {
         alert("⚠️ कृपया आधी वरून 'कर्मचारी निवडा' किंवा 'कर्मचाऱ्यांची माहिती' (Page 3) भरून डेटाबेस जतन करा!");
         return;
@@ -969,13 +968,36 @@ function addEntry() {
         isFirstEntry = false;
     }
 
-    let lwpIntervals = [];
-    if(e > 0) {
-        let startInputs = document.querySelectorAll('.lwp-start-pick');
-        let endInputs = document.querySelectorAll('.lwp-end-pick');
-        startInputs.forEach((input, i) => { lwpIntervals.push({ start: input.value, end: endInputs[i].value }); });
+    // १. हजर अवधीनुसार नवीन साठणारी रजा व एकूण शिल्लक काढणे
+    let curEL = initialValues.el || 0;
+    let curML = initialValues.ml || 0;
+    if (history.length > 0) {
+        curEL = history[history.length - 1].finalEL;
+        curML = history[history.length - 1].finalML;
     }
 
+    let f_days = 0, g_el = 0, h_ml = 0;
+    if (b && b !== "---" && b !== "सरेंडर रजा") {
+        let d1 = parseDMY(a), d2 = parseDMY(b);
+        if (d1 && d2) {
+            let tot = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            f_days = Math.max(0, tot - e);
+            g_el = Math.floor(f_days / 11) + (f_days % 11) / 100;
+            h_ml = Math.floor(f_days / 30) + (f_days % 30) / 100;
+        }
+    }
+
+    let z3_int = Math.floor(curEL), z3_mod = Math.round((curEL % 1) * 100);
+    let g_int = Math.floor(g_el), g_mod = Math.round((g_el % 1) * 100);
+    let totalAvailEL = applyLimits(z3_int + g_int + Math.floor((z3_mod + g_mod)/11) + ((z3_mod + g_mod)%11)/100, 365);
+    let availEL_days = Math.floor(totalAvailEL);
+
+    let aa3_int = Math.floor(curML), aa3_mod = Math.round((curML % 1) * 100);
+    let h_int = Math.floor(h_ml), h_mod = Math.round((h_ml % 1) * 100) / 100;
+    let totalAvailML = applyLimits(aa3_int + h_int + Math.floor((aa3_mod + Math.round(h_mod * 100))/30) + ((aa3_mod + Math.round(h_mod * 100))%30)/100, 120);
+    let availML_days = Math.floor(totalAvailML);
+
+    // २. रजा दिवस मोजणे
     let r_diff_val = 0;
     if(isClosure) {
         q = "सेवा समाप्ती (हिशोब बंद)";
@@ -989,9 +1011,61 @@ function addEntry() {
         if (do1 && dp1) { r_diff_val = Math.round((dp1.getTime() - do1.getTime()) / (1000 * 60 * 60 * 24)) + 1; }
     }
 
+    // ३. शिल्लक रजेनुसार समायोजन (Leave Exhaustion Logic)
+    let autoLwpDays = 0;
+    let spentML = 0, spentEL = 0;
+
+    if (!isClosure && q !== "विशेष रजा") {
+        if (q === "हक्काची रजा" || q === "सरेंडर रजा") {
+            if (r_diff_val > availEL_days) {
+                spentEL = availEL_days;
+                autoLwpDays = r_diff_val - availEL_days;
+                let msg = `⚠️ शिल्लक हक्काची रजा ${spentEL} दिवस असून रजा ${r_diff_val} दिवस मागितली आहे.\n\n👉 ${spentEL} दिवस हक्काची खर्ची पडून उर्वरित ${autoLwpDays} दिवस बिनपगारी (LWP) नोंदवले जातील. पुढे जायचे का?`;
+                if (!confirm(msg)) return;
+            } else {
+                spentEL = r_diff_val;
+            }
+        } else if (q === "वैद्यकीय रजा") {
+            if (r_diff_val <= availML_days) {
+                spentML = r_diff_val;
+            } else {
+                spentML = availML_days;
+                let remaining = r_diff_val - spentML;
+                if (remaining <= availEL_days) {
+                    spentEL = remaining;
+                    let msg = `⚠️ वैद्यकीय रजा फक्त ${spentML} दिवस शिल्लक आहे.\n\n👉 ${spentML} दिवस मेडिकल आणि उर्वरित ${spentEL} दिवस हक्काची रजा (EL) खर्ची पडेल. पुढे जायचे का?`;
+                    if (!confirm(msg)) return;
+                } else {
+                    spentEL = availEL_days;
+                    autoLwpDays = remaining - spentEL;
+                    let msg = `⚠️ वैद्यकीय रजा ${spentML} दिवस आणि हक्काची रजा ${spentEL} दिवस खर्ची पडून उर्वरित ${autoLwpDays} दिवस बिनपगारी (LWP) नोंदवले जातील. पुढे जायचे का?`;
+                    if (!confirm(msg)) return;
+                }
+            }
+        }
+    }
+
+    // ४. LWP कालावधी तयार करणे
+    let lwpIntervals = [];
+    if(e > 0) {
+        let startInputs = document.querySelectorAll('.lwp-start-pick');
+        let endInputs = document.querySelectorAll('.lwp-end-pick');
+        startInputs.forEach((input, i) => { lwpIntervals.push({ start: input.value, end: endInputs[i].value }); });
+    }
+
+    if (autoLwpDays > 0 && o && p && o !== "---" && p !== "---") {
+        let pDate = parseDMY(p);
+        if (pDate) {
+            let lwpStart = new Date(pDate.getTime());
+            lwpStart.setDate(lwpStart.getDate() - autoLwpDays + 1);
+            lwpIntervals.push({ start: formatDMY(lwpStart), end: p });
+        }
+    }
+
     let entryObject = {
         type: "regular", a: a, b: (q === "सरेंडर रजा" ? "सरेंडर रजा" : b), e: e, f: 0, g: 0, h: 0, k_val: 0, l_val: 0,
         o: (q === "सरेंडर रजा" ? "रोखीकरण" : o), p: (q === "सरेंडर रजा" ? r_diff_val + " दिवस" : p), q: q, r_diff: r_diff_val,
+        spentEL: spentEL, spentML: spentML, autoLwpDays: autoLwpDays,
         finalEL: 0, finalML: 0, lwpIntervals: lwpIntervals, isClosure: isClosure
     };
 
@@ -1006,7 +1080,7 @@ function addEntry() {
 
     localStorage.setItem("pmc_leave_history", JSON.stringify(history));
     recalculateAndRender();
-    autoSyncEmployeeToFirebase(); // Firebase ऑनलाईन सेव्ह
+    autoSyncEmployeeToFirebase();
 
     document.getElementById('is_closure').checked = false;
     handleClosureOption();
@@ -1086,24 +1160,27 @@ function recalculateAndRender() {
             item.l_val = applyLimits(aa3_int + h_int + Math.floor((aa3_mod + Math.round(h_mod * 100))/30) + ((aa3_mod + Math.round(h_mod * 100))%30)/100, 120);
 
             let k_base = Math.floor(item.k_val), k_dec = Math.round((item.k_val % 1) * 100) / 100;
-            let l_base = Math.floor(item.l_val), l_dec = Math.round((item.l_val % 1) * 100) / 100;
+        let l_base = Math.floor(item.l_val), l_dec = Math.round((item.l_val % 1) * 100) / 100;
 
-            if (item.isClosure) {
-                item.finalEL = item.k_val;
-                item.finalML = item.l_val;
-            } else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
-                item.finalEL = (item.r_diff >= k_base) ? k_dec : (k_base - item.r_diff + k_dec);
-                item.finalML = item.l_val;
-            } else if (item.q === "वैद्यकीय रजा") {
-                item.finalEL = applyLimits(Math.max(0, k_base - Math.max(0, item.r_diff - l_base) + k_dec), 365);
-                item.finalML = (item.r_diff >= l_base) ? l_dec : (l_base - item.r_diff + l_dec);
-            } else {
-                item.finalEL = item.k_val; item.finalML = item.l_val;
-            }
-            item.finalEL = applyLimits(item.finalEL, 365);
-            item.finalML = applyLimits(item.finalML, 120);
+        if (item.isClosure) {
+            item.finalEL = item.k_val;
+            item.finalML = item.l_val;
+        } else if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
+            let actualSpentEL = item.spentEL !== undefined ? item.spentEL : Math.min(item.r_diff, k_base);
+            item.finalEL = (k_base - actualSpentEL) + k_dec;
+            item.finalML = item.l_val;
+        } else if (item.q === "वैद्यकीय रजा") {
+            let actualSpentML = item.spentML !== undefined ? item.spentML : Math.min(item.r_diff, l_base);
+            let actualSpentEL = item.spentEL !== undefined ? item.spentEL : Math.min(Math.max(0, item.r_diff - l_base), k_base);
+            item.finalML = (l_base - actualSpentML) + l_dec;
+            item.finalEL = (k_base - actualSpentEL) + k_dec;
+        } else {
+            item.finalEL = item.k_val; item.finalML = item.l_val;
+        }
+        item.finalEL = applyLimits(item.finalEL, 365);
+        item.finalML = applyLimits(item.finalML, 120);
 
-            curEL = item.finalEL; curML = item.finalML;
+        curEL = item.finalEL; curML = item.finalML;
         }
     });
 
