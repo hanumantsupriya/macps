@@ -1048,20 +1048,22 @@ function addEntry() {
         }
     }
 
-    // ४. LWP कालावधी तयार करणे
-    let lwpIntervals = [];
+    // ४. हजर अवधीतील LWP (E) चे कालावधी (फक्त e > 0 असताना)
+    let dutyLwpIntervals = [];
     if(e > 0) {
         let startInputs = document.querySelectorAll('.lwp-start-pick');
         let endInputs = document.querySelectorAll('.lwp-end-pick');
-        startInputs.forEach((input, i) => { lwpIntervals.push({ start: input.value, end: endInputs[i].value }); });
+        startInputs.forEach((input, i) => { dutyLwpIntervals.push({ start: input.value, end: endInputs[i].value }); });
     }
 
+    // ५. रजेतील LWP चे कालावधी (फक्त autoLwpDays > 0 असताना)
+    let leaveLwpIntervals = [];
     if (autoLwpDays > 0 && o && p && o !== "---" && p !== "---") {
         let pDate = parseDMY(p);
         if (pDate) {
             let lwpStart = new Date(pDate.getTime());
             lwpStart.setDate(lwpStart.getDate() - autoLwpDays + 1);
-            lwpIntervals.push({ start: formatDMY(lwpStart), end: p });
+            leaveLwpIntervals.push({ start: formatDMY(lwpStart), end: p });
         }
     }
 
@@ -1069,7 +1071,10 @@ function addEntry() {
         type: "regular", a: a, b: (q === "सरेंडर रजा" ? "सरेंडर रजा" : b), e: e, f: 0, g: 0, h: 0, k_val: 0, l_val: 0,
         o: (q === "सरेंडर रजा" ? "रोखीकरण" : o), p: (q === "सरेंडर रजा" ? r_diff_val + " दिवस" : p), q: q, r_diff: r_diff_val,
         spentEL: spentEL, spentML: spentML, autoLwpDays: autoLwpDays,
-        finalEL: 0, finalML: 0, lwpIntervals: lwpIntervals, isClosure: isClosure
+        finalEL: 0, finalML: 0, 
+        lwpIntervals: dutyLwpIntervals, 
+        leaveLwpIntervals: leaveLwpIntervals, 
+        isClosure: isClosure
     };
 
     if(editIndex > -1) {
@@ -1246,13 +1251,20 @@ function renderTable() {
         }
         else {
             let lwpValue = item.e || 0;
-            let lwpCellText = lwpValue > 0 && item.lwpIntervals ? '<strong>' + lwpValue + '</strong><br><small>(' + item.lwpIntervals.map(i=>i.start+"-"+i.end).join(", ") + ')</small>' : lwpValue;
+            // हजर अवधीतील LWP कालावधी
+            let lwpDutyText = lwpValue > 0 && item.lwpIntervals && item.lwpIntervals.length > 0 ? 
+                '<strong>' + lwpValue + '</strong><br><small style="color:#5d4037;">(' + item.lwpIntervals.map(i=>i.start+"-"+i.end).join(", ") + ')</small>' : lwpValue;
 
-            row.innerHTML = '<td>' + ((item.b === "---" || item.b === "सरेंडर रजा") ? "---" : item.a + " - " + item.b) + '</td><td>' + item.f + '</td><td>' + lwpCellText + '</td><td>' + item.g.toFixed(2) + '</td><td>' + item.h.toFixed(2) + '</td>' +
+            // रजेतील LWP कालावधी
+            let lwpLeaveText = currentAutoLwp > 0 && item.leaveLwpIntervals && item.leaveLwpIntervals.length > 0 ? 
+                '<strong style="color:#d32f2f;">' + currentAutoLwp + ' दिवस</strong><br><small style="color:#b71c1c;">(' + item.leaveLwpIntervals.map(i=>i.start+" ते "+i.end).join(", ") + ')</small>' : 
+                (currentAutoLwp > 0 ? '<strong style="color:#d32f2f;">' + currentAutoLwp + ' दिवस</strong>' : '0');
+
+            row.innerHTML = '<td>' + ((item.b === "---" || item.b === "सरेंडर रजा") ? "---" : item.a + " - " + item.b) + '</td><td>' + item.f + '</td><td>' + lwpDutyText + '</td><td>' + item.g.toFixed(2) + '</td><td>' + item.h.toFixed(2) + '</td>' +
             '<td class="accumulated">' + item.k_val.toFixed(2) + '</td><td class="accumulated">' + item.l_val.toFixed(2) + '</td>' +
             '<td>' + item.o + ' - ' + item.p + '</td><td>' + item.q + '</td><td>' + item.r_diff + '</td>' +
             '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td class="highlight">' + item.finalML.toFixed(2) + '</td>' +
-            '<td style="color:#d32f2f; font-weight:bold;">' + (currentAutoLwp > 0 ? currentAutoLwp + ' दिवस' : '0') + '</td>' +
+            '<td>' + lwpLeaveText + '</td>' +
             '<td>' + actionButtons + '</td>';
 
             if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
@@ -1277,7 +1289,6 @@ function renderTable() {
 
             let convertedPgG = convertLeavePointsToDays(pgG, "EL");
             let convertedPgH = convertLeavePointsToDays(pgH, "ML");
-
             let totalPageLwp = pgE + pgAutoLwp;
 
             let brkRow = tbody.insertRow(); brkRow.className = "page-break-row";
@@ -1291,7 +1302,6 @@ function renderTable() {
 
     if (history.length > 0) {
         let gtRow = chartBody.insertRow(); gtRow.className = "grand-total-row";
-
         let finalGrandG = convertLeavePointsToDays(grandG, "EL");
         let finalGrandH = convertLeavePointsToDays(grandH, "ML");
         let totalGrandLwp = grandE + grandAutoLwp;
@@ -1928,11 +1938,11 @@ function generateLeaveAndLwpReports() {
     let leaveMap = {}; 
     let grandLwpSum = 0;
 
-    history.forEach((item, index) => {
+    history.forEach((item) => {
         if (item.type === "bonus" || item.type === "annual_extra") return;
         if (item.a && (item.a.includes("पान") || item.a.includes("एकूण") || item.a.includes("["))) return;
 
-        // १. हजर अवधीतील LWP (E) मोजणे
+        // १. हजर अवधीतील LWP (E) चे दिवस मोजणे
         if(item.lwpIntervals && item.lwpIntervals.length > 0) {
             item.lwpIntervals.forEach(interval => {
                 let dStart = parseDMY(interval.start), dEnd = parseDMY(interval.end);
@@ -1943,8 +1953,7 @@ function generateLeaveAndLwpReports() {
                     let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
                     if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
                     lwpMap[monthKey].days += 1;
-                    
-                    // तक्ता ६ साठी देखील LWP नोंदवणे
+
                     if(!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0, "LWP": 0 }; }
                     leaveMap[monthKey]["LWP"] += 1;
 
@@ -2008,7 +2017,7 @@ function generateLeaveAndLwpReports() {
         }
     });
 
-    // तक्ता ६ भरणे (महिनावार इतर सर्व रजा अहवाल - दोन्ही LWP सह)
+    // तक्ता ६ भरणे
     let leaveTbody = document.querySelector("#allLeavesMonthlyTable tbody"); 
     if (leaveTbody) {
         leaveTbody.innerHTML = "";
@@ -2040,7 +2049,7 @@ function generateLeaveAndLwpReports() {
         }
     }
 
-    // तक्ता ५ भरणे (महिनावार बिनपगारी अहवाल)
+    // तक्ता ५ भरणे
     let lwpTwp = document.querySelector("#lwpMonthlyTable tbody"); 
     if (lwpTwp) {
         lwpTwp.innerHTML = "";
