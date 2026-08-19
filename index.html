@@ -331,8 +331,9 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             <div><label>नोकरीत रुजू झाल्याचा दिनांक:</label><input type="text" id="info_join_date" placeholder="DD/MM/YYYY"></div>
             <div><label>संभाव्य सेवानिवृत्ती दिनांक:</label><input type="text" id="info_retire_date" placeholder="DD/MM/YYYY"></div>
         </div>
-        <div style="margin-top:20px;">
-            <button class="btn-excel" style="background-color:#2e7d32;" onclick="saveCurrentEmployeeToDatabase()">💾 चालू कर्मचारी डेटा बेस जतन करा (Save Database)</button>
+       <div style="margin-top:20px; display: flex; gap: 15px; flex-wrap: wrap;">
+            <button class="btn-excel" style="background-color:#2e7d32; height: 42px; padding: 0 20px;" onclick="saveCurrentEmployeeToDatabase()">💾 माहिती अद्ययावत / जतन करा (Save / Update Info)</button>
+            <button class="btn-delete" style="background-color:#d32f2f; height: 42px; padding: 0 20px;" onclick="deleteCurrentEmployeeFromDatabase()">🗑️ हा कर्मचारी डेटाबेसमधून कायमचा हटवा (Delete Employee)</button>
         </div>
     </div>
 
@@ -1524,6 +1525,53 @@ function saveCurrentEmployeeToDatabase() {
         alert("डेटा ऑनलाईन सेव्ह करताना तांत्रिक चूक झाली: " + error.message);
     });
 }
+    // कर्मचारी कायमचा डेटाबेसमधून हटवण्याचे फंक्शन
+function deleteCurrentEmployeeFromDatabase() {
+    let pf = document.getElementById('info_pf').value.trim() || localStorage.getItem("pmc_active_emp_pf");
+    let name = document.getElementById('info_name').value.trim();
+
+    if (!pf) {
+        alert("⚠️ कृपया आधी हटवण्यासाठी कर्मचारी निवडा!");
+        return;
+    }
+
+    let confirmMsg = `⚠️ सावधान!\n\nतुम्हाला नक्की कर्मचारी '${name}' (PF: ${pf}) चा संपूर्ण डेटा (रजा नोंदी, अहवाल व माहिती) कायमचा हटवायचा आहे का?\n\nहा डेटा Firebase वरून कायमचा नष्ट होईल व परत मिळणार नाही.`;
+    
+    if (confirm(confirmMsg)) {
+        let currentUser = firebase.auth().currentUser;
+        
+        // १. Firebase वरून डॉक्युमेंट हटवणे
+        if (currentUser) {
+            db.collection("users").doc(currentUser.email).collection("employees").doc(pf).delete()
+            .then(() => {
+                console.log("Firebase वरून कर्मचारी यशस्वीरित्या हटवला.");
+            })
+            .catch((err) => {
+                console.error("Firebase वरून हटवताना तांत्रिक अडचण: ", err);
+            });
+        }
+
+        // २. स्थानिक डेटाबेसमधून (Local Storage) हटवणे
+        let localDb = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+        delete localDb[pf];
+        localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
+
+        // ३. चालू मेमरी व सिलेक्टेड PF रिसेट करणे
+        localStorage.removeItem("pmc_active_emp_pf");
+        localStorage.removeItem("pmc_leave_history");
+        localStorage.removeItem("pmc_emp_info");
+        localStorage.removeItem("pmc_initial_values");
+        localStorage.removeItem("pmc_page_breaks");
+        localStorage.removeItem("pmc_calc_pay");
+
+        alert(`✅ कर्मचारी '${name}' (PF: ${pf}) चा सर्व डेटा यशस्वीरित्या हटवला गेला आहे.`);
+        
+        // ड्रॉपडाऊन रिफ्रेश करून स्क्रीन कोरी करणे
+        updateEmployeeDropdown();
+        document.getElementById('global_employee_select').value = "";
+        loadSelectedEmployeeData();
+    }
+}
 
 function autoSyncEmployeeToFirebase() {
     let pf = localStorage.getItem("pmc_active_emp_pf");
@@ -1876,13 +1924,15 @@ function calculateMacp() {
 }
 
 function generateLeaveAndLwpReports() {
-    let lwpMap = {}; let leaveMap = {}; let grandLwpSum = 0;
+    let lwpMap = {}; 
+    let leaveMap = {}; 
+    let grandLwpSum = 0;
 
     history.forEach((item, index) => {
         if (item.type === "bonus" || item.type === "annual_extra") return;
         if (item.a && (item.a.includes("पान") || item.a.includes("एकूण") || item.a.includes("["))) return;
 
-        // १. हजर अवधीतील LWP व रजेतील स्वयंचलित LWP मोजणे
+        // १. हजर अवधीतील LWP (E) मोजणे
         if(item.lwpIntervals && item.lwpIntervals.length > 0) {
             item.lwpIntervals.forEach(interval => {
                 let dStart = parseDMY(interval.start), dEnd = parseDMY(interval.end);
@@ -1893,12 +1943,27 @@ function generateLeaveAndLwpReports() {
                     let monthKey = `${String(current.getMonth() + 1).padStart(2, '0')}/${current.getFullYear()}`;
                     if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
                     lwpMap[monthKey].days += 1;
+                    
+                    // तक्ता ६ साठी देखील LWP नोंदवणे
+                    if(!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0, "LWP": 0 }; }
+                    leaveMap[monthKey]["LWP"] += 1;
+
                     current.setDate(current.getDate() + 1);
                 }
             });
+        } else if (item.e > 0) {
+            let dStart = parseDMY(item.a);
+            if (dStart) {
+                let monthKey = `${String(dStart.getMonth() + 1).padStart(2, '0')}/${dStart.getFullYear()}`;
+                if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
+                lwpMap[monthKey].days += parseFloat(item.e);
+
+                if(!leaveMap[monthKey]) { leaveMap[monthKey] = { "हक्काची रजा": 0, "वैद्यकीय रजा": 0, "विशेष रजा": 0, "LWP": 0 }; }
+                leaveMap[monthKey]["LWP"] += parseFloat(item.e);
+            }
         }
 
-        // २. उपभोगलेली रजा (फक्त प्रत्यक्ष खर्ची पडलेलीच रजा मोजणे, LWP वगळून)
+        // २. रजेच्या अवधीतील उपभोगलेली रजा आणि 'रजेतील LWP' मोजणे
         if (item.o && item.p && item.o !== "---" && item.o !== "रोखीकरण" && item.p !== "---" && !item.p.includes("दिवस")) {
             let dStart = parseDMY(item.o); let dEnd = parseDMY(item.p);
             
@@ -1908,8 +1973,6 @@ function generateLeaveAndLwpReports() {
 
                 let actualSpentML = item.spentML !== undefined ? item.spentML : (item.q === "वैद्यकीय रजा" ? Math.min(item.r_diff, Math.floor(item.l_val || 0)) : 0);
                 let actualSpentEL = item.spentEL !== undefined ? item.spentEL : (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा" ? item.r_diff : 0);
-                let actualSpentSpl = item.q === "विशेष रजा" ? item.r_diff : 0;
-                let autoLwp = item.autoLwpDays || 0;
 
                 let dayCounter = 1;
                 while (current <= targetEnd) {
@@ -1924,6 +1987,8 @@ function generateLeaveAndLwpReports() {
                             leaveMap[monthKey]["हक्काची रजा"] += 1;
                         } else {
                             leaveMap[monthKey]["LWP"] += 1;
+                            if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
+                            lwpMap[monthKey].days += 1;
                         }
                     } 
                     else if (item.q === "वैद्यकीय रजा") {
@@ -1933,6 +1998,8 @@ function generateLeaveAndLwpReports() {
                             leaveMap[monthKey]["हक्काची रजा"] += 1; 
                         } else {
                             leaveMap[monthKey]["LWP"] += 1;
+                            if(!lwpMap[monthKey]) lwpMap[monthKey] = { days: 0 };
+                            lwpMap[monthKey].days += 1;
                         }
                     }
                     dayCounter++; current.setDate(current.getDate() + 1);
@@ -1941,7 +2008,7 @@ function generateLeaveAndLwpReports() {
         }
     });
 
-    // तक्ता ६ भरणे (महिनावार इतर सर्व रजा अहवाल)
+    // तक्ता ६ भरणे (महिनावार इतर सर्व रजा अहवाल - दोन्ही LWP सह)
     let leaveTbody = document.querySelector("#allLeavesMonthlyTable tbody"); 
     if (leaveTbody) {
         leaveTbody.innerHTML = "";
@@ -1952,7 +2019,7 @@ function generateLeaveAndLwpReports() {
         if (sortedLeaveMonths.length === 0) {
             leaveTbody.innerHTML = `<tr><td colspan="6" style="color: #666;">अजून कोणतीही रजा नोंद नाही.</td></tr>`;
         } else {
-            let totalElSum = 0, totalMlSum = 0, totalSplSum = 0, totalLwpInLeave = 0;
+            let totalElSum = 0, totalMlSum = 0, totalSplSum = 0, totalLwpSum = 0;
             sortedLeaveMonths.forEach(month => {
                 let mName = new Date(month.split("/")[1], month.split("/")[0]-1).toLocaleString('mr', { month: 'long', year: 'numeric' });
                 let row = leaveTbody.insertRow();
@@ -1965,11 +2032,11 @@ function generateLeaveAndLwpReports() {
                 totalElSum += leaveMap[month]["हक्काची रजा"]; 
                 totalMlSum += leaveMap[month]["वैद्यकीय रजा"]; 
                 totalSplSum += leaveMap[month]["विशेष रजा"];
-                totalLwpInLeave += (leaveMap[month]["LWP"] || 0);
+                totalLwpSum += (leaveMap[month]["LWP"] || 0);
             });
             let leaveTotalRow = leaveTbody.insertRow();
             leaveTotalRow.className = "grand-total-row";
-            leaveTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + totalElSum + ' दिवस</td><td>' + totalMlSum + ' दिवस</td><td>' + totalSplSum + ' दिवस</td><td style="color:#d32f2f;">' + totalLwpInLeave + ' दिवस</td><td>---</td>';
+            leaveTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total)</td><td>' + totalElSum + ' दिवस</td><td>' + totalMlSum + ' दिवस</td><td>' + totalSplSum + ' दिवस</td><td style="color:#b71c1c; font-weight:bold;">' + totalLwpSum + ' दिवस</td><td>---</td>';
         }
     }
 
@@ -1981,14 +2048,16 @@ function generateLeaveAndLwpReports() {
         if (sortedLwpMonths.length === 0) { 
             lwpTwp.innerHTML = `<tr><td colspan="3" style="color: #666;">अजून कोणतीही बिनपगारी नोंद नाही.</td></tr>`; 
         } else {
+            let fullLwpGrand = 0;
             sortedLwpMonths.forEach(month => {
                 let mName = new Date(month.split("/")[1], month.split("/")[0]-1).toLocaleString('mr', { month: 'long', year: 'numeric' });
                 let row = lwpTwp.insertRow();
                 row.innerHTML = '<td><strong>' + mName + '</strong></td><td style="color:#d32f2f; font-weight:bold;">' + lwpMap[month].days + ' दिवस</td><td style="text-align:left; padding-left:15px; color:green; font-weight:bold;">अद्ययावत</td>';
-                grandLwpSum += lwpMap[month].days;
+                fullLwpGrand += lwpMap[month].days;
             });
             let lwpTotalRow = lwpTwp.insertRow(); lwpTotalRow.className = "grand-total-row";
-            lwpTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total LWP)</td><td style="color:#1b5e20; font-weight:bold;">' + grandLwpSum + ' दिवस</td><td>---</td>';
+            lwpTotalRow.innerHTML = '<td>ग्रँड एकूण संख्या (Grand Total LWP)</td><td style="color:#1b5e20; font-weight:bold;">' + fullLwpGrand + ' दिवस</td><td>---</td>';
+            grandLwpSum = fullLwpGrand;
         }
     }
     grandTotalLwpGlobal = grandLwpSum;
