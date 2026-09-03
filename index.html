@@ -101,13 +101,16 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         </div>
     </div>
 
-    <!-- कर्मचारी डेटाबेस निवड -->
+    <!-- कर्मचारी डेटाबेस निवड आणि सर्च -->
     <div class="employee-select-box">
         <div style="flex: 1;">
-            <label style="color:#2e7d32;">👤 कर्मचारी निवडा (सध्या सेव्ह असलेले सर्व कर्मचारी):</label>
-            <select id="global_employee_select" onchange="loadSelectedEmployeeData()">
-                <option value="">-- नवीन कर्मचारी / कोरी नोंदणी पुस्तिका --</option>
-            </select>
+            <label style="color:#2e7d32;">👤 कर्मचारी शोधा आणि निवडा:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="emp_search_filter" placeholder="🔍 नाव किंवा PF नंबर शोधा..." onkeyup="updateEmployeeDropdown()" style="width: 35%; border-color: #2e7d32; border-width: 2px;">
+                <select id="global_employee_select" onchange="loadSelectedEmployeeData()" style="width: 65%;">
+                    <option value="">-- नवीन कर्मचारी / कोरी नोंदणी पुस्तिका --</option>
+                </select>
+            </div>
         </div>
         <div style="font-weight: bold; color: #1b5e20; padding-bottom: 10px;" id="current_active_emp_label">🎯 सद्या ॲक्टिव्ह: कोणतीही नोंद निवडलेली नाही</div>
     </div>
@@ -1450,6 +1453,45 @@ function saveBonusToTable() {
     document.getElementById('saveBonusBtn').style.display = "none";
 }
 
+// थेट मॅन्युअल अतिरिक्त रजा जमा करण्याचे फंक्शन
+function addManualBonusLeave() {
+    if (history.length === 0) { 
+        alert("तक्त्यामध्ये नोंदी असणे आवश्यक आहे!"); 
+        return; 
+    }
+    
+    let desc = document.getElementById('bonus_manual_desc').value.trim();
+    let days = parseFloat(document.getElementById('bonus_manual_days').value);
+    
+    if (!desc || isNaN(days) || days <= 0) { 
+        alert("⚠️ कृपया अचूक तपशील आणि वैध दिवस टाका!"); 
+        return; 
+    }
+    
+    // दुबार नोंदणी टाळण्यासाठी साधा अलर्ट (ऐच्छिक)
+    if (!confirm(`तुम्ही '${desc}' साठी ${days} दिवस अतिरिक्त रजा मॅन्युअली जमा करत आहात. पुढे जायचे का?`)) {
+        return;
+    }
+    
+    history.push({
+        type: "bonus", 
+        details: 'अत्यावश्यक सेवा अतिरिक्त रजा (मॅन्युअल: ' + desc + ')', 
+        earnedBonus: days,
+        finalEL: 0, finalML: 0, 
+        nextA: document.getElementById('a_start').value, 
+        bonusStart: "---", bonusEnd: "---",
+        totalDays: 0, spentDays: 0, dutyDays: 0
+    });
+    
+    localStorage.setItem("pmc_leave_history", JSON.stringify(history));
+    recalculateAndRender();
+    
+    // Firebase सिंक फंक्शन कॉल
+    if(typeof autoSyncEmployeeToFirebase === "function") autoSyncEmployeeToFirebase();
+    
+    document.getElementById('bonus_manual_desc').value = "";
+    document.getElementById('bonus_manual_days').value = "";
+}
 function manualPageBreak() {
     if (history.length === 0) { alert("आधी नोंदी जतन करा!"); return; }
     pageBreaks.push(history.length - 1);
