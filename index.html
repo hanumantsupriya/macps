@@ -205,23 +205,46 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         </div>
 
         <div class="essential-box">
-            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त वार्षिक १५ रजा गणना (User Option)</h4>
-            <div class="grid-3">
-                <div>
-                    <label>अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
-                    <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
+            <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त रजा नोंदणी</h4>
+
+            <!-- पर्याय १: जुना ऑटोमॅटिक गणना पर्याय -->
+            <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #4caf50;">
+                <h5 style="margin: 0 0 10px 0; color: #2e7d32;">पर्याय १: स्वयंचलित गणना (Automatic Calculation)</h5>
+                <div class="grid-3">
+                    <div>
+                        <label>अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
+                        <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div>
+                        <label>अतिरिक्त रजा शेवटचा दिनांक:</label>
+                        <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div>
+                        <button class="btn-calc-bonus" id="calcBonusBtn" onclick="calculateBonusLeave()">अतिरिक्त रजा मोजा</button>
+                        <button class="btn-save-bonus" id="saveBonusBtn" onclick="saveBonusToTable()">तक्त्यात जमा करा</button>
+                        <button class="btn-add" style="background-color:#795548; margin-top:5px;" onclick="addAnnualExtraLeaves()">वार्षिक रजा जमा करा</button>
+                    </div>
                 </div>
-                <div>
-                    <label>अतिरिक्त रजा शेवटचा दिनांक:</label>
-                    <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
-                </div>
-                <div>
-                    <button class="btn-calc-bonus" id="calcBonusBtn" onclick="calculateBonusLeave()">अतिरिक्त रजा मोजा</button>
-                    <button class="btn-save-bonus" id="saveBonusBtn" onclick="saveBonusToTable()">तक्त्यात जमा करा</button>
-                    <button class="btn-add" style="background-color:#795548;" onclick="addAnnualExtraLeaves()">वार्षिक रजा जमा करा</button>
+                <div id="bonusResultMsg" style="margin-top: 10px; font-weight: bold; color: #00796b;"></div>
+            </div>
+
+            <!-- पर्याय २: नवीन मॅन्युअल ओव्हरराईड पर्याय -->
+            <div style="background: #fff3e0; padding: 12px; border-radius: 6px; border: 1px dashed #e65100;">
+                <h5 style="margin: 0 0 10px 0; color: #e65100;">पर्याय २: मॅन्युअल नोंद (Manual Override / Direct Entry)</h5>
+                <div class="grid-3" style="grid-template-columns: 2fr 1fr 1fr;">
+                    <div>
+                        <label>अतिरिक्त रजा तपशील (उदा. वर्ष २०२२-२३):</label>
+                        <input type="text" id="bonus_manual_desc" placeholder="तपशील टाका">
+                    </div>
+                    <div>
+                        <label>जमा करावयाचे दिवस:</label>
+                        <input type="number" id="bonus_manual_days" placeholder="उदा. 15">
+                    </div>
+                    <div>
+                        <button class="btn-add" style="background-color:#d84315; width:100%; height:38px;" onclick="addManualBonusLeave()">थेट रजा जमा करा</button>
+                    </div>
                 </div>
             </div>
-            <div id="bonusResultMsg" style="margin-top: 10px; font-weight: bold; color: #00796b;"></div>
         </div>
 
        <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
@@ -1657,19 +1680,67 @@ function autoSyncEmployeeToFirebase() {
 
 function updateEmployeeDropdown() {
     let select = document.getElementById('global_employee_select');
+    let searchInput = document.getElementById('emp_search_filter');
+    let filterText = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    
     let currentVal = select.value;
     select.innerHTML = `<option value="">-- नवीन कर्मचारी / कोरी नोंदणी पुस्तिका --</option>`;
+    
     let db = JSON.parse(localStorage.getItem("pmc_employee_db")) || {};
+    
     for (let pf in db) {
-        let option = document.createElement('option');
-        option.value = pf;
         let empName = (db[pf].empInfo && db[pf].empInfo.name) ? db[pf].empInfo.name : "कर्मचारी";
-        option.innerText = empName + ' (PF: ' + pf + ')';
-        select.appendChild(option);
+        let displayText = empName + ' (PF: ' + pf + ')';
+        
+        if (filterText === "" || displayText.toLowerCase().includes(filterText)) {
+            let option = document.createElement('option');
+            option.value = pf;
+            option.innerText = displayText;
+            select.appendChild(option);
+        }
     }
-    if (currentVal && db[currentVal]) {
+    
+    let optionExists = Array.from(select.options).some(opt => opt.value === currentVal);
+    if (currentVal && optionExists) {
         select.value = currentVal;
     }
+}
+
+function addManualBonusLeave() {
+    if (history.length === 0) { 
+        alert("तक्त्यामध्ये नोंदी असणे आवश्यक आहे!"); 
+        return; 
+    }
+    
+    let desc = document.getElementById('bonus_manual_desc').value.trim();
+    let days = parseFloat(document.getElementById('bonus_manual_days').value);
+    
+    if (!desc || isNaN(days) || days <= 0) { 
+        alert("⚠️ कृपया अचूक तपशील आणि वैध दिवस टाका!"); 
+        return; 
+    }
+    
+    if (!confirm(`तुम्ही '${desc}' साठी ${days} दिवस अतिरिक्त रजा मॅन्युअली जमा करत आहात. पुढे जायचे का?`)) {
+        return;
+    }
+    
+    history.push({
+        type: "bonus", 
+        details: 'अत्यावश्यक सेवा अतिरिक्त रजा (मॅन्युअल: ' + desc + ')', 
+        earnedBonus: days,
+        finalEL: 0, finalML: 0, 
+        nextA: document.getElementById('a_start').value, 
+        bonusStart: "---", bonusEnd: "---",
+        totalDays: 0, spentDays: 0, dutyDays: 0
+    });
+    
+    localStorage.setItem("pmc_leave_history", JSON.stringify(history));
+    recalculateAndRender();
+    
+    if(typeof autoSyncEmployeeToFirebase === "function") autoSyncEmployeeToFirebase();
+    
+    document.getElementById('bonus_manual_desc').value = "";
+    document.getElementById('bonus_manual_days').value = "";
 }
 
 function loadSelectedEmployeeData() {
