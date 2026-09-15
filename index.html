@@ -187,6 +187,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             <div class="btn-group">
                 <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
                 <button class="btn-pagebreak" onclick="manualPageBreak()">🛑 पेज ब्रेक करा (Manual Break)</button>
+                <button class="btn-pagebreak" style="background-color:#c2185b;" onclick="undoLastPageBreak()">↩️ शेवटचा ब्रेक हटवा</button>
                 <button class="btn-excel" onclick="downloadExcel()">Excel डाउनलोड करा</button>
                 <button class="btn-delete" id="deleteBtn" style="display: none;" onclick="deleteLastEntry()">शेवटची नोंद हटवा</button>
                 <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
@@ -1328,7 +1329,10 @@ function renderTable() {
             let totalPageLwp = pgE + pgAutoLwp;
 
             let brkRow = tbody.insertRow(); brkRow.className = "page-break-row";
-            brkRow.innerHTML = '<td>[मॅन्युअल पान ' + pageNum + ' एकूण (' + pagePeriodText + ')]</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + pgE + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td colspan="4">--- CF ---</td><td>' + (pgEL_spent+pgML_spent+pgSpl_spent+pgAutoLwp) + '</td><td>---</td><td>---</td><td>' + pgAutoLwp + '</td><td>---</td>';
+            let removeBreakBtn = pageBreaks.includes(index) ? 
+    '<button style="background:#d32f2f; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-weight:bold; font-size:10px;" onclick="removePageBreak(' + index + ')">❌ ब्रेक हटवा</button>' : '---';
+
+brkRow.innerHTML = '<td>[मॅन्युअल पान ' + pageNum + ' एकूण (' + pagePeriodText + ')]</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + pgE + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td colspan="4">--- CF ---</td><td>' + (pgEL_spent+pgML_spent+pgSpl_spent+pgAutoLwp) + '</td><td>---</td><td>---</td><td>' + pgAutoLwp + '</td><td>' + removeBreakBtn + '</td>';
 
             let chartRow = chartBody.insertRow();
             chartRow.innerHTML = '<td>पान नंबर ' + pageNum + ' (' + pagePeriodText + ')</td><td>' + (pageNum==1?grandF:pgF) + '</td><td>' + convertedPgG.toFixed(2) + '</td><td>' + convertedPgH.toFixed(2) + '</td><td>' + pgEL_spent + '</td><td>' + pgML_spent + '</td><td>' + pgSpl_spent + '</td><td style="color:#d32f2f; font-weight:bold;">' + totalPageLwp + '</td>';
