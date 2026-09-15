@@ -1064,11 +1064,21 @@ function addEntry() {
                     spentEL = remaining;
                     let msg = `⚠️ वैद्यकीय रजा फक्त ${spentML} दिवस शिल्लक आहे.\n\n👉 ${spentML} दिवस मेडिकल आणि उर्वरित ${spentEL} दिवस हक्काची रजा (EL) खर्ची पडेल. पुढे जायचे का?`;
                     if (!confirm(msg)) return;
+                    
+                    // 🌟 १. येथे नाव बदलेल (उदा. वैद्यकीय रजा (हक्काची रजा २ दिवस)):
+                    q = `वैद्यकीय रजा (हक्काची रजा ${spentEL} दिवस)`;
                 } else {
                     spentEL = availEL_days;
                     autoLwpDays = remaining - spentEL;
                     let msg = `⚠️ वैद्यकीय रजा ${spentML} दिवस आणि हक्काची रजा ${spentEL} दिवस खर्ची पडून उर्वरित ${autoLwpDays} दिवस बिनपगारी (LWP) नोंदवले जातील. पुढे जायचे का?`;
                     if (!confirm(msg)) return;
+
+                    // 🌟 २. जर हक्काची रजा आणि LWP दोन्ही एकत्र खर्च होत असतील:
+                    if (spentEL > 0) {
+                        q = `वैद्यकीय रजा (हक्काची ${spentEL} दि. + LWP ${autoLwpDays} दि.)`;
+                    } else {
+                        q = `वैद्यकीय रजा (LWP ${autoLwpDays} दिवस)`;
+                    }
                 }
             }
         }
@@ -1203,7 +1213,7 @@ function recalculateAndRender() {
             let actualSpentEL = item.spentEL !== undefined ? item.spentEL : Math.min(item.r_diff, k_base);
             item.finalEL = (k_base - actualSpentEL) + k_dec;
             item.finalML = item.l_val;
-        } else if (item.q === "वैद्यकीय रजा") {
+        } else if (item.q.includes("वैद्यकीय रजा")) {
             let actualSpentML = item.spentML !== undefined ? item.spentML : Math.min(item.r_diff, l_base);
             let actualSpentEL = item.spentEL !== undefined ? item.spentEL : Math.min(Math.max(0, item.r_diff - l_base), k_base);
             item.finalML = (l_base - actualSpentML) + l_dec;
@@ -1295,7 +1305,7 @@ function renderTable() {
 
             if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
                 currentEL_spent = item.spentEL !== undefined ? item.spentEL : Math.min(item.r_diff, Math.floor(item.k_val || 0));
-            } else if (item.q === "वैद्यकीय रजा") {
+            } else if (item.q.includes("वैद्यकीय रजा")) {
                 currentML_spent = item.spentML !== undefined ? item.spentML : Math.min(item.r_diff, Math.floor(item.l_val || 0));
                 currentEL_spent = item.spentEL !== undefined ? item.spentEL : 0;
             } else if (item.q === "विशेष रजा") {
@@ -1884,7 +1894,7 @@ function calculateEncashment() {
             
             if (item.q === "हक्काची रजा" || item.q === "सरेंडर रजा") {
                 totalElSpent += parseFloat(item.r_diff) || 0;
-            } else if (item.q === "वैद्यकीय रजा") {
+            } else if (item.q.includes("वैद्यकीय रजा")) {
                 let r_total = item.r_diff || 0;
                 let l_base = Math.floor(item.l_val || 0);
                 
@@ -2113,7 +2123,7 @@ function generateLeaveAndLwpReports() {
                             lwpMap[monthKey].days += 1;
                         }
                     } 
-                    else if (item.q === "वैद्यकीय रजा") {
+                    else if (item.q.includes("वैद्यकीय रजा")) {
                         if (dayCounter <= actualSpentML) { 
                             leaveMap[monthKey]["वैद्यकीय रजा"] += 1; 
                         } else if (dayCounter <= (actualSpentML + actualSpentEL)) { 
