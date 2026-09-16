@@ -2275,7 +2275,27 @@ function calculateAutomaticFixationDiff() {
     if (dEnd < dStart) { alert("अखेर दिनांक चुकीचा आहे!"); return; }
     
     let targetMatrix = payMatrix[dueLevel];
-    let nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[0];
+        let drawnMatrix = payMatrix[drawnLevel];
+        let nextStageBasic;
+
+        if (fixationOption === "1") {
+            // पर्याय १: विद्यमान स्तरात (drawnLevel) आधी १ वेतनवाढ (Increment) देणे
+            let currentIndex = drawnMatrix.indexOf(drawnBasicStart);
+            let promotedBasic = drawnBasicStart; 
+            
+            if (currentIndex !== -1 && currentIndex + 1 < drawnMatrix.length) {
+                promotedBasic = drawnMatrix[currentIndex + 1];
+            } else if (currentIndex === -1) {
+                alert("सध्याचे मूळ वेतन मॅट्रिक्समध्ये आढळले नाही!");
+                return;
+            }
+            // त्यानंतर वाढीव रक्कमेनुसार वरिष्ठ स्तरात (Due Level) फिक्सेशन करणे
+            nextStageBasic = targetMatrix.find(amt => amt >= promotedBasic) || targetMatrix[0];
+            
+        } else {
+            // पर्याय २: लगेच वेतनवाढ नाही, फक्त सध्याचे मूळ वेतन वरिष्ठ स्तरात मॅच करणे
+            nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[0];
+        }
     let nextStageIndex = targetMatrix.indexOf(nextStageBasic);
     
     let dueBasicStart = nextStageBasic;
