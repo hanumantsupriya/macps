@@ -2275,42 +2275,36 @@ function calculateAutomaticFixationDiff() {
     if (dEnd < dStart) { alert("अखेर दिनांक चुकीचा आहे!"); return; }
     
     let targetMatrix = payMatrix[dueLevel];
-        let drawnMatrix = payMatrix[drawnLevel];
-        let nextStageBasic;
+    let drawnMatrix = payMatrix[drawnLevel];
+    let nextStageBasic;
 
-        if (fixationOption === "1") {
-            // पर्याय १: विद्यमान स्तरात (drawnLevel) आधी १ वेतनवाढ (Increment) देणे
-            let currentIndex = drawnMatrix.indexOf(drawnBasicStart);
-            let promotedBasic = drawnBasicStart; 
-            
-            if (currentIndex !== -1 && currentIndex + 1 < drawnMatrix.length) {
-                promotedBasic = drawnMatrix[currentIndex + 1];
-            } else if (currentIndex === -1) {
-                alert("सध्याचे मूळ वेतन मॅट्रिक्समध्ये आढळले नाही!");
-                return;
-            }
-            // त्यानंतर वाढीव रक्कमेनुसार वरिष्ठ स्तरात (Due Level) फिक्सेशन करणे
-            nextStageBasic = targetMatrix.find(amt => amt >= promotedBasic) || targetMatrix[0];
-            
-        } else {
-            // पर्याय २: लगेच वेतनवाढ नाही, फक्त सध्याचे मूळ वेतन वरिष्ठ स्तरात मॅच करणे
-            nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[0];
+    if (fixationOption === "1") {
+        // पर्याय १: विद्यमान स्तरात (drawnLevel) आधी १ वेतनवाढ (Increment) देणे
+        let currentIndex = drawnMatrix.indexOf(drawnBasicStart);
+        let promotedBasic = drawnBasicStart; 
+        
+        if (currentIndex !== -1 && currentIndex + 1 < drawnMatrix.length) {
+            promotedBasic = drawnMatrix[currentIndex + 1];
+        } else if (currentIndex === -1) {
+            alert("सध्याचे मूळ वेतन मॅट्रिक्समध्ये आढळले नाही!");
+            return;
         }
-    let nextStageIndex = targetMatrix.indexOf(nextStageBasic);
+        // त्यानंतर वाढीव रक्कमेनुसार वरिष्ठ स्तरात (Due Level) फिक्सेशन करणे
+        nextStageBasic = targetMatrix.find(amt => amt >= promotedBasic) || targetMatrix[0];
+        
+    } else {
+        // पर्याय २: लगेच वेतनवाढ नाही, फक्त सध्याचे मूळ वेतन वरिष्ठ स्तरात मॅच करणे
+        nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[0];
+    }
     
     let dueBasicStart = nextStageBasic;
     let ruleText = "";
     let option2PendingBonus = false;
     
     if (fixationOption === "1") {
-        let startMonth = dStart.getMonth() + 1;
-        let bonusIncrements = (startMonth >= 1 && startMonth <= 6) ? 1 : 2;
-        let finalDueIndex = nextStageIndex + bonusIncrements;
-        if (finalDueIndex >= targetMatrix.length) finalDueIndex = targetMatrix.length - 1;
-        dueBasicStart = targetMatrix[finalDueIndex];
-        ruleText = '💡 <b>पर्याय १ नुसार:</b> वरिष्ठ श्रेणी लागू होताच लगेच बस्ता निश्चित करून एकूण <strong>' + bonusIncrements + '</strong> वेतनवाढ लागू केली आहे.';
+        // पूर्वीच्या चुकीच्या कोडमध्ये इथे 'bonusIncrements' जोडून पुन्हा वेतनवाढी दिल्या जात होत्या. ते आता हटवले आहे.
+        ruleText = '💡 <b>पर्याय १ नुसार:</b> वरिष्ठ श्रेणी लागू होताच लगेच बस्ता निश्चित करून एकूण <strong>१</strong> पदोन्नती वेतनवाढ लागू केली आहे.';
     } else {
-        dueBasicStart = nextStageBasic;
         option2PendingBonus = true;
         ruleText = '💡 <b>पर्याय २ नुसार:</b> वरिष्ठ श्रेणीमध्ये फक्त बस्ता निश्चित केला आहे. पुढील नियमित वार्षिक वेतनवाढीला २ वेतनवाढी एकत्र लागू होतील.';
     }
