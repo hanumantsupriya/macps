@@ -86,6 +86,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         <input type="email" id="userEmail" placeholder="तुमचा ई-मेल टाका" style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
         <input type="password" id="userPassword" placeholder="पासवर्ड टाका" style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
         <button onclick="loginUser()" style="background-color: #1a73e8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%; font-size: 16px; font-weight: bold;">लॉगिन करा</button>
+        <button onclick="registerAndSendVerification()" style="background-color: #fbbc05; color: #333; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%; font-size: 16px; font-weight: bold; margin-top: 10px;">नवीन खाते तयार करा / पडताळणी लिंक पाठवा</button>
     </div>
 </div>
 
@@ -2509,21 +2510,26 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
       }
   });
 
-  function loginUser() {
-      let email = document.getElementById('userEmail').value;
-      let pass = document.getElementById('userPassword').value;
-      
-      auth.signInWithEmailAndPassword(email, pass)
-      .then((userCredential) => {
-          alert("लॉगिन यशस्वी झाले!");
-          document.getElementById('loginScreen').style.display = 'none';
-          document.getElementById('mainApp').style.display = 'block';
-      })
-      .catch((error) => {
-          alert("Firebase Error: " + error.message);
-      });
-  }
+ function loginUser() {
+    let email = document.getElementById('userEmail').value;
+    let pass = document.getElementById('userPassword').value;
 
+    auth.signInWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+        // युजरचा ईमेल व्हेरीफाय झाला आहे का ते तपासणे
+        if (userCredential.user.emailVerified === false) {
+            alert("⚠️ तुमचा ईमेल अद्याप व्हेरीफाय केलेला नाही. कृपया तुमचा इनबॉक्स तपासा आणि लिंकवर क्लिक करा.");
+            auth.signOut(); // युजरला त्वरित बाहेर काढा
+        } else {
+            alert("लॉगिन यशस्वी झाले!");
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }
+    })
+    .catch((error) => {
+        alert("लॉगिन त्रुटी: " + error.message);
+    });
+}
   function logoutUser() {
       if(confirm("तुम्हाला नक्की लॉगआउट करायचे आहे का?")) {
           firebase.auth().signOut().then(() => {
@@ -2540,6 +2546,41 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
           });
       }
   }
+    function registerAndSendVerification() {
+    let email = document.getElementById('userEmail').value;
+    let pass = document.getElementById('userPassword').value;
+
+    if(!email || !pass) { alert("कृपया ईमेल आणि पासवर्ड टाका!"); return; }
+
+    // नवीन खाते तयार करण्याचा प्रयत्न
+    auth.createUserWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+        return userCredential.user.sendEmailVerification();
+    })
+    .then(() => {
+        alert("तुमच्या " + email + " या इमेलवर पडताळणी लिंक पाठवली आहे. ईमेल तपासा आणि व्हेरीफाय करा.");
+        auth.signOut();
+    })
+    .catch((error) => {
+        // जर युजर आधीच असेल पण व्हेरीफाय नसेल, तर त्याला तात्पुरते लॉगिन करून लिंक पुन्हा पाठवा
+        if(error.code === 'auth/email-already-in-use') {
+            auth.signInWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                if(userCredential.user.emailVerified === false) {
+                    userCredential.user.sendEmailVerification().then(() => {
+                        alert("पडताळणी लिंक तुम्हाला पुन्हा पाठवली आहे. कृपया इनबॉक्स तपासा.");
+                        auth.signOut();
+                    });
+                } else {
+                    alert("हा ईमेल आधीच व्हेरीफाय झालेला आहे. कृपया 'लॉगिन करा' बटणावर क्लिक करा.");
+                    auth.signOut();
+                }
+            }).catch((err) => alert("त्रुटी: " + err.message));
+        } else {
+            alert("त्रुटी: " + error.message);
+        }
+    });
+}
 </script>
 </body>
 </html>
