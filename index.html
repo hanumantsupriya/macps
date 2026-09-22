@@ -2516,15 +2516,11 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
 
     auth.signInWithEmailAndPassword(email, pass)
     .then((userCredential) => {
-        // युजरचा ईमेल व्हेरीफाय झाला आहे का ते तपासणे
-        if (userCredential.user.emailVerified === false) {
-            alert("⚠️ तुमचा ईमेल अद्याप व्हेरीफाय केलेला नाही. कृपया तुमचा इनबॉक्स तपासा आणि लिंकवर क्लिक करा.");
-            auth.signOut(); // युजरला त्वरित बाहेर काढा
-        } else {
-            alert("लॉगिन यशस्वी झाले!");
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-        }
+        // ॲडमिन मंजुरी आणि ईमेल व्हेरीफिकेशन दोन्ही अटी काढल्या आहेत. 
+        // फक्त योग्य ईमेल आणि पासवर्ड असल्यास थेट प्रवेश मिळेल.
+        alert("लॉगिन यशस्वी झाले!");
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
     })
     .catch((error) => {
         alert("लॉगिन त्रुटी: " + error.message);
