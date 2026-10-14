@@ -1402,8 +1402,8 @@ function renderTable() {
             let pageEndDate = (item.type === "bonus") ? item.bonusEnd : item.p;
             let pagePeriodText = pageStartDate + ' ते ' + pageEndDate;
 
-            let convertedPgG = convertLeavePointsToDays(pgG, "EL");
-            let convertedPgH = convertLeavePointsToDays(pgH, "ML");
+            let convertedPgG = Math.floor(pgF / 11) + ((pgF % 11) / 100);
+            let convertedPgH = Math.floor(pgF / 30) + ((pgF % 30) / 100);
             let totalPageLwp = pgE + pgAutoLwp;
             let totalPageService = pgF + pgEL_spent + pgML_spent + pgSpl_spent;
 
@@ -1430,8 +1430,8 @@ function renderTable() {
 
     if (history.length > 0) {
         let gtRow = chartBody.insertRow(); gtRow.className = "grand-total-row";
-        let finalGrandG = convertLeavePointsToDays(grandG, "EL");
-        let finalGrandH = convertLeavePointsToDays(grandH, "ML");
+        let finalGrandG = Math.floor(grandF / 11) + ((grandF % 11) / 100);
+        let finalGrandH = Math.floor(grandF / 30) + ((grandF % 30) / 100);
         let totalGrandLwp = grandE + grandAutoLwp;
         let totalGrandService = grandF + grandEL_spent + grandML_spent + grandSpl_spent;
 
