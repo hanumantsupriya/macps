@@ -9,7 +9,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; pa
 .container { max-width: 1550px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
 .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-.tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: border; border-radius: 5px; transition: 0.3s; }
+.tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
 .tab-btn.active { background-color: #1a73e8; color: white; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
@@ -279,6 +279,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <th>उपभोगलेली EL (Spent EL)</th>
                     <th>उपभोगलेली ML (Spent ML)</th>
                     <th style="background-color: #e65100;">सरेंडर रजा (Surrender)</th>
+                    <th style="background-color: #00796b;">अतिरिक्त सेवा रजा (Bonus EL)</th>
                     <th>विशेष रजा (Special)</th>
                     <th>एकूण LWP (Total E)</th>
                     <th style="background-color: #2e7d32;">एकूण सेवा कालावधी (हजर+रजा)</th>
@@ -894,7 +895,7 @@ function generateLivePreview() {
         if(do1 && dp1) { r_leave = Math.round((dp1.getTime() - do1.getTime()) / (1000 * 60 * 60 * 24)) + 1; }
     }
 
-    previewBox.innerHTML = "<span>📝 <strong>लाईव्ह प्रिव्ह्यू:</strong> हजर दिवस: <span style='color:blue;'>" + f_days + "</span> | LWP: <span style='color:red;'>" + e + "</span> | नवीन EL साठणार: <span style='color:green;'>" + g_el.toFixed(2) + "</span> | नवीन ML साठणार: <span style='color:green;'>" + h_ml.toFixed(2) + "</span> | एकूण रजा दिवस (खर्च): <span style='color:purple;'>" + r_leave + " (" + q + ")</span></span>";
+    previewBox.innerHTML = `<span>📝 <strong>लाईव्ह प्रिव्ह्यू:</strong> हजर दिवस: <span style='color:blue;'>${f_days}</span> | LWP: <span style='color:red;'>${e}</span> | नवीन EL साठणार: <span style='color:green;'>${g_el.toFixed(2)}</span> | नवीन ML साठणार: <span style='color:green;'>${h_ml.toFixed(2)}</span> | एकूण रजा दिवस (खर्च): <span style='color:purple;'>${r_leave} (${q})</span></span>`;
 }
 
 function importExcelToSystem() {
@@ -1321,9 +1322,11 @@ function renderTable() {
     let pageNum = 1;
     let pgF = 0, pgE = 0, pgG = 0, pgH = 0;
     let pgEL_spent = 0, pgML_spent = 0, pgSpl_spent = 0, pgAutoLwp = 0, pgSurrender = 0;
+    let pgBonus = 0;
 
     let grandF = 0, grandE = 0, grandG = 0, grandH = 0;
     let grandEL_spent = 0, grandML_spent = 0, grandSpl_spent = 0, grandAutoLwp = 0, grandSurrender = 0;
+    let grandBonus = 0;
 
     let pageStartDate = "";
 
@@ -1345,6 +1348,9 @@ function renderTable() {
         let currentSurrender = (item.q === "सरेंडर रजा") ? (item.surrenderDays || 0) : 0;
 
         if(item.type === "bonus") {
+            let earned = parseFloat(item.earnedBonus) || 0;
+            pgBonus += earned;
+            grandBonus += earned;
             row.className = "bonus-row";
             row.innerHTML = '<td class="bonus-details-cell"><strong>' + item.details + '</strong><br>• एकूण दिवस: ' + (item.totalDays || 0) + ' | कामाचे दिवस: ' + (item.dutyDays || 0) + '</td>' +
             '<td>---</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा मजुरी</td><td>+' + item.earnedBonus + '</td>' +
@@ -1352,6 +1358,9 @@ function renderTable() {
             '<td>0</td><td>' + actionButtons + '</td>';
         } 
         else if (item.type === "annual_extra") {
+            let earned = parseFloat(item.earnedBonus) || 0;
+            pgBonus += earned;
+            grandBonus += earned;
             row.style.backgroundColor = "#efebe9";
             row.innerHTML = '<td><strong>' + item.a + '</strong></td><td>0</td><td>0</td><td>---</td><td>---</td><td>---</td><td>---</td><td>वार्षिक जमा</td><td>' + item.q + '</td><td>+' + item.earnedBonus + ' दिवस</td>' +
             '<td class="highlight">' + item.finalEL.toFixed(2) + '</td><td>' + item.finalML.toFixed(2) + '</td>' +
@@ -1420,11 +1429,12 @@ function renderTable() {
                 '<td>' + pgEL_spent + '</td>' +
                 '<td>' + pgML_spent + '</td>' +
                 '<td style="color:#e65100; font-weight:bold;">' + pgSurrender + '</td>' +
+                '<td style="color:#00796b; font-weight:bold;">' + (pgBonus > 0 ? '+' + pgBonus : '0') + '</td>' +
                 '<td>' + pgSpl_spent + '</td>' +
                 '<td style="color:#d32f2f; font-weight:bold;">' + totalPageLwp + '</td>' +
                 '<td style="font-weight:bold; background:#e8f5e9; color:#1b5e20;">' + totalPageService + ' दिवस</td>';
 
-            pageNum++; pgF = 0; pgE = 0; pgG = 0; pgH = 0; pgEL_spent = 0; pgML_spent = 0; pgSpl_spent = 0; pgAutoLwp = 0; pgSurrender = 0; pageStartDate = "";
+            pageNum++; pgF = 0; pgE = 0; pgG = 0; pgH = 0; pgEL_spent = 0; pgML_spent = 0; pgSpl_spent = 0; pgAutoLwp = 0; pgSurrender = 0; pgBonus = 0; pageStartDate = "";
         }
     });
 
@@ -1442,6 +1452,7 @@ function renderTable() {
             '<td>' + grandEL_spent + '</td>' +
             '<td>' + grandML_spent + '</td>' +
             '<td style="color:#e65100; font-weight:bold;">' + grandSurrender + '</td>' +
+            '<td style="color:#00796b; font-weight:bold;">+' + grandBonus + ' दिवस</td>' +
             '<td>' + grandSpl_spent + '</td>' +
             '<td style="color:#b71c1c; font-weight:bold;">' + totalGrandLwp + '</td>' +
             '<td style="font-weight:bold; background:#c8e6c9; color:#1b5e20;">' + totalGrandService + ' दिवस</td>';
@@ -2531,18 +2542,34 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
   });
 
  function loginUser() {
-    let email = document.getElementById('userEmail').value;
-    let pass = document.getElementById('userPassword').value;
+    let email = document.getElementById('userEmail').value.trim();
+    let pass = document.getElementById('userPassword').value.trim();
 
-    auth.signInWithEmailAndPassword(email, pass)
-    .then((userCredential) => {
-        alert("लॉगिन यशस्वी झाले!");
+    if(!email || !pass) {
+        alert("⚠️ कृपया आधी ई-मेल आणि पासवर्ड टाका!");
+        return;
+    }
+
+    if(typeof auth !== "undefined" && auth) {
+        auth.signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            alert("लॉगिन यशस्वी झाले!");
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('logged_in_user_email').innerText = userCredential.user.email;
+        })
+        .catch((error) => {
+            alert("ऑनलाईन लॉगिन त्रुटी: " + error.message + "\n\nस्थानिक मोडमध्ये सिस्टीम उघडली जात आहे.");
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('logged_in_user_email').innerText = email;
+        });
+    } else {
+        alert("स्थानिक मोडमध्ये लॉगिन यशस्वी!");
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-    })
-    .catch((error) => {
-        alert("लॉगिन त्रुटी: " + error.message);
-    });
+        document.getElementById('logged_in_user_email').innerText = email;
+    }
 }
 
 function logoutUser() {
